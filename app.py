@@ -23,7 +23,7 @@ def load_data():
     return df
 
 # ==========================================
-# 2. SAYFA YAPILANDIRMASI VE GELİŞMİŞ CSS
+# 2. SAYFA YAPILANDIRMASI VE KESİN STICKY CSS
 # ==========================================
 
 st.set_page_config(
@@ -34,27 +34,36 @@ st.set_page_config(
 
 logo_data = logo_to_base64("logo.png") or logo_to_base64("logo.jpg")
 
+# Görseldeki tüm alanın (Logo, Filtreler ve KPI) donmasını sağlayan agresif CSS kuralları
 css_style = """
 <style>
+    /* Üst boşlukları sıfırla */
     .block-container { padding-top: 0rem !important; padding-bottom: 1rem !important; }
     
-    /* ÜST PANELİ EKRANA ÇİVİLEME VE GÖLGE EFEKTİ */
-    div[data-testid="stMainBlockContainer"] > div:first-child {
-        position: -webkit-sticky;
-        position: sticky;
+    /* İLK CONTAINER BLOĞUNU EKRANA ÇİVİLE (DONMA ETKİSİ) */
+    div[data-testid="stVerticalBlock"] > div:first-child {
+        position: -webkit-sticky !important;
+        position: sticky !important;
         top: 2.875rem !important;
         z-index: 999999 !important;
         background-color: #ffffff !important;
-        padding-top: 20px !important;
+        padding-top: 15px !important;
         padding-bottom: 15px !important;
         border-bottom: 2px solid #f1f3f7 !important;
-        box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.04) !important;
+        box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.05) !important;
     }
     
+    /* Elemanların iç içe geçmesini önlemek için sarmalayıcı arka planı beyaz yap */
+    div[data-testid="stVerticalBlock"] > div:first-child data-testid="stBlock" {
+        background-color: #ffffff !important;
+    }
+
+    /* Logo ve Başlık Hizalama Düzeni */
     .custom-header-container { display: flex; align-items: center; gap: 20px; padding-bottom: 5px; }
     .custom-logo { height: 55px; object-fit: contain; }
     .custom-title-block { display: flex; flex-direction: column; justify-content: center; }
     
+    /* Filtreler ve Temizle Butonu Dikey Hizalaması */
     .stCheckbox { margin-top: 32px !important; }
     .stButton button { margin-top: 28px !important; height: 42px !important; }
     hr { margin: 0.5rem 0 !important; opacity: 0.3; }
@@ -96,7 +105,7 @@ try:
         st.session_state.stokta_olanlar = False
 
     # ==========================================
-    # 4. SABİTLENMİŞ ÜST KATMAN (STICKY CONTAINER)
+    # 4. SABİTLENMİŞ ÜST KATMAN (STICKY AREA)
     # ==========================================
     with st.container():
         if logo_data:
@@ -157,7 +166,7 @@ try:
         with kpi3: st.markdown(generate_kpi_card("💰 Toplam Maliyet:", f"${total_cost:,.0f}".replace(",", "."), "#FFC107"), unsafe_allow_html=True)
 
     # ==========================================
-    # 5. AKICI (SCROLL) TABLO ALANI
+    # 5. ALT ALAN: VERİ TABLOSU (KAYDIRILABİLİR)
     # ==========================================
     st.markdown("<div style='margin-top:25px;'></div>", unsafe_allow_html=True)
     
