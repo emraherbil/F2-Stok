@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import os
 
 # 1. Sayfa Düzeni ve Başlık Ayarları (Geniş Ekran Modu)
 st.set_page_config(
@@ -38,9 +39,19 @@ try:
     df[fiyat_col] = pd.to_numeric(df[fiyat_col], errors='coerce').fillna(0)
 
     # --- ÜST BAŞLIK & KURUMSAL LOGO ALANI ---
-    header_col1, header_col2 = st.columns([1, 11])
+    header_col1, header_col2 = st.columns([2, 10])
+    
     with header_col1:
-        st.markdown("<h1 style='text-align: center; margin:0;'>🏢</h1>", unsafe_allow_html=True)
+        # GitHub'a yükleyeceğiniz logo dosyasının adını kontrol ediyoruz
+        # Eğer logo.png veya logo.jpg varsa ekrana basar, yoksa şık bir depo ikonu koyar
+        if os.path.exists("logo.png"):
+            st.image("logo.png", use_container_width=True)
+        elif os.path.exists("logo.jpg"):
+            st.image("logo.jpg", use_container_width=True)
+        else:
+            st.markdown("<h1 style='text-align: center; margin:0;'>📦</h1>", unsafe_allow_html=True)
+            st.caption("Not: logo.png bulunamadı")
+            
     with header_col2:
         st.title("Stockify Ofis Stok Yönetim Paneli")
         st.caption(f"📅 **Son Güncelleme / Sayım Tarihi:** {guncel_stok_col}")
@@ -109,7 +120,6 @@ try:
     # --- TABLO VERİ FORMATLAMA VE SÜTUN SIRALAMA ---
     st.subheader("📊 Gelişmiş Stok Listesi")
     
-    # Talebiniz doğrultusunda sütunları sırasıyla dizdik: ... [Güncel Stok], [Birim Fiyat], [Toplam Maliyet]
     gosterilecek_df = filtered_df[[urun_kodu_col, urun_aciklama_col, marka_col, grup_col, guncel_stok_col, fiyat_col, maliyet_col]].copy()
     gosterilecek_df.columns = ["Ürün Kodu", "Açıklama", "Marka", "Ürün Grubu", "Güncel Stok", "Birim Fiyat", "Toplam Maliyet"]
     
@@ -120,10 +130,8 @@ try:
     def formatla_adet(val):
         return f"{int(val):,}".replace(",", ".")
 
-    # Formatları uygulamadan önce renklendirme için orijinal stok değerini kopyalıyoruz
     stok_orjinal_degerler = gosterilecek_df["Güncel Stok"].copy()
 
-    # Formatları sütunlara yansıtıyoruz
     gosterilecek_df["Birim Fiyat"] = gosterilecek_df["Birim Fiyat"].apply(formatla_tl)
     gosterilecek_df["Toplam Maliyet"] = gosterilecek_df["Toplam Maliyet"].apply(formatla_tl)
     gosterilecek_df["Güncel Stok"] = gosterilecek_df["Güncel Stok"].apply(formatla_adet)
