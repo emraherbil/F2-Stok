@@ -22,7 +22,7 @@ def load_data():
     return pd.read_excel('Stok Sayım Arşivi-v3.1-Web.xlsm', sheet_name='Stok', engine='openpyxl')
 
 # ==========================================
-# 2. SAYFA YAPILANDIRMASI VE TEMİZ CSS
+# 2. SAYFA YAPILANDIRMASI VE KUSURSUZ GÖRSEL CSS
 # ==========================================
 
 st.set_page_config(
@@ -33,20 +33,44 @@ st.set_page_config(
 
 logo_data = logo_to_base64("logo.png") or logo_to_base64("logo.jpg")
 
-# Orijinal milimetrik düzeni ve hizalamaları sağlayan temiz CSS
+# image_3b0e9f.png görüntüsündeki orijinal oranları ve dikey hizaları kuran CSS
 css_style = """
 <style>
-    .block-container { padding-top: 1.5rem !important; padding-bottom: 1rem !important; }
+    /* Üstten veya alttan kırpılmayı önlemek için güvenli padding alanı */
+    .block-container { padding-top: 2rem !important; padding-bottom: 2rem !important; }
     
-    /* Logo ve Başlık Hizalama */
-    .custom-header-container { display: flex; align-items: center; gap: 20px; }
-    .custom-logo { height: 55px; object-fit: contain; }
-    .custom-title-block { display: flex; flex-direction: column; justify-content: center; }
+    /* Üst Paneli Bölünmeden, Kesilmeden Ekrana Yapıştıran Güvenli Sabitleme */
+    div[data-testid="stVerticalBlock"] > div:first-child {
+        position: sticky !important;
+        top: 0px !important;
+        background-color: white !important;
+        z-index: 9999 !important;
+        padding-bottom: 15px !important;
+        border-bottom: 1px solid #eef1f6 !important;
+    }
     
-    /* Filtre elemanlarının milimetrik dikey hizalamaları */
-    .stCheckbox { margin-top: 32px !important; }
+    /* image_3b0e9f.png'deki Yan Yana Tam Hizalama Şablonu */
+    .custom-header-container { 
+        display: flex; 
+        align-items: center; 
+        gap: 25px; 
+        padding-top: 5px;
+        padding-bottom: 5px;
+    }
+    .custom-logo { 
+        height: 60px; /* Kesilmeyi önleyen ideal tam boy yükseklik */
+        object-fit: contain; 
+    }
+    .custom-title-block { 
+        display: flex; 
+        flex-direction: column; 
+        justify-content: center; 
+    }
+    
+    /* Filtrelerin Alt Çizgi Hizalaması (Milimetrik) */
+    .stCheckbox { margin-top: 35px !important; }
     .stButton button { margin-top: 28px !important; height: 42px !important; }
-    hr { margin: 0.5rem 0 !important; opacity: 0.3; }
+    hr { margin: 0.6rem 0 !important; opacity: 0.2; }
 </style>
 """
 st.markdown(css_style, unsafe_allow_html=True)
@@ -85,16 +109,17 @@ try:
         st.session_state.q_stok = False
 
     # ==========================================
-    # 4. SABİT GÖRSEL ALAN (BAŞLIK, FİLTRELER, KPI)
+    # 4. EN BEĞENİLEN ÜST PANEL (LOGO + BAŞLIK + FİLTRELER)
     # ==========================================
     
+    # image_3b0e9f.png'deki tam logo ve yanındaki dikey hizalı başlık yapısı
     if logo_data:
         header_html = f"""
         <div class="custom-header-container">
             <img src="data:image/png;base64,{logo_data}" class="custom-logo">
             <div class="custom-title-block">
-                <h2 style="margin:0; padding:0; font-size:1.75rem; color:#262730; font-weight:700;">Ofis Stok İzleme Paneli</h2>
-                <span style="color:#7d7f87; font-size:0.85rem; margin-top:2px;">📅 <b>Son Güncelleme / Sayım Tarihi:</b> {c_stok}</span>
+                <h2 style="margin:0; padding:0; font-size:1.85rem; color:#262730; font-weight:700; line-height:1.2;">Ofis Stok İzleme Paneli</h2>
+                <span style="color:#7d7f87; font-size:0.85rem; margin-top:4px;">📅 <b>Son Güncelleme / Sayım Tarihi:</b> {c_stok}</span>
             </div>
         </div>
         """
@@ -103,15 +128,15 @@ try:
         <div class="custom-header-container">
             <h1 style="margin:0;">📦</h1>
             <div class="custom-title-block">
-                <h2 style="margin:0; padding:0; font-size:1.75rem; color:#262730; font-weight:700;">Ofis Stok İzleme Paneli</h2>
-                <span style="color:#7d7f87; font-size:0.85rem; margin-top:2px;">📅 <b>Son Güncelleme / Sayım Tarihi:</b> {c_stok}</span>
+                <h2 style="margin:0; padding:0; font-size:1.85rem; color:#262730; font-weight:700;">Ofis Stok İzleme Paneli</h2>
+                <span style="color:#7d7f87; font-size:0.85rem; margin-top:4px;">📅 <b>Son Güncelleme / Sayım Tarihi:</b> {c_stok}</span>
             </div>
         </div>
         """
     st.markdown(header_html, unsafe_allow_html=True)
     st.markdown("---")
 
-    # Çok beğendiğiniz o ilk orijinal yerleşim düzeni
+    # Mükemmel Hizalanmış Orijinal Sıralama: Ürün Ara -> Marka -> Ürün Grubu
     col1, col2, col3, col4, col5 = st.columns([3.2, 2.4, 2.4, 2.2, 1.2])
     
     with col1: 
@@ -125,7 +150,7 @@ try:
     with col5: 
         st.button("🧹 Temizle", on_click=filtreleri_temizle, use_container_width=True)
 
-    # Filtreleme İşlemleri
+    # Filtreleme Algoritması
     f_df = df.copy()
     if v_search:
         m1 = f_df[c_kod].astype(str).str.contains(v_search, case=False)
@@ -145,47 +170,49 @@ try:
     
     def kpi_card(label, val, color):
         return f"""
-        <div style='background-color: rgba(28, 31, 46, 0.03); padding: 10px 15px; border-radius: 6px; border-left: 5px solid {color}; display: flex; justify-content: space-between; align-items: center;'>
+        <div style='background-color: rgba(28, 31, 46, 0.03); padding: 12px 15px; border-radius: 6px; border-left: 5px solid {color}; display: flex; justify-content: space-between; align-items: center;'>
             <span style='font-size:13px; color:#555; font-weight:bold;'>{label}</span>
             <span style='font-size:1.15rem; font-weight: 800; color:#111;'>{val}</span>
         </div>
         """
 
+    # KPI Kart Alanı
     k1, k2, k3 = st.columns(3)
     with k1: st.markdown(kpi_card("📋 Toplam Çeşit:", f"{t_prod:,}".replace(",", ".") + " Adet", "#1E88E5"), unsafe_allow_html=True)
     with k2: st.markdown(kpi_card("📦 Toplam Stok:", f"{t_stok:,}".replace(",", ".") + " Adet", "#4CAF50"), unsafe_allow_html=True)
     with k3: st.markdown(kpi_card("💰 Toplam Maliyet:", f"${t_cost:,.0f}".replace(",", "."), "#FFC107"), unsafe_allow_html=True)
 
+    # ==========================================
+    # 5. ALT ALAN: KENDİ İÇİNDE AKAN VERİ TABLOSU
+    # ==========================================
     st.markdown("<div style='margin-top:15px;'></div>", unsafe_allow_html=True)
+    
+    out_df = f_df[[c_kod, c_tanim, c_marka, c_grup, c_stok, c_fiyat, c_maliyet]].copy()
+    out_df.columns = ["Ürün Kodu", "Açıklama", "Marka", "Ürün Grubu", "Güncel Stok", "Birim Maliyet", "Toplam Maliyet"]
+    
+    raw_stok = out_df["Güncel Stok"].copy()
+
+    out_df["Birim Maliyet"] = out_df["Birim Maliyet"].apply(lambda v: f"${v:,.0f}".replace(",", "."))
+    out_df["Toplam Maliyet"] = out_df["Toplam Maliyet"].apply(lambda v: f"${v:,.0f}".replace(",", "."))
+    out_df["Güncel Stok"] = out_df["Güncel Stok"].apply(lambda v: f"{int(v):,}".replace(",", "."))
+
+    def row_style(row):
+        if raw_stok.loc[row.name] == 0:
+            return ['background-color: rgba(255, 75, 75, 0.08)'] * len(row)
+        return [''] * len(row)
+
+    # Tablo dikey boyutu sınırlandı, böylece üst panel doğal olarak donmuş/sabitleşmiş kalır
+    st.dataframe(
+        out_df.style.apply(row_style, axis=1), 
+        use_container_width=True, 
+        height=480
+    )
 
     # ==========================================
-    # 5. DİNAMİK SEKMELİ ALT ALAN (HATA ÖNLEYİCİ MİMARİ)
+    # 6. ALT REVİZYON ALANI
     # ==========================================
-    tab1, tab2 = st.tabs(["📊 Stok Veri Listesi", "🔄 Haftalık Stok Revizyon / Hareket Girişi"])
-
-    with tab1:
-        out_df = f_df[[c_kod, c_tanim, c_marka, c_grup, c_stok, c_fiyat, c_maliyet]].copy()
-        out_df.columns = ["Ürün Kodu", "Açıklama", "Marka", "Ürün Grubu", "Güncel Stok", "Birim Maliyet", "Toplam Maliyet"]
-        
-        raw_stok = out_df["Güncel Stok"].copy()
-
-        out_df["Birim Maliyet"] = out_df["Birim Maliyet"].apply(lambda v: f"${v:,.0f}".replace(",", "."))
-        out_df["Toplam Maliyet"] = out_df["Toplam Maliyet"].apply(lambda v: f"${v:,.0f}".replace(",", "."))
-        out_df["Güncel Stok"] = out_df["Güncel Stok"].apply(lambda v: f"{int(v):,}".replace(",", "."))
-
-        def row_style(row):
-            if raw_stok.loc[row.name] == 0:
-                return ['background-color: rgba(255, 75, 75, 0.08)'] * len(row)
-            return [''] * len(row)
-
-        # Tablo yüksekliği ekrana tam oturur, sayfa taşmaz, kaydırma tamamen tablonun içinde kalır
-        st.dataframe(
-            out_df.style.apply(row_style, axis=1), 
-            use_container_width=True, 
-            height=500
-        )
-
-    with tab2:
+    st.markdown("---")
+    with st.expander("🔄 Haftalık Stok Revizyon / Hareket Giriş Formu"):
         with st.form("stok_hareket_formu"):
             u_list = f_df[c_kod].astype(str) + " - " + f_df[c_tanim].astype(str)
             s_urun = st.selectbox("Hareket Görecek Ürün", u_list)
@@ -194,7 +221,7 @@ try:
             notlar = st.text_input("Açıklama / Not")
             
             if st.form_submit_with_button("Hareketi Kaydet"):
-                st.success(f"Başarılı: {s_urun} için {miktar} adetlik {i_turu} sisteme girildi.")
+                st.success(f"Başarılı: {s_urun} için {miktar} adetlik {i_turu} girildi.")
 
 except Exception as e:
     st.error(f"Hata oluştu: {e}")
