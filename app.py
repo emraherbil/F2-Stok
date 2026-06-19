@@ -77,22 +77,8 @@ css_style = """
     
     /* Çizgileri ve boşlukları optimize et */
     hr { margin: 0.6rem 0 !important; opacity: 0.4; }
-/* ... önceki CSS'leriniz ... */
 
-css_style = """
-<style>
-    /* ... önceki CSS'leriniz ... */
 
-    /* AÇILIR KUTULARIN KESİLMESİNİ ÖNLEME */
-    /* Selectbox'ın açılan listesinin ana konteynerin arkasında kalmamasını sağlar */
-    div[data-baseweb="select"] {
-        z-index: 9999999 !important;
-    }
-    
-    /* Eğer header'ınız çok yüksek z-index'e sahipse, 
-       açılır menü listesinin (portal) üstte kalması için */
-    [data-baseweb="popover"] {
-        z-index: 9999999 !important;
     }
 </style>
 """
