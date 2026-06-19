@@ -4,7 +4,7 @@ import os
 
 # 1. Sayfa Düzeni ve Başlık Ayarları (Geniş Ekran Modu)
 st.set_page_config(
-    page_title="Stockify - Ofis Stok Yönetimi", 
+    page_title="F2 ICT - Ofis Stok Yönetimi", 
     page_icon="📦",
     layout="wide"
 )
@@ -42,18 +42,16 @@ try:
     header_col1, header_col2 = st.columns([2, 10])
     
     with header_col1:
-        # GitHub'a yükleyeceğiniz logo dosyasının adını kontrol ediyoruz
-        # Eğer logo.png veya logo.jpg varsa ekrana basar, yoksa şık bir depo ikonu koyar
         if os.path.exists("logo.png"):
             st.image("logo.png", use_container_width=True)
         elif os.path.exists("logo.jpg"):
             st.image("logo.jpg", use_container_width=True)
         else:
             st.markdown("<h1 style='text-align: center; margin:0;'>📦</h1>", unsafe_allow_html=True)
-            st.caption("Not: logo.png bulunamadı")
             
     with header_col2:
-        st.title("Stockify Ofis Stok Yönetim Paneli")
+        # Talebiniz doğrultusunda Stockify ismi F2 ICT olarak güncellendi
+        st.title("F2 ICT Ofis Stok Yönetim Paneli")
         st.caption(f"📅 **Son Güncelleme / Sayım Tarihi:** {guncel_stok_col}")
 
     st.markdown("---")
@@ -142,9 +140,21 @@ try:
             return ['background-color: rgba(255, 75, 75, 0.15)'] * len(row)
         return [''] * len(row)
 
+    # Hizalama ve Sütun Yapılandırması (Genişlik ve Hizalamaları Sabitliyoruz)
+    sutun_ayarlari = {
+        "Ürün Kodu": st.column_config.TextColumn("Ürün Kodu", alignment="left"),
+        "Açıklama": st.column_config.TextColumn("Açıklama", alignment="left"),
+        "Marka": st.column_config.TextColumn("Marka", alignment="left"),
+        "Ürün Grubu": st.column_config.TextColumn("Ürün Grubu", alignment="left"),
+        "Güncel Stok": st.column_config.TextColumn("Güncel Stok", alignment="center"), # Orta
+        "Birim Fiyat": st.column_config.TextColumn("Birim Fiyat", alignment="right"),   # Sağ
+        "Toplam Maliyet": st.column_config.TextColumn("Toplam Maliyet", alignment="right") # Sağ
+    }
+
     # Tabloyu ekrana basıyoruz
     st.dataframe(
         gosterilecek_df.style.apply(satiri_renklendir, axis=1),
+        column_config=sutun_ayarlari,
         use_container_width=True,
         height=550
     )
