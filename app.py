@@ -62,60 +62,67 @@ try:
         st.session_state.secilen_marka = "Tümü"
         st.session_state.stokta_olanlar = False
 
-    # --- KUSURSUZ SABİTLEME (STICKY) VE KESİLMEYİ ÖNLEYEN CSS ---
+    # --- GÖRSEL HATALARI DÜZELTEN VE ÜST PANELİ SABİTLEYEN GELİŞMİŞ CSS ---
     st.markdown("""
         <style>
+            /* Sayfa genel boşluklarını optimize et */
             .block-container { padding-top: 1rem !important; padding-bottom: 1rem !important; }
             
-            /* Üst paneli tamamen kapsayan ve ekrana sabitleyen (Sticky) konteyner */
-            div[data-testid="stVerticalBlock"] > div:first-child {
+            /* Üst paneli (Header, Filtreler, KPI) kesilme olmadan ekrana sabitleyen kusursuz kural */
+            div[data-testid="stMainBlockContainer"] > div:first-child {
                 position: -webkit-sticky;
                 position: sticky;
-                top: 2.8rem;
-                z-index: 999;
+                top: 0;
+                z-index: 99999;
                 background-color: white;
-                padding-bottom: 10px;
-                border-bottom: 2px solid #f0f2f6;
+                padding-top: 10px;
+                padding-bottom: 15px;
+                border-bottom: 2px solid #eef1f6;
             }
             
-            .stCheckbox { margin-top: 22px !important; }
-            .stButton button { margin-top: 20px !important; }
+            /* Filtre bileşenleri dikey hizalamaları */
+            .stCheckbox { margin-top: 24px !important; }
+            .stButton button { margin-top: 22px !important; }
+            
+            /* Sayfa içi çizgileri hafiflet */
+            hr { margin: 0.5rem 0 !important; opacity: 0.6; }
         </style>
     """, unsafe_allow_html=True)
 
-    # --- SABİT ÜST PANEL BAŞLANGICI ---
+    # --- SABİT ÜST PANEL (HEADER + FİLTRELER + KPI KARTLARI) ---
     with st.container():
+        # 1. Kurumsal Logo & Başlık Alanı
         logo_src = logo_to_base64("logo.png") or logo_to_base64("logo.jpg")
         
         header_col1, header_col2 = st.columns([2.5, 9.5])
         with header_col1:
             if logo_src:
-                st.markdown(f'<img src="{logo_src}" style="width: 100%; max-height: 55px; object-fit: contain; margin-top: 5px;">', unsafe_allow_html=True)
+                st.markdown(f'<img src="{logo_src}" style="width: 100%; max-height: 50px; object-fit: contain; margin-top: 2px;">', unsafe_allow_html=True)
             else:
                 st.markdown("<h2 style='margin:0;'>📦</h2>", unsafe_allow_html=True)
         with header_col2:
             st.markdown(f"""
             <div style="display: flex; flex-direction: column; justify-content: center;">
-                <h2 style="margin: 0; padding: 0; font-size: 1.8rem; color: #262730; line-height: 1.2;">Ofis Stok İzleme Paneli</h2>
-                <span style="color: #7d7f87; font-size: 0.85rem; margin-top: 2px;">📅 <b>Son Güncelleme:</b> {guncel_stok_col}</span>
+                <h2 style="margin: 0; padding: 0; font-size: 1.7rem; color: #262730; line-height: 1.1;">Ofis Stok İzleme Paneli</h2>
+                <span style="color: #7d7f87; font-size: 0.85rem; margin-top: 3px;">📅 <b>Son Güncelleme / Sayım Tarihi:</b> {guncel_stok_col}</span>
             </div>
             """, unsafe_allow_html=True)
 
         st.markdown("---")
 
-        # Filtreler
+        # 2. İstenen Sırada Düzenlenmiş Yeni Filtre Alanı (Ürün Ara -> Marka -> Ürün Grubu)
         filter_col1, filter_col2, filter_col3, filter_col4, filter_col5 = st.columns([3.2, 2.4, 2.4, 2.2, 1.2])
         
         with filter_col1:
             search_query = st.text_input("📝 Ürün Ara", key="search_query", placeholder="Kod veya açıklama ara...")
             
         with filter_col2:
-            tum_gruplar = ["Tümü"] + list(df[grup_col].dropna().unique())
-            secilen_grup = st.selectbox("📂 Ürün Grubu", tum_gruplar, key="secilen_grup")
-            
-        with filter_col3:
             tum_markalar = ["Tümü"] + list(df[marka_col].dropna().unique())
             secilen_marka = st.selectbox("🏷️ Marka", tum_markalar, key="secilen_marka")
+            
+        with filter_col3:
+            tum_gruplar = ["Tümü"] + list(df[grup_col].dropna().unique())
+            secilen_grup = st.selectbox("📂 Ürün Grubu", tum_gruplar, key="secilen_grup")
 
         with filter_col4:
             stokta_olanlar = st.checkbox("🚫 Tükenenleri Gizle", key="stokta_olanlar")
@@ -130,14 +137,14 @@ try:
                 filtered_df[urun_kodu_col].astype(str).str.contains(search_query, case=False) | 
                 filtered_df[urun_aciklama_col].astype(str).str.contains(search_query, case=False)
             ]
-        if secilen_grup != "Tümü":
-            filtered_df = filtered_df[filtered_df[grup_col] == secilen_grup]
         if secilen_marka != "Tümü":
             filtered_df = filtered_df[filtered_df[marka_col] == secilen_marka]
+        if secilen_grup != "Tümü":
+            filtered_df = filtered_df[filtered_df[grup_col] == secilen_grup]
         if stokta_olanlar:
             filtered_df = filtered_df[filtered_df[guncel_stok_col] > 0]
 
-        # Şerit Tipi Kompakt KPI Kartları
+        # 3. Şerit Tipi Kompakt KPI Kartları
         total_products = len(filtered_df)
         total_stock = int(filtered_df[guncel_stok_col].sum())
         total_cost = filtered_df[maliyet_col].sum()
@@ -146,7 +153,7 @@ try:
         with kpi1:
             st.markdown(f"""
             <div style='background-color: rgba(28, 31, 46, 0.04); padding: 8px 15px; border-radius: 6px; border-left: 4px solid #1E88E5; display: flex; justify-content: space-between; align-items: center; margin-top: 5px;'>
-                <span style='font-size:12px; color:#555; font-weight:bold;'>📋 Toplam Çeşit:</span>
+                <span style='font-size:12px; color:#555; font-weight:bold;'>📋 Toplam Çeşid:</span>
                 <span style='font-size:1.1rem; font-weight: bold; color:#111;'>{total_products:,} Adet</span>
             </div>
             """.replace(",", "."), unsafe_allow_html=True)
@@ -202,12 +209,11 @@ try:
         "Toplam Maliyet": st.column_config.TextColumn("Toplam Maliyet", alignment="right")
     }
 
-    # Tabloyu ekrana basıyoruz
     st.dataframe(
         gosterilecek_df.style.apply(satiri_renklendir, axis=1),
         column_config=sutun_ayarlari,
         use_container_width=True,
-        height=600
+        height=620
     )
 
     # --- HAFTALIK HAREKET GİRİŞ FORMU ---
@@ -215,13 +221,4 @@ try:
     with st.expander("🔄 Haftalık Stok Revizyon / Hareket Giriş Formu"):
         with st.form("stok_hareket_formu"):
             secilen_urun = st.selectbox("Hareket Görecek Ürün", filtered_df[urun_kodu_col].astype(str) + " - " + filtered_df[urun_aciklama_col].astype(str))
-            islem_turu = st.selectbox("İşlem Türü", ["Stok Girişi (+)", "Stok Çıkışı (-)"])
-            miktar = st.number_input("Miktar", min_value=1, value=1)
-            notlar = st.text_input("Açıklama / Not")
-            
-            submit_btn = st.form_submit_with_button("Hareketi Kaydet")
-            if submit_btn:
-                st.success(f"Başarılı: {secilen_urun} için {miktar} adetlik {islem_turu} sisteme girildi.")
-
-except Exception as e:
-    st.error(f"Excel dosyası analiz edilirken bir hata oluştu: {e}")
+            islem_turu = st.selectbox("İşlem Türü",
