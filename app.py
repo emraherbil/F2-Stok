@@ -47,7 +47,7 @@ try:
 
     st.markdown("---")
 
-    # --- KPI KARTLARI (ŞIK İKONLU TASARIM) ---
+    # --- KPI KARTLARI ---
     total_products = len(df)
     total_stock = int(df[guncel_stok_col].sum())
     total_cost = df[maliyet_col].sum()
@@ -79,7 +79,7 @@ try:
     
     st.markdown("---")
 
-    # --- YENİ SAYFA DÜZENİ: YAN YANA ÜST DİLİMLEYİCİLER (FİLTRELER) ---
+    # --- YATAY DİLİMLEYİCİLER (FİLTRELER) ---
     st.subheader("🔍 Filtre Paneli (Dilimleyiciler)")
     filter_col1, filter_col2, filter_col3 = st.columns(3)
     
@@ -106,37 +106,35 @@ try:
     if secilen_maraka != "Tümü":
         filtered_df = filtered_df[filtered_df[marka_col] == secilen_maraka]
 
-    # --- TABLO VERİ FORMATLAMA VE KOŞULLU RENKLENDİRME ---
+    # --- TABLO VERİ FORMATLAMA VE SÜTUN SIRALAMA ---
     st.subheader("📊 Gelişmiş Stok Listesi")
     
-    # Görüntülenecek sütunları seçelim
-    gosterilecek_df = filtered_df[[urun_kodu_col, urun_aciklama_col, marka_col, grup_col, fiyat_col, guncel_stok_col, maliyet_col]].copy()
-    gosterilecek_df.columns = ["Ürün Kodu", "Açıklama", "Marka", "Ürün Grubu", "Birim Fiyat", "Güncel Stok", "Toplam Maliyet"]
+    # Talebiniz doğrultusunda sütunları sırasıyla dizdik: ... [Güncel Stok], [Birim Fiyat], [Toplam Maliyet]
+    gosterilecek_df = filtered_df[[urun_kodu_col, urun_aciklama_col, marka_col, grup_col, guncel_stok_col, fiyat_col, maliyet_col]].copy()
+    gosterilecek_df.columns = ["Ürün Kodu", "Açıklama", "Marka", "Ürün Grubu", "Güncel Stok", "Birim Fiyat", "Toplam Maliyet"]
     
-    # Sayı biçimlendirme fonksiyonları (Türkçe standartlarına uygun binlik ayracı için)
+    # Sayı biçimlendirme fonksiyonları
     def formatla_tl(val):
         return f"{val:,.0f} TL".replace(",", ".")
 
     def formatla_adet(val):
-        # Ondalıkları tamamen uçurup tam sayıya (Integer) çeviriyoruz ve binlik ayracı ekliyoruz
         return f"{int(val):,}".replace(",", ".")
 
-    # Formatları sütunlara uyguluyoruz
+    # Formatları uygulamadan önce renklendirme için orijinal stok değerini kopyalıyoruz
+    stok_orjinal_degerler = gosterilecek_df["Güncel Stok"].copy()
+
+    # Formatları sütunlara yansıtıyoruz
     gosterilecek_df["Birim Fiyat"] = gosterilecek_df["Birim Fiyat"].apply(formatla_tl)
     gosterilecek_df["Toplam Maliyet"] = gosterilecek_df["Toplam Maliyet"].apply(formatla_tl)
-    
-    # Görsel görünüm için formatlıyoruz ama arka planda renklendirme yapabilmek için orijinal değer üzerinden kontrol edeceğiz
-    stok_orjinal_degerler = gosterilecek_df["Güncel Stok"].copy()
     gosterilecek_df["Güncel Stok"] = gosterilecek_df["Güncel Stok"].apply(formatla_adet)
 
-    # Koşullu Renklendirme Fonksiyonu: Orijinal stok değeri 0 ise satırı hafif kırmızı yap
+    # Koşullu Renklendirme Fonksiyonu (Stok 0 ise hafif kırmızı arka plan)
     def satiri_renklendir(row):
-        # Tablodaki indeks numarası üzerinden orijinal veride 0 olup olmadığını kontrol ediyoruz
         if stok_orjinal_degerler.loc[row.name] == 0:
             return ['background-color: rgba(255, 75, 75, 0.15)'] * len(row)
         return [''] * len(row)
 
-    # Tabloyu stil uygulayarak ekrana basıyoruz
+    # Tabloyu ekrana basıyoruz
     st.dataframe(
         gosterilecek_df.style.apply(satiri_renklendir, axis=1),
         use_container_width=True,
