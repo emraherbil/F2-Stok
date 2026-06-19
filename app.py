@@ -5,7 +5,7 @@ import base64
 from pathlib import Path
 
 # ==========================================
-# 1. BAĞIMSIZ GELİŞMİŞ GÖRSEL ŞABLONLAR
+# 1. BAĞIMSIZ YARDIMCI FONKSİYONLAR
 # ==========================================
 
 def logo_to_base64(img_path):
@@ -23,7 +23,7 @@ def load_data():
     return df
 
 # ==========================================
-# 2. SAYFA YAPILANDIRMASI VE CSS SİHİRBAZI
+# 2. SAYFA YAPILANDIRMASI VE GELİŞMİŞ CSS
 # ==========================================
 
 st.set_page_config(
@@ -32,29 +32,29 @@ st.set_page_config(
     layout="wide"
 )
 
-# Base64 logo dönüşümü (CSS içinde kullanmak üzere)
+# Base64 logo dönüşümü
 logo_data = logo_to_base64("logo.png") or logo_to_base64("logo.jpg")
 
-# Tüm başlığı, logoyu ve filtreleri kırpılma olmadan ekrana çivileyen CSS injection
+# Alanın ekranda donmasını (Sticky) sağlayan ve kayarken bozulmasını önleyen CSS injection
 css_style = """
 <style>
-    /* Streamlit'in varsayılan üst boşluklarını sıfırla */
+    /* Streamlit varsayılan üst boşluğunu kaldır */
     .block-container { padding-top: 0rem !important; padding-bottom: 1rem !important; }
     
-    /* ÜST PANELİ SABİTLEME (STICKY) VE KESİLMEYİ ÖNLEME */
+    /* ÜST PANELİ EKRANA ÇİVİLEME VE GÖLGE EFEKTİ */
     div[data-testid="stMainBlockContainer"] > div:first-child {
         position: -webkit-sticky;
         position: sticky;
-        top: 0;
-        z-index: 9999992 !important;
+        top: 2.875rem !important; /* Streamlit üst barının tam altına kenetler */
+        z-index: 999999 !important;
         background-color: #ffffff !important;
-        padding-top: 15px !important;
-        padding-bottom: 10px !important;
-        border-bottom: 2px solid #eef1f6 !important;
-        box-shadow: 0px 4px 12px rgba(0,0,0,0.03);
+        padding-top: 20px !important;
+        padding-bottom: 15px !important;
+        border-bottom: 2px solid #f1f3f7 !important;
+        box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.04) !important;
     }
     
-    /* Yerel logonun başlıkla kusursuz dikey hizalanması (Flexbox) */
+    /* Logo ve Başlık Hizalama Şablonu */
     .custom-header-container {
         display: flex;
         align-items: center;
@@ -62,7 +62,7 @@ css_style = """
         padding-bottom: 5px;
     }
     .custom-logo {
-        height: 50px;
+        height: 55px;
         object-fit: contain;
     }
     .custom-title-block {
@@ -71,12 +71,12 @@ css_style = """
         justify-content: center;
     }
     
-    /* Filtre bileşenleri ve Temizle butonunun milimetrik hizalanması */
-    .stCheckbox { margin-top: 30px !important; }
+    /* Form Elemanları ve Butonun Milimetrik Dikey Hizası */
+    .stCheckbox { margin-top: 32px !important; }
     .stButton button { margin-top: 28px !important; height: 42px !important; }
     
-    /* Çizgileri ve boşlukları optimize et */
-    hr { margin: 0.6rem 0 !important; opacity: 0.4; }
+    /* Ayırıcı Çizgileri Küçült */
+    hr { margin: 0.5rem 0 !important; opacity: 0.3; }
 </style>
 """
 st.markdown(css_style, unsafe_allow_html=True)
@@ -120,11 +120,11 @@ try:
         st.session_state.stokta_olanlar = False
 
     # ==========================================
-    # 4. TAMAMI SABİTLENMİŞ ÜST PANEL (STICKY ZONE)
+    # 4. SABİTLENMİŞ ÜST KATMAN (STICKY CONTAINER)
     # ==========================================
     with st.container():
         
-        # HTML ile Saf Flexbox yapısı: Logo ve Başlık yan yana milimetrik hizalandı
+        # Flexbox Logo & Başlık
         if logo_data:
             header_html = f"""
             <div class="custom-header-container">
@@ -181,14 +181,14 @@ try:
         if stokta_olanlar:
             filtered_df = filtered_df[filtered_df[guncel_stok_col] > 0]
 
-        # Kompakt KPI Kart Tasarımları (HTML/CSS)
+        # Kompakt KPI Kart Tasarımları
         total_products = len(filtered_df)
         total_stock = int(filtered_df[guncel_stok_col].sum())
         total_cost = filtered_df[maliyet_col].sum()
         
         def generate_kpi_card(label, val_str, border_color):
             return f"""
-            <div style='background-color: rgba(28, 31, 46, 0.04); padding: 10px 15px; border-radius: 6px; border-left: 5px solid {border_color}; display: flex; justify-content: space-between; align-items: center;'>
+            <div style='background-color: rgba(28, 31, 46, 0.03); padding: 10px 15px; border-radius: 6px; border-left: 5px solid {border_color}; display: flex; justify-content: space-between; align-items: center;'>
                 <span style='font-size:13px; color:#555; font-weight:bold;'>{label}</span>
                 <span style='font-size:1.15rem; font-weight: 800; color:#111;'>{val_str}</span>
             </div>
@@ -203,9 +203,9 @@ try:
             st.markdown(generate_kpi_card("💰 Toplam Maliyet:", f"${total_cost:,.0f}".replace(",", "."), "#FFC107"), unsafe_allow_html=True)
 
     # ==========================================
-    # 5. DİNAMİK SCROLL EDİLEBİLİR VERİ TABLOSU
+    # 5. AKICI (SCROLL) TABLO ALANI
     # ==========================================
-    st.markdown("<div style='margin-top:15px;'></div>", unsafe_allow_html=True)
+    st.markdown("<div style='margin-top:25px;'></div>", unsafe_allow_html=True)
     
     gosterilecek_df = filtered_df[[urun_kodu_col, urun_aciklama_col, marka_col, grup_col, guncel_stok_col, fiyat_col, maliyet_col]].copy()
     gosterilecek_df.columns = ["Ürün Kodu", "Açıklama", "Marka", "Ürün Grubu", "Güncel Stok", "Birim Maliyet", "Toplam Maliyet"]
@@ -224,35 +224,4 @@ try:
     sutun_ayarlari = {
         "Ürün Kodu": st.column_config.TextColumn("Ürün Kodu", alignment="left"),
         "Açıklama": st.column_config.TextColumn("Açıklama", alignment="left"),
-        "Marka": st.column_config.TextColumn("Marka", alignment="left"),
-        "Ürün Grubu": st.column_config.TextColumn("Ürün Grubu", alignment="left"),
-        "Güncel Stok": st.column_config.TextColumn("Güncel Stok", alignment="center"),
-        "Birim Maliyet": st.column_config.TextColumn("Birim Maliyet", alignment="right"),
-        "Toplam Maliyet": st.column_config.TextColumn("Toplam Maliyet", alignment="right")
-    }
-
-    st.dataframe(
-        gosterilecek_df.style.apply(satiri_renklendir, axis=1),
-        column_config=sutun_ayarlari,
-        use_container_width=True,
-        height=600
-    )
-
-    # ==========================================
-    # 6. ALT BÖLÜM: HAREKET GİRİŞ FORMU
-    # ==========================================
-    st.markdown("---")
-    with st.expander("🔄 Haftalık Stok Revizyon / Hareket Giriş Formu"):
-        with st.form("stok_hareket_formu"):
-            urun_listesi = filtered_df[urun_kodu_col].astype(str) + " - " + filtered_df[urun_aciklama_col].astype(str)
-            secilen_urun = st.selectbox("Hareket Görecek Ürün", urun_listesi)
-            islem_turu = st.selectbox("İşlem Türü", ["Stok Girişi (+)", "Stok Çıkışı (-)"])
-            miktar = st.number_input("Miktar", min_value=1, value=1)
-            notlar = st.text_input("Açıklama / Not")
-            
-            submit_btn = st.form_submit_with_button("Hareketi Kaydet")
-            if submit_btn:
-                st.success(f"Başarılı: {secilen_urun} için {miktar} adetlik {islem_turu} sisteme girildi.")
-
-except Exception as e:
-    st.error(f"Excel dosyası analiz edilirken bir hata oluştu: {e}")
+        "Mark
