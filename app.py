@@ -17,7 +17,6 @@ def get_header_html(guncel_stok_col):
     """
 
 def get_kpi_html(label, value, color):
-    # Sayısal değerleri Türkiye formatına (. binlik ayracı) çevirir
     formatted_value = f"{value:,}".replace(",", ".") if isinstance(value, (int, float)) else value
     return f"""
     <div style='background-color: rgba(28, 31, 46, 0.04); padding: 8px 15px; border-radius: 6px; border-left: 4px solid {color}; display: flex; justify-content: space-between; align-items: center; margin-top: 5px;'>
@@ -75,7 +74,6 @@ st.markdown("""
 # 3. VERİ YÜKLEME VE ANALİZ HESAPLAMALARI
 # ==========================================
 
-# Olası hataları yakalamak için try-except tüm akışı güvenle sarar
 try:
     df = load_data()
     df.columns = [str(c).strip() for c in df.columns]
@@ -118,4 +116,44 @@ try:
         
         with header_col1:
             if logo_src:
-                st.markdown(f'<img src="{logo_src}" style="width: 100%; max-height: 50
+                logo_html = f'<img src="{logo_src}" style="width:100%; max-height:50px; object-fit:contain; margin-top:2px;">'
+                st.markdown(logo_html, unsafe_allow_html=True)
+            else:
+                st.markdown("<h2 style='margin:0;'>📦</h2>", unsafe_allow_html=True)
+                
+        with header_col2:
+            st.markdown(get_header_html(guncel_stok_col), unsafe_allow_html=True)
+
+        st.markdown("---")
+
+        # Filtre Alanı (Sıralama: Ürün Ara -> Marka -> Ürün Grubu)
+        filter_col1, filter_col2, filter_col3, filter_col4, filter_col5 = st.columns([3.2, 2.4, 2.4, 2.2, 1.2])
+        
+        with filter_col1:
+            search_query = st.text_input("📝 Ürün Ara", key="search_query", placeholder="Kod veya açıklama ara...")
+            
+        with filter_col2:
+            tum_markalar = ["Tümü"] + list(df[marka_col].dropna().unique())
+            secilen_marka = st.selectbox("🏷️ Marka", tum_markalar, key="secilen_marka")
+            
+        with filter_col3:
+            tum_gruplar = ["Tümü"] + list(df[grup_col].dropna().unique())
+            secilen_grup = st.selectbox("📂 Ürün Grubu", tum_gruplar, key="secilen_grup")
+
+        with filter_col4:
+            stokta_olanlar = st.checkbox("🚫 Tükenenleri Gizle", key="stokta_olanlar")
+            
+        with filter_col5:
+            st.button("🧹 Temizle", on_click=filtreleri_temizle, use_container_width=True)
+
+        # Filtreleme İşlemleri
+        filtered_df = df.copy()
+        if search_query:
+            filtered_df = filtered_df[
+                filtered_df[urun_kodu_col].astype(str).str.contains(search_query, case=False) | 
+                filtered_df[urun_aciklama_col].astype(str).str.contains(search_query, case=False)
+            ]
+        if secilen_marka != "Tümü":
+            filtered_df = filtered_df[filtered_df[marka_col] == secilen_marka]
+        if secilen_grup != "Tümü":
+            filtered_df = filtered_df[filtered_df[grup_col] == secilen
