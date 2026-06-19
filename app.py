@@ -75,7 +75,7 @@ try:
         ]
     if secilen_grup != "Tümü":
         filtered_df = filtered_df[filtered_df[grup_col] == secilen_grup]
-    if secilen_maraka != "Tümü":
+    if secilen_marka != "Tümü":
         filtered_df = filtered_df[filtered_df[marka_col] == secilen_marka]
 
     # --- ANA TABLO GÖRÜNÜMÜ ---
