@@ -65,7 +65,6 @@ try:
     # --- KUSURSUZ SABİTLEME (STICKY) VE KESİLMEYİ ÖNLEYEN CSS ---
     st.markdown("""
         <style>
-            /* Standart padding ayarları */
             .block-container { padding-top: 1rem !important; padding-bottom: 1rem !important; }
             
             /* Üst paneli tamamen kapsayan ve ekrana sabitleyen (Sticky) konteyner */
@@ -79,16 +78,13 @@ try:
                 border-bottom: 2px solid #f0f2f6;
             }
             
-            /* Filtre kutularının dikeyde hizalanması */
             .stCheckbox { margin-top: 22px !important; }
             .stButton button { margin-top: 20px !important; }
         </style>
     """, unsafe_allow_html=True)
 
     # --- SABİT ÜST PANEL BAŞLANGICI ---
-    # Logo, başlık, filtreler ve KPI kartlarını tek bir ana container içine alıyoruz ki hepsi birlikte sabit kalsın.
     with st.container():
-        # 1. Başlık ve Logo Alanı (Kesilmeyi önlemek için doğal yapıya dönüldü)
         logo_src = logo_to_base64("logo.png") or logo_to_base64("logo.jpg")
         
         header_col1, header_col2 = st.columns([2.5, 9.5])
@@ -107,7 +103,7 @@ try:
 
         st.markdown("---")
 
-        # 2. Kompakt Filtreler
+        # Filtreler
         filter_col1, filter_col2, filter_col3, filter_col4, filter_col5 = st.columns([3.2, 2.4, 2.4, 2.2, 1.2])
         
         with filter_col1:
@@ -127,7 +123,7 @@ try:
         with filter_col5:
             st.button("🧹 Temizle", on_click=filtreleri_temizle, use_container_width=True)
 
-        # Veri Filtreleme İşlemleri
+        # Veri Filtreleme Kuralları
         filtered_df = df.copy()
         if search_query:
             filtered_df = filtered_df[
@@ -141,7 +137,6 @@ try:
         if stokta_olanlar:
             filtered_df = filtered_df[filtered_df[guncel_stok_col] > 0]
 
-        # 3. Şerit Tipi Kompakt KPI Kartları
+        # Şerit Tipi Kompakt KPI Kartları
         total_products = len(filtered_df)
-        total_stock = int(filtered_df[guncel_stok_col].sum())
-        total_cost = filtered_df[maliyet_col].sum()
+        total_stock =
