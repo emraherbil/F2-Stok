@@ -155,11 +155,15 @@ try:
             search_query = st.text_input("📝 Ürün Ara", key="search_query", placeholder="Kod veya açıklama ara...")
             
         with filter_col2:
-            tum_markalar = ["Tümü"] + list(df[marka_col].dropna().unique())
+            # .dropna() ile boşları at, .unique() ile tekilleştir, listeye çevir ve "Tümü"nü başına ekle
+            temiz_markalar = df[marka_col].dropna().astype(str).unique().tolist()
+            tum_markalar = ["Tümü"] + sorted(temiz_markalar)
             secilen_marka = st.selectbox("🏷️ Marka", tum_markalar, key="secilen_marka")
             
         with filter_col3:
-            tum_gruplar = ["Tümü"] + list(df[grup_col].dropna().unique())
+            # Aynı temizleme işlemini grup için de yap
+            temiz_gruplar = df[grup_col].dropna().astype(str).unique().tolist()
+            tum_gruplar = ["Tümü"] + sorted(temiz_gruplar)
             secilen_grup = st.selectbox("📂 Ürün Grubu", tum_gruplar, key="secilen_grup")
 
         with filter_col4:
