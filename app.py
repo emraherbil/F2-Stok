@@ -49,7 +49,7 @@ css_style = """
         border-bottom: 1px solid #eef1f6 !important;
     }
     
-    /* AÇILIR KUTULARIN ARKA PLANDA KALMASINI ÖNLEYEN KRİTİK KATMAN AYARI */
+    /* Açılır kutuların arka planda kalmasını önleyen katman ayarı */
     [data-baseweb="popover"], div[data-baseweb="select"] {
         z-index: 999999 !important;
     }
@@ -114,7 +114,7 @@ try:
         st.session_state.q_stok = False
 
     # ==========================================
-    # 4. EN BEĞENİLEN ÜST PANEL (LOGO + BAŞLIK + FİLTRELER)
+    # 4. ÜST PANEL (LOGO + BAŞLIK + FİLTRELER)
     # ==========================================
     
     if logo_data:
@@ -145,11 +145,9 @@ try:
     with col1: 
         v_search = st.text_input("📝 Ürün Ara", key="q_search", placeholder="Kod veya açıklama ara...")
     with col2: 
-        # Liste kutusunun kilitlenmesini önlemek için nan verileri listeden tamamen ayıkladık
         marka_ops = ["Tümü"] + sorted([str(x) for x in df[c_marka].dropna().unique() if str(x).lower() != 'nan'])
         v_marka = st.selectbox("🏷️ Marka", marka_ops, key="q_marka")
     with col3: 
-        # Aynı temizliği ürün grubu listesi için de uyguladık
         grup_ops = ["Tümü"] + sorted([str(x) for x in df[c_grup].dropna().unique() if str(x).lower() != 'nan'])
         v_grup = st.selectbox("📂 Ürün Grubu", grup_ops, key="q_grup")
     with col4: 
@@ -184,53 +182,20 @@ try:
         """
 
     k1, k2, k3 = st.columns(3)
-    with k1: st.markdown(kpi_card("📋 Toplam Çeşit:", f"{t_prod:,}".replace(",", ".") + " Adet", "#1E88E5"), unsafe_allow_html=True)
+    with k1: st.markdown(kpi_card("📋 Toplam Çesist:", f"{t_prod:,}".replace(",", ".") + " Adet", "#1E88E5"), unsafe_allow_html=True)
     with k2: st.markdown(kpi_card("📦 Toplam Stok:", f"{t_stok:,}".replace(",", ".") + " Adet", "#4CAF50"), unsafe_allow_html=True)
     with k3: st.markdown(kpi_card("💰 Toplam Maliyet:", f"${t_cost:,.0f}".replace(",", "."), "#FFC107"), unsafe_allow_html=True)
 
     # ==========================================
-    # 5. ALT ALAN: KENDİ İÇİNDE AKAN VERİ TABLOSU
+    # 5. AKAN VERİ TABLOSU
     # ==========================================
     st.markdown("<div style='margin-top:15px;'></div>", unsafe_allow_html=True)
     
     out_df = f_df[[c_kod, c_tanim, c_marka, c_grup, c_stok, c_fiyat, c_maliyet]].copy()
     out_df.columns = ["Ürün Kodu", "Açıklama", "Marka", "Ürün Grubu", "Güncel Stok", "Birim Maliyet", "Toplam Maliyet"]
     
-    # Sıra numarasını (index) gizlemeden önce stilin ezilmemesi için indexi sıfırlıyoruz
     out_df = out_df.reset_index(drop=True)
     raw_stok = out_df["Güncel Stok"].copy()
 
     out_df["Birim Maliyet"] = out_df["Birim Maliyet"].apply(lambda v: f"${v:,.0f}".replace(",", "."))
-    out_df["Toplam Maliyet"] = out_df["Toplam Maliyet"].apply(lambda v: f"${v:,.0f}".replace(",", "."))
-    out_df["Güncel Stok"] = out_df["Güncel Stok"].apply(lambda v: f"{int(v):,}".replace(",", "."))
-
-    def row_style(row):
-        if raw_stok.loc[row.name] == 0:
-            return ['background-color: rgba(255, 75, 75, 0.08)'] * len(row)
-        return [''] * len(row)
-
-    # hide_index=True ile sol taraftaki sıra numarası sütunu tamamen kaldırıldı
-    st.dataframe(
-        out_df.style.apply(row_style, axis=1), 
-        use_container_width=True, 
-        hide_index=True,
-        height=480
-    )
-
-    # ==========================================
-    # 6. ALT REVİZYON ALANI
-    # ==========================================
-    st.markdown("---")
-    with st.expander("🔄 Haftalık Stok Revizyon / Hareket Giriş Formu"):
-        with st.form("stok_hareket_formu"):
-            u_list = f_df[c_kod].astype(str) + " - " + f_df[c_tanim].astype(str)
-            s_urun = st.selectbox("Hareket Görecek Ürün", u_list)
-            i_turu = st.selectbox("İşlem Türü", ["Stok Girişi (+)", "Stok Çıkışı (-)"])
-            miktar = st.number_input("Miktar", min_value=1, value=1)
-            notlar = st.text_input("Açıklama / Not")
-            
-            if st.form_submit_with_button("Hareketi Kaydet"):
-                st.success(f"Başarılı: {s_urun} için {miktar} adetlik {i_turu} girildi.")
-
-except Exception as e:
-    st.error(f"Hata oluştu: {e}")
+    out_df
