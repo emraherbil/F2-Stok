@@ -40,7 +40,6 @@ try:
     # --- ÜST BAŞLIK & KURUMSAL LOGO ALANI ---
     header_col1, header_col2 = st.columns([1, 11])
     with header_col1:
-        # Geçici kurumsal logo ikonu (İleride buraya görsel linki de koyabiliriz)
         st.markdown("<h1 style='text-align: center; margin:0;'>🏢</h1>", unsafe_allow_html=True)
     with header_col2:
         st.title("Stockify Ofis Stok Yönetim Paneli")
@@ -56,19 +55,19 @@ try:
     kpi1, kpi2, kpi3 = st.columns(3)
     with kpi1:
         st.markdown(f"""
-        <div style='background-color: rgba(28, 31, 46, 0.05); padding: 20px; rounded-corners: 10px; border-radius: 10px; border-left: 5px solid #1E88E5;'>
+        <div style='background-color: rgba(28, 31, 46, 0.05); padding: 20px; border-radius: 10px; border-left: 5px solid #1E88E5;'>
             <p style='margin:0; font-size:14px; color:gray;'>📋 Toplam Ürün Çeşidi</p>
-            <h2 style='margin:10px 0 0 0;'>{total_products} Adet</h2>
+            <h2 style='margin:10px 0 0 0;'>{total_products:,} Adet</h2>
         </div>
-        """, unsafe_allow_html=True)
+        """.replace(",", "."), unsafe_allow_html=True)
         
     with kpi2:
         st.markdown(f"""
         <div style='background-color: rgba(28, 31, 46, 0.05); padding: 20px; border-radius: 10px; border-left: 5px solid #4CAF50;'>
             <p style='margin:0; font-size:14px; color:gray;'>📦 Toplam Stok Miktarı</p>
-            <h2 style='margin:10px 0 0 0;'>{total_stock} Adet</h2>
+            <h2 style='margin:10px 0 0 0;'>{total_stock:,} Adet</h2>
         </div>
-        """, unsafe_allow_html=True)
+        """.replace(",", "."), unsafe_allow_html=True)
         
     with kpi3:
         st.markdown(f"""
@@ -76,7 +75,7 @@ try:
             <p style='margin:0; font-size:14px; color:gray;'>💰 Toplam Stok Maliyeti</p>
             <h2 style='margin:10px 0 0 0;'>{total_cost:,.0f} TL</h2>
         </div>
-        """, unsafe_allow_html=True)
+        """.replace(",", "."), unsafe_allow_html=True)
     
     st.markdown("---")
 
@@ -114,17 +113,26 @@ try:
     gosterilecek_df = filtered_df[[urun_kodu_col, urun_aciklama_col, marka_col, grup_col, fiyat_col, guncel_stok_col, maliyet_col]].copy()
     gosterilecek_df.columns = ["Ürün Kodu", "Açıklama", "Marka", "Ürün Grubu", "Birim Fiyat", "Güncel Stok", "Toplam Maliyet"]
     
-    # Para birimlerini "45.000 TL" formatına dönüştürme fonksiyonu
+    # Sayı biçimlendirme fonksiyonları (Türkçe standartlarına uygun binlik ayracı için)
     def formatla_tl(val):
         return f"{val:,.0f} TL".replace(",", ".")
 
+    def formatla_adet(val):
+        # Ondalıkları tamamen uçurup tam sayıya (Integer) çeviriyoruz ve binlik ayracı ekliyoruz
+        return f"{int(val):,}".replace(",", ".")
+
+    # Formatları sütunlara uyguluyoruz
     gosterilecek_df["Birim Fiyat"] = gosterilecek_df["Birim Fiyat"].apply(formatla_tl)
     gosterilecek_df["Toplam Maliyet"] = gosterilecek_df["Toplam Maliyet"].apply(formatla_tl)
+    
+    # Görsel görünüm için formatlıyoruz ama arka planda renklendirme yapabilmek için orijinal değer üzerinden kontrol edeceğiz
+    stok_orjinal_degerler = gosterilecek_df["Güncel Stok"].copy()
+    gosterilecek_df["Güncel Stok"] = gosterilecek_df["Güncel Stok"].apply(formatla_adet)
 
-    # Koşullu Renklendirme Fonksiyonu: Stok 0 ise tüm satırı hafif kırmızı yap
+    # Koşullu Renklendirme Fonksiyonu: Orijinal stok değeri 0 ise satırı hafif kırmızı yap
     def satiri_renklendir(row):
-        # Eğer Güncel Stok sütunundaki değer 0 ise arka plan rengi tanımla
-        if row["Güncel Stok"] == 0:
+        # Tablodaki indeks numarası üzerinden orijinal veride 0 olup olmadığını kontrol ediyoruz
+        if stok_orjinal_degerler.loc[row.name] == 0:
             return ['background-color: rgba(255, 75, 75, 0.15)'] * len(row)
         return [''] * len(row)
 
@@ -132,7 +140,7 @@ try:
     st.dataframe(
         gosterilecek_df.style.apply(satiri_renklendir, axis=1),
         use_container_width=True,
-        height=500
+        height=550
     )
 
     # --- HAFTALIK HAREKET GİRİŞ FORMU ---
