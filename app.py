@@ -51,7 +51,24 @@ try:
     df[maliyet_col] = pd.to_numeric(df[maliyet_col], errors='coerce').fillna(0)
     df[fiyat_col] = pd.to_numeric(df[fiyat_col], errors='coerce').fillna(0)
 
-    # --- ÜST BAŞLIK & KURUMSAL LOGO ALANI (KUSURSUZ HİZALAMA) ---
+    # --- SİLME / TEMİZLEME BUTONU İÇİN DURUM YÖNETİMİ (SESSION STATE) ---
+    if "search_query" not in st.session_state:
+        st.session_state.search_query = ""
+    if "secilen_grup" not in st.session_state:
+        st.session_state.secilen_grup = "Tümü"
+    if "secilen_marka" not in st.session_state:
+        st.session_state.secilen_marka = "Tümü"
+    if "stokta_olanlar" not in st.session_state:
+        st.session_state.stokta_olanlar = False
+
+    # Tüm filtreleri sıfırlayan fonksiyon
+    def filtreleri_temizle():
+        st.session_state.search_query = ""
+        st.session_state.secilen_grup = "Tümü"
+        st.session_state.secilen_marka = "Tümü"
+        st.session_state.stokta_olanlar = False
+
+    # --- ÜST BAŞLIK & KURUMSAL LOGO ALANI ---
     logo_src = logo_to_base64("logo.png") or logo_to_base64("logo.jpg")
     
     if logo_src:
@@ -76,19 +93,32 @@ try:
 
     st.markdown("---")
 
-    # --- YATAY DİLİMLEYİCİLER (FİLTRELER) ---
-    filter_col1, filter_col2, filter_col3 = st.columns(3)
+    # --- YATAY DİLİMLEYİCİLER & YENİ BUTONLAR ---
+    # Sütun düzenini butonlar ve onay kutuları için 5'e böldük
+    filter_col1, filter_col2, filter_col3, filter_col4, filter_col5 = st.columns([3, 2.5, 2.5, 2.5, 1.5])
     
     with filter_col1:
-        search_query = st.text_input("📝 Ürün Kodu veya Açıklama Ara", placeholder="Örn: STK-001...")
+        search_query = st.text_input("📝 Ürün Kodu veya Açıklama Ara", key="search_query", placeholder="Örn: STK-001...")
         
     with filter_col2:
         tum_gruplar = ["Tümü"] + list(df[grup_col].dropna().unique())
-        secilen_grup = st.selectbox("📂 Ürün Grubu Seçin", tum_gruplar)
+        secilen_grup = st.selectbox("📂 Ürün Grubu Seçin", tum_gruplar, key="secilen_grup")
         
     with filter_col3:
         tum_markalar = ["Tümü"] + list(df[marka_col].dropna().unique())
-        secilen_maraka = st.selectbox("🏷️ Marka Seçin", tum_markalar)
+        secilen_marka = st.selectbox("🏷️ Marka Seçin", tum_markalar, key="secilen_marka")
+
+    with filter_col4:
+        # Stoğu tükenenleri gizleme / Sadece stokta olanları listeleme onay kutusu
+        st.write("") # Dikey hizalama boşluğu
+        st.write("") 
+        stokta_olanlar = st.checkbox("🚫 Stoğu Tükenenleri Gizle", key="stokta_olanlar", help="Stoğu 0 olan ürünleri listeden kaldırır.")
+        
+    with filter_col5:
+        # Tüm filtreleri temizleme butonu
+        st.write("") # Dikey hizalama boşluğu
+        st.write("")
+        st.button("🧹 Temizle", on_click=filtreleri_temizle, use_container_width=True, help="Tüm filtre seçimlerini sıfırlar.")
 
     # Veriyi Filtreleme Kuralları
     filtered_df = df.copy()
@@ -99,10 +129,13 @@ try:
         ]
     if secilen_grup != "Tümü":
         filtered_df = filtered_df[filtered_df[grup_col] == secilen_grup]
-    if secilen_maraka != "Tümü":
-        filtered_df = filtered_df[filtered_df[marka_col] == secilen_maraka]
+    if secilen_marka != "Tümü":
+        filtered_df = filtered_df[filtered_df[marka_col] == secilen_marka]
+    if stokta_olanlar:
+        # Eğer kutu seçiliyse sadece güncel stoğu 0'dan büyük olanları filtrele
+        filtered_df = filtered_df[filtered_df[guncel_stok_col] > 0]
 
-    # --- DINAMIK KPI KARTKARI ---
+    # --- DINAMIK KPI KARTLARI ---
     total_products = len(filtered_df)
     total_stock = int(filtered_df[guncel_stok_col].sum())
     total_cost = filtered_df[maliyet_col].sum()
