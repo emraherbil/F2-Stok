@@ -1,3 +1,4 @@
 Plaintext
-openpyxl
 pandas
+openpyxl
+xlrd
