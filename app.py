@@ -91,7 +91,7 @@ try:
     
     urun_kodu_col = df.columns[1]     
     urun_aciklama_col = df.columns[2] 
-    marka_col = df.columns[3]         
+    marka_col = df.columns[3]          
     grup_col = df.columns[4]          
     fiyat_col = df.columns[12]        
     maliyet_col = df.columns[13]      
@@ -235,6 +235,7 @@ try:
         gosterilecek_df.style.apply(satiri_renklendir, axis=1),
         column_config=sutun_ayarlari,
         use_container_width=True,
+        hide_index=True,  # <--- Sıra numarası burada kaldırıldı
         height=600
     )
 
@@ -250,8 +251,7 @@ try:
             miktar = st.number_input("Miktar", min_value=1, value=1)
             notlar = st.text_input("Açıklama / Not")
             
-            submit_btn = st.form_submit_with_button("Hareketi Kaydet")
-            if submit_btn:
+            if st.form_submit_button("Hareketi Kaydet"):
                 st.success(f"Başarılı: {secilen_urun} için {miktar} adetlik {islem_turu} sisteme girildi.")
 
 except Exception as e:
