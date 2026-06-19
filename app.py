@@ -79,6 +79,10 @@ css_style = """
     hr { margin: 0.6rem 0 !important; opacity: 0.4; }
 /* ... önceki CSS'leriniz ... */
 
+css_style = """
+<style>
+    /* ... önceki CSS'leriniz ... */
+
     /* AÇILIR KUTULARIN KESİLMESİNİ ÖNLEME */
     /* Selectbox'ın açılan listesinin ana konteynerin arkasında kalmamasını sağlar */
     div[data-baseweb="select"] {
@@ -90,7 +94,8 @@ css_style = """
     [data-baseweb="popover"] {
         z-index: 9999999 !important;
     }
-
+</style>
+"""
 </style>
 """
 st.markdown(css_style, unsafe_allow_html=True)
