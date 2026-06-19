@@ -33,7 +33,6 @@ st.set_page_config(
 
 logo_data = logo_to_base64("logo.png") or logo_to_base64("logo.jpg")
 
-# image_3b0e9f.png görüntüsündeki orijinal oranları ve dikey hizaları kuran CSS
 css_style = """
 <style>
     /* Üstten veya alttan kırpılmayı önlemek için güvenli padding alanı */
@@ -41,6 +40,7 @@ css_style = """
     
     /* Üst Paneli Bölünmeden, Kesilmeden Ekrana Yapıştıran Güvenli Sabitleme */
     div[data-testid="stVerticalBlock"] > div:first-child {
+        position: -webkit-sticky !important;
         position: sticky !important;
         top: 0px !important;
         background-color: white !important;
@@ -49,7 +49,12 @@ css_style = """
         border-bottom: 1px solid #eef1f6 !important;
     }
     
-    /* image_3b0e9f.png'deki Yan Yana Tam Hizalama Şablonu */
+    /* AÇILIR KUTULARIN ARKA PLANDA KALMASINI ÖNLEYEN KRİTİK KATMAN AYARI */
+    [data-baseweb="popover"], div[data-baseweb="select"] {
+        z-index: 999999 !important;
+    }
+    
+    /* Yan Yana Tam Hizalama Şablonu */
     .custom-header-container { 
         display: flex; 
         align-items: center; 
@@ -58,7 +63,7 @@ css_style = """
         padding-bottom: 5px;
     }
     .custom-logo { 
-        height: 60px; /* Kesilmeyi önleyen ideal tam boy yükseklik */
+        height: 60px; 
         object-fit: contain; 
     }
     .custom-title-block { 
@@ -112,7 +117,6 @@ try:
     # 4. EN BEĞENİLEN ÜST PANEL (LOGO + BAŞLIK + FİLTRELER)
     # ==========================================
     
-    # image_3b0e9f.png'deki tam logo ve yanındaki dikey hizalı başlık yapısı
     if logo_data:
         header_html = f"""
         <div class="custom-header-container">
@@ -136,15 +140,18 @@ try:
     st.markdown(header_html, unsafe_allow_html=True)
     st.markdown("---")
 
-    # Mükemmel Hizalanmış Orijinal Sıralama: Ürün Ara -> Marka -> Ürün Grubu
     col1, col2, col3, col4, col5 = st.columns([3.2, 2.4, 2.4, 2.2, 1.2])
     
     with col1: 
         v_search = st.text_input("📝 Ürün Ara", key="q_search", placeholder="Kod veya açıklama ara...")
     with col2: 
-        v_marka = st.selectbox("🏷️ Marka", ["Tümü"] + list(df[c_marka].dropna().unique()), key="q_marka")
+        # Liste kutusunun kilitlenmesini önlemek için nan verileri listeden tamamen ayıkladık
+        marka_ops = ["Tümü"] + sorted([str(x) for x in df[c_marka].dropna().unique() if str(x).lower() != 'nan'])
+        v_marka = st.selectbox("🏷️ Marka", marka_ops, key="q_marka")
     with col3: 
-        v_grup = st.selectbox("📂 Ürün Grubu", ["Tümü"] + list(df[c_grup].dropna().unique()), key="q_grup")
+        # Aynı temizliği ürün grubu listesi için de uyguladık
+        grup_ops = ["Tümü"] + sorted([str(x) for x in df[c_grup].dropna().unique() if str(x).lower() != 'nan'])
+        v_grup = st.selectbox("📂 Ürün Grubu", grup_ops, key="q_grup")
     with col4: 
         v_stok = st.checkbox("🚫 Tükenenleri Gizle", key="q_stok")
     with col5: 
@@ -157,9 +164,9 @@ try:
         m2 = f_df[c_tanim].astype(str).str.contains(v_search, case=False)
         f_df = f_df[m1 | m2]
     if v_marka != "Tümü": 
-        f_df = f_df[f_df[c_marka] == v_marka]
+        f_df = f_df[f_df[c_marka].astype(str) == v_marka]
     if v_grup != "Tümü": 
-        f_df = f_df[f_df[c_grup] == v_grup]
+        f_df = f_df[f_df[c_grup].astype(str) == v_grup]
     if v_stok: 
         f_df = f_df[f_df[c_stok] > 0]
 
@@ -176,7 +183,6 @@ try:
         </div>
         """
 
-    # KPI Kart Alanı
     k1, k2, k3 = st.columns(3)
     with k1: st.markdown(kpi_card("📋 Toplam Çeşit:", f"{t_prod:,}".replace(",", ".") + " Adet", "#1E88E5"), unsafe_allow_html=True)
     with k2: st.markdown(kpi_card("📦 Toplam Stok:", f"{t_stok:,}".replace(",", ".") + " Adet", "#4CAF50"), unsafe_allow_html=True)
@@ -190,6 +196,8 @@ try:
     out_df = f_df[[c_kod, c_tanim, c_marka, c_grup, c_stok, c_fiyat, c_maliyet]].copy()
     out_df.columns = ["Ürün Kodu", "Açıklama", "Marka", "Ürün Grubu", "Güncel Stok", "Birim Maliyet", "Toplam Maliyet"]
     
+    # Sıra numarasını (index) gizlemeden önce stilin ezilmemesi için indexi sıfırlıyoruz
+    out_df = out_df.reset_index(drop=True)
     raw_stok = out_df["Güncel Stok"].copy()
 
     out_df["Birim Maliyet"] = out_df["Birim Maliyet"].apply(lambda v: f"${v:,.0f}".replace(",", "."))
@@ -201,10 +209,11 @@ try:
             return ['background-color: rgba(255, 75, 75, 0.08)'] * len(row)
         return [''] * len(row)
 
-    # Tablo dikey boyutu sınırlandı, böylece üst panel doğal olarak donmuş/sabitleşmiş kalır
+    # hide_index=True ile sol taraftaki sıra numarası sütunu tamamen kaldırıldı
     st.dataframe(
         out_df.style.apply(row_style, axis=1), 
         use_container_width=True, 
+        hide_index=True,
         height=480
     )
 
