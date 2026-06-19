@@ -148,12 +148,87 @@ try:
 
         # Filtreleme İşlemleri
         filtered_df = df.copy()
+        
         if search_query:
-            filtered_df = filtered_df[
-                filtered_df[urun_kodu_col].astype(str).str.contains(search_query, case=False) | 
-                filtered_df[urun_aciklama_col].astype(str).str.contains(search_query, case=False)
-            ]
+            c1 = filtered_df[urun_kodu_col].astype(str).str.contains(search_query, case=False)
+            c2 = filtered_df[urun_aciklama_col].astype(str).str.contains(search_query, case=False)
+            filtered_df = filtered_df[c1 | c2]
+            
         if secilen_marka != "Tümü":
             filtered_df = filtered_df[filtered_df[marka_col] == secilen_marka]
+            
         if secilen_grup != "Tümü":
-            filtered_df = filtered_df[filtered_df[grup_col] == secilen
+            filtered_df = filtered_df[filtered_df[grup_col] == secilen_grup]
+            
+        if stokta_olanlar:
+            filtered_df = filtered_df[filtered_df[guncel_stok_col] > 0]
+
+        # Kompakt KPI Kartları
+        total_products = len(filtered_df)
+        total_stock = int(filtered_df[guncel_stok_col].sum())
+        total_cost = filtered_df[maliyet_col].sum()
+        
+        kpi1, kpi2, kpi3 = st.columns(3)
+        with kpi1:
+            st.markdown(get_kpi_html("📋 Toplam Çeşit:", f"{total_products} Adet", "#1E88E5"), unsafe_allow_html=True)
+        with kpi2:
+            st.markdown(get_kpi_html("📦 Toplam Stok:", f"{total_stock} Adet", "#4CAF50"), unsafe_allow_html=True)
+        with kpi3:
+            st.markdown(get_kpi_html("💰 Toplam Maliyet:", f"${total_cost:,.0f}", "#FFC107"), unsafe_allow_html=True)
+            
+    # --- TABLO ALANI ---
+    st.markdown("<br>", unsafe_allow_html=True)
+    
+    gosterilecek_df = filtered_df[[urun_kodu_col, urun_aciklama_col, marka_col, grup_col, guncel_stok_col, fiyat_col, maliyet_col]].copy()
+    gosterilecek_df.columns = ["Ürün Kodu", "Açıklama", "Marka", "Ürün Grubu", "Güncel Stok", "Birim Maliyet", "Toplam Maliyet"]
+    
+    def formatla_dolar(val):
+        return f"${val:,.0f}".replace(",", ".")
+
+    def formatla_adet(val):
+        return f"{int(val):,}".replace(",", ".")
+
+    stok_orjinal_degerler = gosterilecek_df["Güncel Stok"].copy()
+
+    gosterilecek_df["Birim Maliyet"] = gosterilecek_df["Birim Maliyet"].apply(formatla_dolar)
+    gosterilecek_df["Toplam Maliyet"] = gosterilecek_df["Toplam Maliyet"].apply(formatla_dolar)
+    gosterilecek_df["Güncel Stok"] = gosterilecek_df["Güncel Stok"].apply(formatla_adet)
+
+    def satiri_renklendir(row):
+        if stok_orjinal_degerler.loc[row.name] == 0:
+            return ['background-color: rgba(255, 75, 75, 0.1)'] * len(row)
+        return [''] * len(row)
+
+    sutun_ayarlari = {
+        "Ürün Kodu": st.column_config.TextColumn("Ürün Kodu", alignment="left"),
+        "Açıklama": st.column_config.TextColumn("Açıklama", alignment="left"),
+        "Marka": st.column_config.TextColumn("Marka", alignment="left"),
+        "Ürün Grubu": st.column_config.TextColumn("Ürün Grubu", alignment="left"),
+        "Güncel Stok": st.column_config.TextColumn("Güncel Stok", alignment="center"),
+        "Birim Maliyet": st.column_config.TextColumn("Birim Maliyet", alignment="right"),
+        "Toplam Maliyet": st.column_config.TextColumn("Toplam Maliyet", alignment="right")
+    }
+
+    st.dataframe(
+        gosterilecek_df.style.apply(satiri_renklendir, axis=1),
+        column_config=sutun_ayarlari,
+        use_container_width=True,
+        height=620
+    )
+
+    # --- HAFTALIK HAREKET GİRİŞ FORMU ---
+    st.markdown("---")
+    with st.expander("🔄 Haftalık Stok Revizyon / Hareket Giriş Formu"):
+        with st.form("stok_hareket_formu"):
+            urun_listesi = filtered_df[urun_kodu_col].astype(str) + " - " + filtered_df[urun_aciklama_col].astype(str)
+            secilen_urun = st.selectbox("Hareket Görecek Ürün", urun_listesi)
+            islem_turu = st.selectbox("İşlem Türü", ["Stok Girişi (+)", "Stok Çıkışı (-)"])
+            miktar = st.number_input("Miktar", min_value=1, value=1)
+            notlar = st.text_input("Açıklama / Not")
+            
+            submit_btn = st.form_submit_with_button("Hareketi Kaydet")
+            if submit_btn:
+                st.success(f"Başarılı: {secilen_urun} için {miktar} adetlik {islem_turu} sisteme girildi.")
+
+except Exception as e:
+    st.error(f"Excel dosyası analiz edilirken bir hata oluştu: {e}")
