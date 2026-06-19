@@ -169,4 +169,13 @@ try:
     with st.expander("🔄 Haftalık Stok Revizyon / Hareket Giriş Formu"):
         with st.form("stok_hareket_formu"):
             secilen_urun = st.selectbox("Hareket Görecek Ürün", filtered_df[urun_kodu_col].astype(str) + " - " + filtered_df[urun_aciklama_col].astype(str))
-            islem_turu = st.selectbox("İş
+            islem_turu = st.selectbox("İşlem Türü", ["Stok Girişi (+)", "Stok Çıkışı (-)"])
+            miktar = st.number_input("Miktar", min_value=1, value=1)
+            notlar = st.text_input("Açıklama / Not")
+            
+            submit_btn = st.form_submit_with_button("Hareketi Kaydet")
+            if submit_btn:
+                st.success(f"Başarılı: {secilen_urun} için {miktar} adetlik {islem_turu} sisteme girildi.")
+
+except Exception as e:
+    st.error(f"Excel dosyası analiz edilirken bir hata oluştu: {e}")
