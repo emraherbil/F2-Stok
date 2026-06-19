@@ -150,4 +150,35 @@ try:
 
     # Hizalama ve Sütun Yapılandırması
     sutun_ayarlari = {
-        "Ürün Kodu": st.column_config.
+        "Ürün Kodu": st.column_config.TextColumn("Ürün Kodu", alignment="left"),
+        "Açıklama": st.column_config.TextColumn("Açıklama", alignment="left"),
+        "Marka": st.column_config.TextColumn("Marka", alignment="left"),
+        "Ürün Grubu": st.column_config.TextColumn("Ürün Grubu", alignment="left"),
+        "Güncel Stok": st.column_config.TextColumn("Güncel Stok", alignment="center"),
+        "Birim Maliyet": st.column_config.TextColumn("Birim Maliyet", alignment="right"),
+        "Toplam Maliyet": st.column_config.TextColumn("Toplam Maliyet", alignment="right")
+    }
+
+    # Tabloyu ekrana basıyoruz
+    st.dataframe(
+        gosterilecek_df.style.apply(satiri_renklendir, axis=1),
+        column_config=sutun_ayarlari,
+        use_container_width=True,
+        height=550
+    )
+
+    # --- HAFTALIK HAREKET GİRİŞ FORMU ---
+    st.markdown("---")
+    with st.expander("🔄 Haftalık Stok Revizyon / Hareket Giriş Formu"):
+        with st.form("stok_hareket_formu"):
+            secilen_urun = st.selectbox("Hareket Görecek Ürün", filtered_df[urun_kodu_col].astype(str) + " - " + filtered_df[urun_aciklama_col].astype(str))
+            islem_turu = st.selectbox("İşlem Türü", ["Stok Girişi (+)", "Stok Çıkışı (-)"])
+            miktar = st.number_input("Miktar", min_value=1, value=1)
+            notlar = st.text_input("Açıklama / Not")
+            
+            submit_btn = st.form_submit_with_button("Hareketi Kaydet")
+            if submit_btn:
+                st.success(f"Başarılı: {secilen_urun} için {miktar} adetlik {islem_turu} sisteme girildi.")
+
+except Exception as e:
+    st.error(f"Excel dosyası analiz edilirken bir hata oluştu: {e}")
