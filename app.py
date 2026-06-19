@@ -230,11 +230,12 @@ try:
         "Birim Maliyet": st.column_config.TextColumn("Birim Maliyet", alignment="right"),
         "Toplam Maliyet": st.column_config.TextColumn("Toplam Maliyet", alignment="right")
     }
-
+    styled_df = gosterilecek_df.style.apply(satiri_renklendir, axis=1)
     st.dataframe(
-        gosterilecek_df.style.apply(satiri_renklendir, axis=1),
+        styled_df,
         column_config=sutun_ayarlari,
         use_container_width=True,
+        hide_index=True, 
         height=600
     )
 
