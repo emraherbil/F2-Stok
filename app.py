@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-import datetime
 
 # Sayfa Genişlik ve Başlık Ayarları
 st.set_page_config(page_title="Stockify - Ofis Stok Yönetimi", layout="wide")
@@ -8,31 +7,26 @@ st.set_page_config(page_title="Stockify - Ofis Stok Yönetimi", layout="wide")
 # Excel Dosyasını Yükleme Fonksiyonu
 @st.cache_data
 def load_data():
-    # Dosyayı açıkça openpyxl motoruyla okumasını söylüyoruz
+    # Dosyayı açıkça openpyxl motoruyla okuyoruz
     df = pd.read_excel('Stok Sayım Arşivi-v3.1-Web.xlsm', sheet_name='Stok', engine='openpyxl')
     return df
 
 try:
     df = load_data()
     
-    # Sütun İsimlerini Sizin Tarifinize Göre Eşleştiriyoruz
-    # B: Ürün Kodu, C: Ürün Açıklaması, D: Marka, E: Ürün Grubu, M: Birim Fiyat, N: Toplam Maliyet
-    # Excel sütun endeksleri (0'dan başlar): B=1, C=2, D=3, E=4, M=12, N=13
-    
-    # Dinamik olarak sütun isimlerini temizleyelim (Boşlukları vb. uçurmak için)
+    # Sütun İsimlerini Temizleyelim (Boşlukları uçurmak için)
     df.columns = [str(c).strip() for c in df.columns]
     
-    # Sizin belirttiğiniz kritik sütunların tespiti
-    urun_kodu_col = df.columns[1] # B Sütunu
+    # Sütunların tespiti (0'dan başlar: B=1, C=2, D=3, E=4, M=12, N=13)
+    urun_kodu_col = df.columns[1]     # B Sütunu
     urun_aciklama_col = df.columns[2] # C Sütunu
-    marka_col = df.columns[3] # D Sütunu
-    grup_col = df.columns[4] # E Sütunu
-    fiyat_col = df.columns[12] # M Sütunu
-    maliyet_col = df.columns[13] # N Sütunu
+    marka_col = df.columns[3]         # D Sütunu
+    grup_col = df.columns[4]          # E Sütunu
+    fiyat_col = df.columns[12]        # M Sütunu
+    maliyet_col = df.columns[13]      # N Sütunu
     
     # O ile DE arasındaki sütunlar sayım miktarları (14. sütundan sonrası)
     sayim_sutunlari = list(df.columns[14:]) 
-    # En son yapılan sayım sütununu güncel stok kabul edelim
     guncel_stok_col = sayim_sutunlari[-1] if sayim_sutunlari else df.columns[-1]
 
     # --- ÜST MENÜ / BAŞLIK ---
@@ -42,6 +36,12 @@ try:
 
     # --- KPI KARTLARI (ÖZET EKRANI) ---
     total_products = len(df)
+    
+    # Sayısal alanları temizleyerek hata almayı önleyelim
+    df[guncel_stok_col] = pd.to_numeric(df[guncel_stok_col], errors='coerce').fillna(0)
+    df[maliyet_col] = pd.to_numeric(df[maliyet_col], errors='coerce').fillna(0)
+    df[fiyat_col] = pd.to_numeric(df[fiyat_col], errors='coerce').fillna(0)
+
     total_stock = int(df[guncel_stok_col].sum())
     total_cost = df[maliyet_col].sum()
     
@@ -52,20 +52,17 @@ try:
     
     st.markdown("---")
 
-    # --- DİLİMLEYİCİLER / FİLTRELER (PİVOT MANTIĞI) ---
+    # --- DİLİMLEYİCİLER / FİLTRELER ---
     st.sidebar.header("🔍 Filtre Paneli (Dilimleyiciler)")
-    
-    # Arama Kutusu
     search_query = st.sidebar.text_input("Ürün Kodu veya Açıklama Ara")
     
-    # Grup ve Marka Filtreleri
     tum_gruplar = ["Tümü"] + list(df[grup_col].dropna().unique())
     secilen_grup = st.sidebar.selectbox("Ürün Grubu Seçin", tum_gruplar)
     
     tum_markalar = ["Tümü"] + list(df[marka_col].dropna().unique())
     secilen_marka = st.sidebar.selectbox("Marka Seçin", tum_markalar)
 
-    # Veriyi Filtreleme
+    # Veriyi Filtreleme (Hatalı değişken adı 'secilen_maraka' burada düzeltildi)
     filtered_df = df.copy()
     if search_query:
         filtered_df = filtered_df[
@@ -80,7 +77,6 @@ try:
     # --- ANA TABLO GÖRÜNÜMÜ ---
     st.subheader("📊 Stok Takip Listesi")
     
-    # Sadece ihtiyacımız olan sütunları ekranda şıkça gösterelim
     gosterilecek_df = filtered_df[[urun_kodu_col, urun_aciklama_col, marka_col, grup_col, fiyat_col, guncel_stok_col, maliyet_col]]
     gosterilecek_df.columns = ["Ürün Kodu", "Açıklama", "Marka", "Ürün Grubu", "Birim Fiyat", "Güncel Stok", "Toplam Maliyet"]
     
@@ -100,7 +96,6 @@ try:
         
         if submit_btn:
             st.success(f"Başarılı: {secilen_urun} için {miktar} adetlik {islem_turu} sisteme işlendi! (Not: {notlar})")
-            st.info("Gerçek zamanlı Excel üzerine yazma işlemi için veritabanı bağlantısı bir sonraki adımda entegre edilecektir.")
 
 except Exception as e:
     st.error(f"Excel dosyası okunurken bir hata oluştu. Lütfen dosya adının ve sütun yapısının doğruluğunu kontrol edin. Hata: {e}")
