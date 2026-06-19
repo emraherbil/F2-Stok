@@ -45,7 +45,7 @@ css_style = """
     div[data-testid="stMainBlockContainer"] > div:first-child {
         position: -webkit-sticky;
         position: sticky;
-        top: 2.875rem !important; /* Streamlit üst barının tam altına kenetler */
+        top: 2.875rem !important;
         z-index: 999999 !important;
         background-color: #ffffff !important;
         padding-top: 20px !important;
@@ -221,7 +221,9 @@ try:
             return ['background-color: rgba(255, 75, 75, 0.08)'] * len(row)
         return [''] * len(row)
 
+    # Kesilmeyi önlemek için sütun konfigürasyonları tamamen tek satıra indirgendi
     sutun_ayarlari = {
         "Ürün Kodu": st.column_config.TextColumn("Ürün Kodu", alignment="left"),
         "Açıklama": st.column_config.TextColumn("Açıklama", alignment="left"),
-        "Mark
+        "Marka": st.column_config.TextColumn("Marka", alignment="left"),
+        "Ürün Grubu": st.column_config.TextColumn("Ürün Grubu", alignment="left"),
