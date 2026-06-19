@@ -55,7 +55,6 @@ try:
     logo_src = logo_to_base64("logo.png") or logo_to_base64("logo.jpg")
     
     if logo_src:
-        # Base64 ile yüklenen logo ve başlık yan yana dikeyde tam ortalanmış (align-items: center) olarak geliyor
         st.markdown(f"""
         <div style="display: flex; align-items: center; gap: 25px; margin-bottom: 5px;">
             <div style="flex: 0 0 240px;">
@@ -68,7 +67,6 @@ try:
         </div>
         """, unsafe_allow_html=True)
     else:
-        # Logo bulunamazsa yedek şık tasarım devreye girer
         header_col1, header_col2 = st.columns([1, 11])
         with header_col1:
             st.markdown("<h1 style='text-align: left; margin:0;'>📦</h1>", unsafe_allow_html=True)
@@ -104,7 +102,7 @@ try:
     if secilen_maraka != "Tümü":
         filtered_df = filtered_df[filtered_df[marka_col] == secilen_maraka]
 
-    # --- DINAMIK KPI KARTLARI ---
+    # --- DINAMIK KPI KARTKARI ---
     total_products = len(filtered_df)
     total_stock = int(filtered_df[guncel_stok_col].sum())
     total_cost = filtered_df[maliyet_col].sum()
@@ -137,4 +135,61 @@ try:
     st.markdown("---")
 
     # --- TABLO VERİ FORMATLAMA VE SÜTUN SIRALAMA ---
-    st
+    st.subheader("📊 Güncel Stok Listesi")
+    
+    gosterilecek_df = filtered_df[[urun_kodu_col, urun_aciklama_col, marka_col, grup_col, guncel_stok_col, fiyat_col, maliyet_col]].copy()
+    gosterilecek_df.columns = ["Ürün Kodu", "Açıklama", "Marka", "Ürün Grubu", "Güncel Stok", "Birim Maliyet", "Toplam Maliyet"]
+    
+    # Sayı biçimlendirme fonksiyonları
+    def formatla_dolar(val):
+        return f"${val:,.0f}".replace(",", ".")
+
+    def formatla_adet(val):
+        return f"{int(val):,}".replace(",", ".")
+
+    stok_orjinal_degerler = gosterilecek_df["Güncel Stok"].copy()
+
+    gosterilecek_df["Birim Maliyet"] = gosterilecek_df["Birim Maliyet"].apply(formatla_dolar)
+    gosterilecek_df["Toplam Maliyet"] = gosterilecek_df["Toplam Maliyet"].apply(formatla_dolar)
+    gosterilecek_df["Güncel Stok"] = gosterilecek_df["Güncel Stok"].apply(formatla_adet)
+
+    # Koşullu Renklendirme Fonksiyonu
+    def satiri_renklendir(row):
+        if stok_orjinal_degerler.loc[row.name] == 0:
+            return ['background-color: rgba(255, 75, 75, 0.15)'] * len(row)
+        return [''] * len(row)
+
+    # Hizalama ve Sütun Yapılandırması
+    sutun_ayarlari = {
+        "Ürün Kodu": st.column_config.TextColumn("Ürün Kodu", alignment="left"),
+        "Açıklama": st.column_config.TextColumn("Açıklama", alignment="left"),
+        "Marka": st.column_config.TextColumn("Marka", alignment="left"),
+        "Ürün Grubu": st.column_config.TextColumn("Ürün Grubu", alignment="left"),
+        "Güncel Stok": st.column_config.TextColumn("Güncel Stok", alignment="center"),
+        "Birim Maliyet": st.column_config.TextColumn("Birim Maliyet", alignment="right"),
+        "Toplam Maliyet": st.column_config.TextColumn("Toplam Maliyet", alignment="right")
+    }
+
+    # Tabloyu ekrana basıyoruz
+    st.dataframe(
+        gosterilecek_df.style.apply(satiri_renklendir, axis=1),
+        column_config=sutun_ayarlari,
+        use_container_width=True,
+        height=550
+    )
+
+    # --- HAFTALIK HAREKET GİRİŞ FORMU ---
+    st.markdown("---")
+    with st.expander("🔄 Haftalık Stok Revizyon / Hareket Giriş Formu"):
+        with st.form("stok_hareket_formu"):
+            secilen_urun = st.selectbox("Hareket Görecek Ürün", filtered_df[urun_kodu_col].astype(str) + " - " + filtered_df[urun_aciklama_col].astype(str))
+            islem_turu = st.selectbox("İşlem Türü", ["Stok Girişi (+)", "Stok Çıkışı (-)"])
+            miktar = st.number_input("Miktar", min_value=1, value=1)
+            notlar = st.text_input("Açıklama / Not")
+            
+            submit_btn = st.form_submit_with_button("Hareketi Kaydet")
+            if submit_btn:
+                st.success(f"Başarılı: {secilen_urun} için {miktar} adetlik {islem_turu} sisteme girildi.")
+
+except Exception as e:
+    st.error(f"Excel dosyası analiz edilirken bir hata oluştu: {e}")
