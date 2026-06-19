@@ -64,30 +64,23 @@ try:
 
     # --- GÖRSEL HATALARI DÜZELTEN VE ÜST PANELİ SABİTLEYEN GELİŞMİŞ CSS ---
     st.markdown("""
-        <style>
-            /* Sayfa genel boşluklarını optimize et */
-            .block-container { padding-top: 1rem !important; padding-bottom: 1rem !important; }
-            
-            /* Üst paneli kesilme olmadan ekrana sabitleyen (Sticky) kurallar */
-            div[data-testid="stMainBlockContainer"] > div:first-child {
-                position: -webkit-sticky;
-                position: sticky;
-                top: 0;
-                z-index: 99999;
-                background-color: white;
-                padding-top: 10px;
-                padding-bottom: 15px;
-                border-bottom: 2px solid #eef1f6;
-            }
-            
-            /* Filtre bileşenleri dikey hizalamaları */
-            .stCheckbox { margin-top: 24px !important; }
-            .stButton button { margin-top: 22px !important; }
-            
-            /* Sayfa içi çizgileri hafiflet */
-            hr { margin: 0.5rem 0 !important; opacity: 0.6; }
-        </style>
-    """, unsafe_allow_html=True)
+<style>
+    .block-container { padding-top: 1rem !important; padding-bottom: 1rem !important; }
+    div[data-testid="stMainBlockContainer"] > div:first-child {
+        position: -webkit-sticky;
+        position: sticky;
+        top: 0;
+        z-index: 99999;
+        background-color: white;
+        padding-top: 10px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #eef1f6;
+    }
+    .stCheckbox { margin-top: 24px !important; }
+    .stButton button { margin-top: 22px !important; }
+    hr { margin: 0.5rem 0 !important; opacity: 0.6; }
+</style>
+""", unsafe_allow_html=True)
 
     # --- SABİT ÜST PANEL (HEADER + FİLTRELER + KPI KARTLARI) ---
     with st.container():
@@ -101,12 +94,13 @@ try:
             else:
                 st.markdown("<h2 style='margin:0;'>📦</h2>", unsafe_allow_html=True)
         with header_col2:
-            st.markdown(f"""
-            <div style="display: flex; flex-direction: column; justify-content: center;">
-                <h2 style="margin: 0; padding: 0; font-size: 1.7rem; color: #262730; line-height: 1.1;">Ofis Stok İzleme Paneli</h2>
-                <span style="color: #7d7f87; font-size: 0.85rem; margin-top: 3px;">📅 <b>Son Güncelleme / Sayım Tarihi:</b> {guncel_stok_col}</span>
-            </div>
-            """, unsafe_allow_html=True)
+            header_html = f"""
+<div style="display: flex; flex-direction: column; justify-content: center;">
+    <h2 style="margin: 0; padding: 0; font-size: 1.7rem; color: #262730; line-height: 1.1;">Ofis Stok İzleme Paneli</h2>
+    <span style="color: #7d7f87; font-size: 0.85rem; margin-top: 3px;">📅 <b>Son Güncelleme / Sayım Tarihi:</b> {guncel_stok_col}</span>
+</div>
+"""
+            st.markdown(header_html, unsafe_allow_html=True)
 
         st.markdown("---")
 
@@ -151,13 +145,5 @@ try:
         
         kpi1, kpi2, kpi3 = st.columns(3)
         with kpi1:
-            st.markdown(f"""
-            <div style='background-color: rgba(28, 31, 46, 0.04); padding: 8px 15px; border-radius: 6px; border-left: 4px solid #1E88E5; display: flex; justify-content: space-between; align-items: center; margin-top: 5px;'>
-                <span style='font-size:12px; color:#555; font-weight:bold;'>📋 Toplam Çeşit:</span>
-                <span style='font-size:1.1rem; font-weight: bold; color:#111;'>{total_products:,} Adet</span>
-            </div>
-            """.replace(",", "."), unsafe_allow_html=True)
-            
-        with kpi2:
-            st.markdown(f"""
-            <div style='background-color: rgba(28, 31, 46, 0.04); padding: 8px 15px; border-radius: 6px; border-left: 4px solid #4CAF
+            kpi1_html = f"""
+<div style='background-color: rgba(28, 31, 46, 0.04); padding: 8px 15px; border-radius: 6px; border-left: 4px solid #1E88E5; display: flex; justify-content: space-between; align-items: center; margin-top: 5px;'>
