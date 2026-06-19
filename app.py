@@ -4,14 +4,29 @@ import os
 import base64
 from pathlib import Path
 
-# 1. Sayfa Düzeni ve Başlık Ayarları
-st.set_page_config(
-    page_title="F2 ICT - Ofis Stok İzleme Paneli", 
-    page_icon="📦",
-    layout="wide"
-)
+# ==========================================
+# 1. BAĞIMSIZ HTML / KART ŞABLON FONKSİYONLARI
+# (SyntaxError riskini sıfırlamak için try/with dışına alındı)
+# ==========================================
 
-# Yerel logoyu Base64'e çeviren fonksiyon
+def get_header_html(guncel_stok_col):
+    return f"""
+    <div style="display: flex; flex-direction: column; justify-content: center;">
+        <h2 style="margin: 0; padding: 0; font-size: 1.7rem; color: #262730; line-height: 1.1;">Ofis Stok İzleme Paneli</h2>
+        <span style="color: #7d7f87; font-size: 0.85rem; margin-top: 3px;">📅 <b>Son Güncelleme / Sayım Tarihi:</b> {guncel_stok_col}</span>
+    </div>
+    """
+
+def get_kpi_html(label, value, color):
+    # Virgülleri binlik ayracı olarak noktaya çevirir
+    formatted_value = f"{value:,}".replace(",", ".") if isinstance(value, (int, float)) else value
+    return f"""
+    <div style='background-color: rgba(28, 31, 46, 0.04); padding: 8px 15px; border-radius: 6px; border-left: 4px solid {color}; display: flex; justify-content: space-between; align-items: center; margin-top: 5px;'>
+        <span style='font-size:12px; color:#555; font-weight:bold;'>{label}</span>
+        <span style='font-size:1.1rem; font-weight: bold; color:#111;'>{formatted_value}</span>
+    </div>
+    """
+
 def logo_to_base64(img_path):
     try:
         if os.path.exists(img_path):
@@ -22,11 +37,44 @@ def logo_to_base64(img_path):
         pass
     return None
 
-# Excel Dosyasını Yükleme Fonksiyonu
 @st.cache_data
 def load_data():
     df = pd.read_excel('Stok Sayım Arşivi-v3.1-Web.xlsm', sheet_name='Stok', engine='openpyxl')
     return df
+
+# ==========================================
+# 2. SAYFA VE STİL AYARLARI
+# ==========================================
+
+st.set_page_config(
+    page_title="F2 ICT - Ofis Stok İzleme Paneli", 
+    page_icon="📦",
+    layout="wide"
+)
+
+# Üst paneli kesilme olmadan ekrana sabitleyen (Sticky) kurallar
+st.markdown("""
+<style>
+    .block-container { padding-top: 1rem !important; padding-bottom: 1rem !important; }
+    div[data-testid="stMainBlockContainer"] > div:first-child {
+        position: -webkit-sticky;
+        position: sticky;
+        top: 0;
+        z-index: 99999;
+        background-color: white;
+        padding-top: 10px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #eef1f6;
+    }
+    .stCheckbox { margin-top: 24px !important; }
+    .stButton button { margin-top: 22px !important; }
+    hr { margin: 0.5rem 0 !important; opacity: 0.6; }
+</style>
+""", unsafe_allow_html=True)
+
+# ==========================================
+# 3. ANA UYGULAMA MANTIĞI
+# ==========================================
 
 try:
     df = load_data()
@@ -46,7 +94,7 @@ try:
     df[maliyet_col] = pd.to_numeric(df[maliyet_col], errors='coerce').fillna(0)
     df[fiyat_col] = pd.to_numeric(df[fiyat_col], errors='coerce').fillna(0)
 
-    # --- DURUM YÖNETİMİ (SESSION STATE) ---
+    # Durum Yönetimi (Session State)
     if "search_query" not in st.session_state:
         st.session_state.search_query = ""
     if "secilen_grup" not in st.session_state:
@@ -62,49 +110,24 @@ try:
         st.session_state.secilen_marka = "Tümü"
         st.session_state.stokta_olanlar = False
 
-    # --- GÖRSEL HATALARI DÜZELTEN VE ÜST PANELİ SABİTLEYEN GELİŞMİŞ CSS ---
-    st.markdown("""
-<style>
-    .block-container { padding-top: 1rem !important; padding-bottom: 1rem !important; }
-    div[data-testid="stMainBlockContainer"] > div:first-child {
-        position: -webkit-sticky;
-        position: sticky;
-        top: 0;
-        z-index: 99999;
-        background-color: white;
-        padding-top: 10px;
-        padding-bottom: 15px;
-        border-bottom: 2px solid #eef1f6;
-    }
-    .stCheckbox { margin-top: 24px !important; }
-    .stButton button { margin-top: 22px !important; }
-    hr { margin: 0.5rem 0 !important; opacity: 0.6; }
-</style>
-""", unsafe_allow_html=True)
-
-    # --- SABİT ÜST PANEL (HEADER + FİLTRELER + KPI KARTLARI) ---
+    # --- SABİT ÜST PANEL CONTAINER'I ---
     with st.container():
-        # 1. Kurumsal Logo & Başlık Alanı
+        # Logo ve Başlık Hizalaması
         logo_src = logo_to_base64("logo.png") or logo_to_base64("logo.jpg")
-        
         header_col1, header_col2 = st.columns([2.5, 9.5])
+        
         with header_col1:
             if logo_src:
                 st.markdown(f'<img src="{logo_src}" style="width: 100%; max-height: 50px; object-fit: contain; margin-top: 2px;">', unsafe_allow_html=True)
             else:
                 st.markdown("<h2 style='margin:0;'>📦</h2>", unsafe_allow_html=True)
+                
         with header_col2:
-            header_html = f"""
-<div style="display: flex; flex-direction: column; justify-content: center;">
-    <h2 style="margin: 0; padding: 0; font-size: 1.7rem; color: #262730; line-height: 1.1;">Ofis Stok İzleme Paneli</h2>
-    <span style="color: #7d7f87; font-size: 0.85rem; margin-top: 3px;">📅 <b>Son Güncelleme / Sayım Tarihi:</b> {guncel_stok_col}</span>
-</div>
-"""
-            st.markdown(header_html, unsafe_allow_html=True)
+            st.markdown(get_header_html(guncel_stok_col), unsafe_allow_html=True)
 
         st.markdown("---")
 
-        # 2. İstenen Sırada Düzenlenmiş Filtre Alanı (Ürün Ara -> Marka -> Ürün Grubu)
+        # Filtre Alanı (Sıralama: Ürün Ara -> Marka -> Ürün Grubu)
         filter_col1, filter_col2, filter_col3, filter_col4, filter_col5 = st.columns([3.2, 2.4, 2.4, 2.2, 1.2])
         
         with filter_col1:
@@ -124,7 +147,7 @@ try:
         with filter_col5:
             st.button("🧹 Temizle", on_click=filtreleri_temizle, use_container_width=True)
 
-        # Veri Filtreleme Kuralları
+        # Filtreleme İşlemleri
         filtered_df = df.copy()
         if search_query:
             filtered_df = filtered_df[
@@ -138,12 +161,57 @@ try:
         if stokta_olanlar:
             filtered_df = filtered_df[filtered_df[guncel_stok_col] > 0]
 
-        # 3. Şerit Tipi Kompakt KPI Kartları
+        # Kompakt KPI Kartlarının Basılması
         total_products = len(filtered_df)
         total_stock = int(filtered_df[guncel_stok_col].sum())
         total_cost = filtered_df[maliyet_col].sum()
         
         kpi1, kpi2, kpi3 = st.columns(3)
         with kpi1:
-            kpi1_html = f"""
-<div style='background-color: rgba(28, 31, 46, 0.04); padding: 8px 15px; border-radius: 6px; border-left: 4px solid #1E88E5; display: flex; justify-content: space-between; align-items: center; margin-top: 5px;'>
+            st.markdown(get_kpi_html("📋 Toplam Çeşit:", f"{total_products} Adet", "#1E88E5"), unsafe_allow_html=True)
+        with kpi2:
+            st.markdown(get_kpi_html("📦 Toplam Stok:", f"{total_stock} Adet", "#4CAF50"), unsafe_allow_html=True)
+        with kpi3:
+            st.markdown(get_kpi_html("💰 Toplam Maliyet:", f"${total_cost:,.0f}", "#FFC107"), unsafe_allow_html=True)
+            
+    # --- TABLO ALANI ---
+    st.markdown("<br>", unsafe_allow_html=True)
+    
+    gosterilecek_df = filtered_df[[urun_kodu_col, urun_aciklama_col, marka_col, grup_col, guncel_stok_col, fiyat_col, maliyet_col]].copy()
+    gosterilecek_df.columns = ["Ürün Kodu", "Açıklama", "Marka", "Ürün Grubu", "Güncel Stok", "Birim Maliyet", "Toplam Maliyet"]
+    
+    def formatla_dolar(val):
+        return f"${val:,.0f}".replace(",", ".")
+
+    def formatla_adet(val):
+        return f"{int(val):,}".replace(",", ".")
+
+    stok_orjinal_degerler = gosterilecek_df["Güncel Stok"].copy()
+
+    gosterilecek_df["Birim Maliyet"] = gosterilecek_df["Birim Maliyet"].apply(formatla_dolar)
+    gosterilecek_df["Toplam Maliyet"] = gosterilecek_df["Toplam Maliyet"].apply(formatla_dolar)
+    gosterilecek_df["Güncel Stok"] = gosterilecek_df["Güncel Stok"].apply(formatla_adet)
+
+    def satiri_renklendir(row):
+        if stok_orjinal_degerler.loc[row.name] == 0:
+            return ['background-color: rgba(255, 75, 75, 0.1)'] * len(row)
+        return [''] * len(row)
+
+    sutun_ayarlari = {
+        "Ürün Kodu": st.column_config.TextColumn("Ürün Kodu", alignment="left"),
+        "Açıklama": st.column_config.TextColumn("Açıklama", alignment="left"),
+        "Marka": st.column_config.TextColumn("Marka", alignment="left"),
+        "Ürün Grubu": st.column_config.TextColumn("Ürün Grubu", alignment="left"),
+        "Güncel Stok": st.column_config.TextColumn("Güncel Stok", alignment="center"),
+        "Birim Maliyet": st.column_config.TextColumn("Birim Maliyet", alignment="right"),
+        "Toplam Maliyet": st.column_config.TextColumn("Toplam Maliyet", alignment="right")
+    }
+
+    st.dataframe(
+        gosterilecek_df.style.apply(satiri_renklendir, axis=1),
+        column_config=sutun_ayarlari,
+        use_container_width=True,
+        height=620
+    )
+
+    # --- HAFTALIK HAREKET GİRİŞ FORMU ---
