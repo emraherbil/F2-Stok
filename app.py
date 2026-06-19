@@ -175,9 +175,9 @@ try:
             c2 = filtered_df[urun_aciklama_col].astype(str).str.contains(search_query, case=False)
             filtered_df = filtered_df[c1 | c2]
         if secilen_marka != "Tümü":
-            filtered_df = filtered_df[filtered_df[marka_col] == secilen_marka]
+            filtered_df = filtered_df[filtered_df[marka_col].astype(str).str.strip() == str(secilen_marka).strip()]
         if secilen_grup != "Tümü":
-            filtered_df = filtered_df[filtered_df[grup_col] == secilen_grup]
+            filtered_df = filtered_df[filtered_df[grup_col].astype(str).str.strip() == str(secilen_grup).strip()]
         if stokta_olanlar:
             filtered_df = filtered_df[filtered_df[guncel_stok_col] > 0]
 
