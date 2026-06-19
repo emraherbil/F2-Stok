@@ -168,16 +168,26 @@ try:
         with filter_col5:
             st.button("🧹 Temizle", on_click=filtreleri_temizle, use_container_width=True)
 
-        # Filtreleme İşlemleri
+       # --- GÜNCEL FİLTRELEME MANTIĞI ---
+        
+        # 1. Filtreleri uygulama
         filtered_df = df.copy()
+        
+        # Arama kutusu filtresi
         if search_query:
             c1 = filtered_df[urun_kodu_col].astype(str).str.contains(search_query, case=False)
             c2 = filtered_df[urun_aciklama_col].astype(str).str.contains(search_query, case=False)
             filtered_df = filtered_df[c1 | c2]
+            
+        # Marka filtresi (Stringe zorla ve .strip() ile boşlukları temizle)
         if secilen_marka != "Tümü":
             filtered_df = filtered_df[filtered_df[marka_col].astype(str).str.strip() == str(secilen_marka).strip()]
+            
+        # Grup filtresi (Stringe zorla ve .strip() ile boşlukları temizle)
         if secilen_grup != "Tümü":
             filtered_df = filtered_df[filtered_df[grup_col].astype(str).str.strip() == str(secilen_grup).strip()]
+            
+        # Stok filtresi
         if stokta_olanlar:
             filtered_df = filtered_df[filtered_df[guncel_stok_col] > 0]
 
