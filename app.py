@@ -8,9 +8,8 @@ st.set_page_config(page_title="Stockify - Ofis Stok Yönetimi", layout="wide")
 # Excel Dosyasını Yükleme Fonksiyonu
 @st.cache_data
 def load_data():
-    # Yüklediğiniz 'Stok Sayım Arşivi-v3.1-Web.xlsm' dosyasını okuyoruz
-    # İlk satır başlık olduğu için header=0 veya gerekirse 1 yapılır.
-    df = pd.read_excel('Stok Sayım Arşivi-v3.1-Web.xlsm', sheet_name='Stok')
+    # Dosyayı açıkça openpyxl motoruyla okumasını söylüyoruz
+    df = pd.read_excel('Stok Sayım Arşivi-v3.1-Web.xlsm', sheet_name='Stok', engine='openpyxl')
     return df
 
 try:
