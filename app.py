@@ -22,7 +22,7 @@ def load_data():
     return pd.read_excel('Stok Sayım Arşivi-v3.1-Web.xlsm', sheet_name='Stok', engine='openpyxl')
 
 # ==========================================
-# 2. SAYFA YAPILANDIRMASI VE TAM HİZALAMA CSS
+# 2. SAYFA YAPILANDIRMASI VE TAM KİLİTLEME CSS
 # ==========================================
 
 st.set_page_config(
@@ -33,26 +33,45 @@ st.set_page_config(
 
 logo_data = logo_to_base64("logo.png") or logo_to_base64("logo.jpg")
 
-# Orijinal milimetrik düzeni ve dikey hizaları geri getiren CSS
+# Orijinal milimetrik düzeni koruyan ve üst paneli ekran kartı gibi sabitleyen gelişmiş CSS
 css_style = """
 <style>
-    .block-container { padding-top: 1rem !important; padding-bottom: 1rem !important; }
+    /* Tarayıcının ana kaydırma çubuğunu iptal et (Böylece üst panel asla yukarı kaçamaz) */
+    html, body, [data-testid="stAppViewContainer"] {
+        overflow: hidden !important;
+    }
+    
+    .block-container { padding-top: 1.5rem !important; padding-bottom: 0rem !important; }
     
     /* Logo ve Başlık Yan Yana Hizalama */
     .custom-header-container { display: flex; align-items: center; gap: 20px; }
     .custom-logo { height: 55px; object-fit: contain; }
     .custom-title-block { display: flex; flex-direction: column; justify-content: center; }
     
-    /* Filtrelerin ve Butonun Milimetrik Dikey Hizası */
+    /* Filtrelerin ve Butonun Orijinal Dikey Hizası */
     .stCheckbox { margin-top: 32px !important; }
     .stButton button { margin-top: 28px !important; height: 42px !important; }
     hr { margin: 0.5rem 0 !important; opacity: 0.3; }
+
+    /* Sadece tablonun ve formun olduğu alt alanı kendi içinde kaydırılabilir yap */
+    div[data-testid="stMainBlockContainer"] > div:first-child {
+        display: flex;
+        flex-direction: column;
+        max-height: 94vh;
+    }
+    
+    /* Tablodan sonra gelen elemanları (Tablo + Form bölgesi) scroll et */
+    div[data-testid="stVerticalBlock"] > div:nth-child(n+7) {
+        overflow-y: auto !important;
+        max-height: 58vh !important;
+        padding-right: 10px;
+    }
 </style>
 """
 st.markdown(css_style, unsafe_allow_html=True)
 
 # ==========================================
-# 3. VERI OKUMA VE ÖN İŞLEME
+# 3. VERİ OKUMA VE ÖN İŞLEME
 # ==========================================
 
 try:
@@ -85,10 +104,9 @@ try:
         st.session_state.q_stok = False
 
     # ==========================================
-    # 4. ÜST PANEL: LOGO, FİLTRELER VE KPI KARTLARI
+    # 4. ÜST PANEL: LOGO, FİLTRELER VE KPI KARTLARI (ÇAKILI ALAN)
     # ==========================================
     
-    # Orijinal Logo & Başlık Yapısı
     if logo_data:
         header_html = f"""
         <div class="custom-header-container">
@@ -112,7 +130,7 @@ try:
     st.markdown(header_html, unsafe_allow_html=True)
     st.markdown("---")
 
-    # İstediğiniz Orijinal Sıralama: Ürün Ara -> Marka -> Ürün Grubu
+    # Çok beğendiğiniz orijinal yerleşim düzeni: Ürün Ara -> Marka -> Ürün Grubu
     col1, col2, col3, col4, col5 = st.columns([3.2, 2.4, 2.4, 2.2, 1.2])
     
     with col1: 
@@ -152,14 +170,14 @@ try:
         </div>
         """
 
-    # KPI Blok Yerleşimi
+    # KPI Blokları
     k1, k2, k3 = st.columns(3)
     with k1: st.markdown(kpi_card("📋 Toplam Çeşit:", f"{t_prod:,}".replace(",", ".") + " Adet", "#1E88E5"), unsafe_allow_html=True)
     with k2: st.markdown(kpi_card("📦 Toplam Stok:", f"{t_stok:,}".replace(",", ".") + " Adet", "#4CAF50"), unsafe_allow_html=True)
     with k3: st.markdown(kpi_card("💰 Toplam Maliyet:", f"${t_cost:,.0f}".replace(",", "."), "#FFC107"), unsafe_allow_html=True)
 
     # ==========================================
-    # 5. ALT ALAN: KENDİ İÇİNDE KAYAN VERİ TABLOSU
+    # 5. ALT ALAN: VERİ TABLOSU VE FORM (KAYDIRILABİLİR ALAN)
     # ==========================================
     st.markdown("<div style='margin-top:20px;'></div>", unsafe_allow_html=True)
     
@@ -177,16 +195,14 @@ try:
             return ['background-color: rgba(255, 75, 75, 0.08)'] * len(row)
         return [''] * len(row)
 
-    # Tabloya sabit height verilerek sayfanın taşması engellendi. Üst panel donmuş oldu!
+    # Veri tablosu ekrana tam oturacak yükseklikte ayarlandı
     st.dataframe(
         out_df.style.apply(row_style, axis=1), 
         use_container_width=True, 
-        height=520
+        height=450
     )
 
-    # ==========================================
-    # 6. ALT FORM ALANI
-    # ==========================================
+    # 6. HAREKET GİRİŞ FORMU
     st.markdown("---")
     with st.expander("🔄 Haftalık Stok Revizyon / Hareket Giriş Formu"):
         with st.form("stok_hareket_formu"):
