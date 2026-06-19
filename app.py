@@ -23,7 +23,7 @@ def load_data():
     return df
 
 # ==========================================
-# 2. SAYFA YAPILANDIRMASI VE KESİN STICKY CSS
+# 2. SAYFA YAPILANDIRMASI VE GELİŞMİŞ CSS
 # ==========================================
 
 st.set_page_config(
@@ -34,36 +34,43 @@ st.set_page_config(
 
 logo_data = logo_to_base64("logo.png") or logo_to_base64("logo.jpg")
 
-# Görseldeki tüm alanın (Logo, Filtreler ve KPI) donmasını sağlayan agresif CSS kuralları
+# Tüm Üst Paneli (Header + Filtreler + KPI) tek bir gövdede sabitleyen CSS
 css_style = """
 <style>
-    /* Üst boşlukları sıfırla */
+    /* Sayfa genel boşluklarını sıfırla */
     .block-container { padding-top: 0rem !important; padding-bottom: 1rem !important; }
     
-    /* İLK CONTAINER BLOĞUNU EKRANA ÇİVİLE (DONMA ETKİSİ) */
-    div[data-testid="stVerticalBlock"] > div:first-child {
+    /* EN DIŞ ANA SARMALAYICIYI BUL VE İÇİNDEKİ İLK BÜYÜK BLOĞU SABİTLE */
+    div[data-testid="stMainBlockContainer"] > div:first-child > div:first-child {
         position: -webkit-sticky !important;
         position: sticky !important;
         top: 2.875rem !important;
         z-index: 999999 !important;
         background-color: #ffffff !important;
-        padding-top: 15px !important;
-        padding-bottom: 15px !important;
-        border-bottom: 2px solid #f1f3f7 !important;
-        box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.05) !important;
+        padding-top: 20px !important;
+        padding-bottom: 20px !important;
+        border-bottom: 3px solid #eef1f6 !important;
+        box-shadow: 0px 12px 30px rgba(0, 0, 0, 0.06) !important;
     }
     
-    /* Elemanların iç içe geçmesini önlemek için sarmalayıcı arka planı beyaz yap */
-    div[data-testid="stVerticalBlock"] > div:first-child data-testid="stBlock" {
-        background-color: #ffffff !important;
+    /* İçerideki alt bileşenlerin (tablonun) sızmasını kesin olarak önle */
+    div[data-testid="stMainBlockContainer"] > div:first-child > div:first-child * {
+        background-color: transparent;
+    }
+    
+    /* Input kutuları ve kartların arka planlarını koru */
+    div[data-testid="stMainBlockContainer"] > div:first-child > div:first-child .stTextInput div,
+    div[data-testid="stMainBlockContainer"] > div:first-child > div:first-child .stSelectbox div,
+    div[data-testid="stMainBlockContainer"] > div:first-child > div:first-child [data-testid="stMarkdownContainer"] div {
+        background-color: inherit;
     }
 
-    /* Logo ve Başlık Hizalama Düzeni */
-    .custom-header-container { display: flex; align-items: center; gap: 20px; padding-bottom: 5px; }
-    .custom-logo { height: 55px; object-fit: contain; }
-    .custom-title-block { display: flex; flex-direction: column; justify-content: center; }
+    /* Logo ve Başlık Tasarımı */
+    .custom-header-container { display: flex; align-items: center; gap: 20px; padding-bottom: 5px; background: #fff !important; }
+    .custom-logo { height: 55px; object-fit: contain; background: #fff !important; }
+    .custom-title-block { display: flex; flex-direction: column; justify-content: center; background: #fff !important; }
     
-    /* Filtreler ve Temizle Butonu Dikey Hizalaması */
+    /* Dikey Hizalama Ayarları */
     .stCheckbox { margin-top: 32px !important; }
     .stButton button { margin-top: 28px !important; height: 42px !important; }
     hr { margin: 0.5rem 0 !important; opacity: 0.3; }
@@ -105,9 +112,12 @@ try:
         st.session_state.stokta_olanlar = False
 
     # ==========================================
-    # 4. SABİTLENMİŞ ÜST KATMAN (STICKY AREA)
+    # 4. TEK PARÇA HALİNDE DONAN PANEL (STICKY MASTER ZONE)
     # ==========================================
+    # Bu dış container içindeki HER ŞEY (Logo, Filtreler, KPI) tek bir gövde olarak yukarıya kilitlenir.
     with st.container():
+        
+        # Logo & Başlık
         if logo_data:
             header_html = f"""
             <div class="custom-header-container">
@@ -131,6 +141,7 @@ try:
         st.markdown(header_html, unsafe_allow_html=True)
         st.markdown("---")
 
+        # Filtre Kolonları
         filter_col1, filter_col2, filter_col3, filter_col4, filter_col5 = st.columns([3.2, 2.4, 2.4, 2.2, 1.2])
         
         with filter_col1: search_query = st.text_input("📝 Ürün Ara", key="search_query", placeholder="Kod veya açıklama ara...")
@@ -139,71 +150,10 @@ try:
         with filter_col4: stokta_olanlar = st.checkbox("🚫 Tükenenleri Gizle", key="stokta_olanlar")
         with filter_col5: st.button("🧹 Temizle", on_click=filtreleri_temizle, use_container_width=True)
 
+        # Filtreleme Mantığı
         filtered_df = df.copy()
         if search_query:
             c1 = filtered_df[urun_kodu_col].astype(str).str.contains(search_query, case=False)
             c2 = filtered_df[urun_aciklama_col].astype(str).str.contains(search_query, case=False)
             filtered_df = filtered_df[c1 | c2]
-        if secilen_marka != "Tümü": filtered_df = filtered_df[filtered_df[marka_col] == secilen_marka]
-        if secilen_grup != "Tümü": filtered_df = filtered_df[filtered_df[grup_col] == secilen_grup]
-        if stokta_olanlar: filtered_df = filtered_df[filtered_df[guncel_stok_col] > 0]
-
-        total_products = len(filtered_df)
-        total_stock = int(filtered_df[guncel_stok_col].sum())
-        total_cost = filtered_df[maliyet_col].sum()
-        
-        def generate_kpi_card(label, val_str, border_color):
-            return f"""
-            <div style='background-color: rgba(28, 31, 46, 0.03); padding: 10px 15px; border-radius: 6px; border-left: 5px solid {border_color}; display: flex; justify-content: space-between; align-items: center;'>
-                <span style='font-size:13px; color:#555; font-weight:bold;'>{label}</span>
-                <span style='font-size:1.15rem; font-weight: 800; color:#111;'>{val_str}</span>
-            </div>
-            """
-
-        kpi1, kpi2, kpi3 = st.columns(3)
-        with kpi1: st.markdown(generate_kpi_card("📋 Toplam Çeşit:", f"{total_products:,}".replace(",", ".") + " Adet", "#1E88E5"), unsafe_allow_html=True)
-        with kpi2: st.markdown(generate_kpi_card("📦 Toplam Stok:", f"{total_stock:,}".replace(",", ".") + " Adet", "#4CAF50"), unsafe_allow_html=True)
-        with kpi3: st.markdown(generate_kpi_card("💰 Toplam Maliyet:", f"${total_cost:,.0f}".replace(",", "."), "#FFC107"), unsafe_allow_html=True)
-
-    # ==========================================
-    # 5. ALT ALAN: VERİ TABLOSU (KAYDIRILABİLİR)
-    # ==========================================
-    st.markdown("<div style='margin-top:25px;'></div>", unsafe_allow_html=True)
-    
-    gosterilecek_df = filtered_df[[urun_kodu_col, urun_aciklama_col, marka_col, grup_col, guncel_stok_col, fiyat_col, maliyet_col]].copy()
-    gosterilecek_df.columns = ["Ürün Kodu", "Açıklama", "Marka", "Ürün Grubu", "Güncel Stok", "Birim Maliyet", "Toplam Maliyet"]
-    
-    stok_orjinal_degerler = gosterilecek_df["Güncel Stok"].copy()
-
-    gosterilecek_df["Birim Maliyet"] = gosterilecek_df["Birim Maliyet"].apply(lambda v: f"${v:,.0f}".replace(",", "."))
-    gosterilecek_df["Toplam Maliyet"] = gosterilecek_df["Toplam Maliyet"].apply(lambda v: f"${v:,.0f}".replace(",", "."))
-    gosterilecek_df["Güncel Stok"] = gosterilecek_df["Güncel Stok"].apply(lambda v: f"{int(v):,}".replace(",", "."))
-
-    def satiri_renklendir(row):
-        if stok_orjinal_degerler.loc[row.name] == 0:
-            return ['background-color: rgba(255, 75, 75, 0.08)'] * len(row)
-        return [''] * len(row)
-
-    st.dataframe(
-        gosterilecek_df.style.apply(satiri_renklendir, axis=1),
-        use_container_width=True,
-        height=620
-    )
-
-    # ==========================================
-    # 6. ALT FORM ALANI
-    # ==========================================
-    st.markdown("---")
-    with st.expander("🔄 Haftalık Stok Revizyon / Hareket Giriş Formu"):
-        with st.form("stok_hareket_formu"):
-            urun_listesi = filtered_df[urun_kodu_col].astype(str) + " - " + filtered_df[urun_aciklama_col].astype(str)
-            secilen_urun = st.selectbox("Hareket Görecek Ürün", urun_listesi)
-            islem_turu = st.selectbox("İşlem Türü", ["Stok Girişi (+)", "Stok Çıkışı (-)"])
-            miktar = st.number_input("Miktar", min_value=1, value=1)
-            notlar = st.text_input("Açıklama / Not")
-            
-            if st.form_submit_with_button("Hareketi Kaydet"):
-                st.success(f"Başarılı: {secilen_urun} için {miktar} adetlik {islem_turu} sisteme girildi.")
-
-except Exception as e:
-    st.error(f"Excel dosyası analiz edilirken bir hata oluştu: {e}")
+        if secilen_marka != "Tümü": filtered_df = filtered_df[filtered_df[marka_col] == secilen
