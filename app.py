@@ -228,15 +228,15 @@ else:
         df[c_fiyat] = pd.to_numeric(df[c_fiyat], errors='coerce').fillna(0)
 
         # --- DOĞRU HAFIZA (SESSION STATE) YÖNETİMİ ---
-        # Arama kutusu için de hafızayı en baştan tanımlıyoruz
-        if "q_search" not in st.session_state: st.session_state.q_search = ""
+        # Kutunun içindeki yazıyı yönetmek için 'search_text' adında bağımsız bir değişken tanımlıyoruz.
+        if "search_text" not in st.session_state: st.session_state.search_text = ""
         if "q_grup" not in st.session_state: st.session_state.q_grup = "Tümü"
         if "q_marka" not in st.session_state: st.session_state.q_marka = "Tümü"
         if "q_stok" not in st.session_state: st.session_state.q_stok = False
 
         def filtreleri_temizle():
-            # Kutuyu YIKMADAN, sadece içindeki metni (hafızasını) siliyoruz.
-            st.session_state.q_search = "" 
+            # Kutuyu yıkmadan, sadece bağladığımız içindeki değeri sıfırlıyoruz (Tam olarak önerdiğiniz mantık)
+            st.session_state.search_text = ""
             st.session_state.q_grup = "Tümü"
             st.session_state.q_marka = "Tümü"
             st.session_state.q_stok = False
@@ -291,15 +291,19 @@ else:
             
         # --- ARAYÜZ ---
         with col1: 
-            # Key artık sabit ("q_search"). Dinamik sayaç (search_key) iptal edildi.
-            # Kutu asla yıkılmayacak, sadece içindeki yazı silinecek.
+            # Eklentinin 'value' (değer) parametresini doğrudan kontrol altına aldık.
             v_search = st_keyup(
                 label="📝 Ürün Ara", 
-                key="q_search", 
+                value=st.session_state.search_text, 
+                key="search_widget_stable", # Kimlik asla değişmeyecek!
                 placeholder="Kod veya açıklama ara...", 
                 debounce=300
             )
             
+            # Kullanıcı harf yazdıkça hafızayı güncelliyoruz ki sayfa yenilendiğinde silinmesin.
+            if v_search is not None:
+                st.session_state.search_text = v_search
+                
         with col2: 
             v_marka = st.selectbox("🏷️ Marka", marka_ops, key="q_marka")
         with col3: 
@@ -309,12 +313,13 @@ else:
         with col5: 
             st.button("🧹 Temizle", on_click=filtreleri_temizle, use_container_width=True)
 
-        # Tablo Filtreleme Mantığı
+        # Tablo Filtreleme Mantığı (Artık v_search yerine direkt hafızadaki search_text üzerinden filtreliyor)
         f_df = df.copy()
-        if v_search:
-            m1 = f_df[c_kod].astype(str).str.contains(v_search, case=False)
-            m2 = f_df[c_tanim].astype(str).str.contains(v_search, case=False)
+        if st.session_state.search_text:
+            m1 = f_df[c_kod].astype(str).str.contains(st.session_state.search_text, case=False)
+            m2 = f_df[c_tanim].astype(str).str.contains(st.session_state.search_text, case=False)
             f_df = f_df[m1 | m2]
+            
         if v_marka != "Tümü": 
             f_df = f_df[f_df[c_marka].astype(str) == v_marka]
         if v_grup != "Tümü": 
