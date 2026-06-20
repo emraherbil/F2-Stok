@@ -5,7 +5,7 @@ import base64
 from pathlib import Path
 
 # ==========================================
-# 1. BAĞIMSIZ LOGO DÖNÜŞTÜRÜCÜ
+# 1. LOGO DÖNÜŞTÜRÜCÜ
 # ==========================================
 def logo_to_base64(img_path):
     try:
@@ -37,126 +37,108 @@ VALID_PASSWORD = "f2"
 logo_data = logo_to_base64("logo.png") or logo_to_base64("logo.jpg")
 
 # ==========================================
-# 3. %100 BAĞIMSIZ TASARLANMIŞ GİRİŞ EKRANI
+# 3. GİRİŞ EKRANI (TAMAMEN İZOLE EDİLMİŞ)
 # ==========================================
 if not st.session_state.logged_in:
-    # Streamlit'in tüm varsayılan elementlerini (header, padding, boş kutular) tamamen yok ediyoruz
-    independent_css = """
+    # İnceleme ekranında bulduğunuz hayalet iframe'i ve tüm fazlalıkları yok eden CSS
+    st.markdown("""
     <style>
-        /* Streamlit'in tüm standart arayüzünü gizle */
-        [data-testid="stHeader"], 
-        [data-testid="stSidebar"], 
-        .stDeployButton, 
-        footer {
+        /* 1. İnceleme ekranındaki o sinir bozucu beyaz kutu iframe'ini tamamen gizle */
+        iframe, iframe[title="Streamlit Cloud Status"] {
+            display: none !important;
+            visibility: hidden !important;
+            height: 0px !important;
+            width: 0px !important;
+        }
+        
+        /* 2. Streamlit standart arayüz elemanlarını temizle */
+        [data-testid="stHeader"], .stDeployButton, footer {
             display: none !important;
         }
         
-        /* Ana ekranın arka planını temizle ve ortala */
+        /* 3. Arka planı temiz gri yap */
         .stApp {
             background-color: #f8fafc !important;
-            display: flex !important;
-            justify-content: center !important;
-            align-items: center !important;
         }
         
-        /* Streamlit'in kendi blok yapısını tamamen görünmez yap */
-        div[data-testid="stVerticalBlock"] {
-            gap: 0 !important;
-        }
-        
-        /* Bize özel saf HTML Giriş Kartı */
-        .custom-login-container {
-            width: 380px;
-            padding: 40px;
+        /* 4. Logoya göre hizalanmış merkezî giriş kartı */
+        .login-box {
+            max-width: 320px;
+            margin: 80px auto 0 auto;
+            padding: 35px;
             background: #ffffff;
-            border-radius: 16px;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
             border: 1px solid #e2e8f0;
             text-align: center;
         }
         
-        .custom-login-logo {
+        .login-logo {
             width: 240px;
             height: auto;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             object-fit: contain;
         }
         
-        .custom-login-subtitle {
-            font-size: 14px;
+        .login-title {
+            font-size: 13px;
             color: #64748b;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
             font-weight: 500;
         }
 
-        /* Streamlit text input kutularını saf HTML alanları gibi giydir ve milimetrik eşitle */
-        div.stTextInput > div {
-            border: none !important;
-            background: transparent !important;
-        }
-        
+        /* Input kutularını ve butonu tam 240px'e sabitle (Logo genişliği) */
         div.stTextInput input {
             background-color: #f1f5f9 !important;
             border: 1px solid #cbd5e1 !important;
-            border-radius: 8px !important;
-            padding: 12px 16px !important;
+            border-radius: 6px !important;
+            padding: 10px 14px !important;
             color: #1e293b !important;
-            font-size: 14px !important;
-            transition: all 0.2s;
             width: 240px !important;
             margin: 0 auto !important;
         }
         
-        div.stTextInput input:focus {
-            border-color: #64748b !important;
-            box-shadow: none !important;
-        }
-        
-        /* Butonu tamamen özelleştir ve genişliğini logoya (240px) kilitle */
+        /* Butonun tamamen formu kaplamasını ve logoyla simetrik olmasını sağla */
         div.stButton button {
             width: 240px !important;
-            max-width: 240px !important;
-            height: 44px !important;
+            height: 42px !important;
             background-color: #1e293b !important;
-            color: #ffffff !important;
+            color: white !important;
             border: none !important;
-            border-radius: 8px !important;
-            font-size: 14px !important;
+            border-radius: 6px !important;
             font-weight: 600 !important;
-            margin: 15px auto 0 auto !important;
+            margin: 10px auto 0 auto !important;
             display: block !important;
-            cursor: pointer;
-            transition: background 0.2s;
         }
         
         div.stButton button:hover {
             background-color: #0f172a !important;
-            color: #ffffff !important;
+            color: white !important;
         }
         
-        /* Hata mesajı kutusunu daralt */
+        /* Hata mesajı kutusunu kibarlaştır */
         div.stAlert {
             max-width: 240px !important;
-            margin: 15px auto 0 auto !important;
+            margin: 12px auto 0 auto !important;
         }
     </style>
-    """
-    st.markdown(independent_css, unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
     
-    # Saf HTML Tasarım Alanı Başlangıcı
-    st.markdown('<div class="custom-login-container">', unsafe_allow_html=True)
+    # Giriş Kartı Gövdesi
+    st.markdown('<div class="login-box">', unsafe_allow_html=True)
     
     if logo_data:
-        st.markdown(f'<img src="data:image/png;base64,{logo_data}" class="custom-login-logo">', unsafe_allow_html=True)
+        st.markdown(f'<img src="data:image/png;base64,{logo_data}" class="login-logo">', unsafe_allow_html=True)
     else:
-        st.markdown('<div style="font-size: 3rem; margin-bottom: 10px;">📦</div>', unsafe_allow_html=True)
-        st.markdown('<div style="font-size: 1.4rem; font-weight:700; color:#1e293b;">F2 ICT</div>', unsafe_allow_html=True)
+        st.markdown('<div style="font-size: 2.5rem; margin-bottom: 10px;">📦</div>', unsafe_allow_html=True)
         
-    st.markdown('<div class="custom-login-subtitle">Ofis Stok İzleme Paneli</div>', unsafe_allow_html=True)
+    st.markdown('<div class="login-title">Ofis Stok İzleme Paneli</div>', unsafe_allow_html=True)
     
-    # Girdiler ve Buton (Genişlikleri CSS tarafında doğrudan 240px'e çivilendi)
+    # Giriş Form Elemanları (Etiketleri kaldırarak temiz görünüm elde ettik)
     username_input = st.text_input("Kullanıcı Adı", placeholder="Kullanıcı adı", label_visibility="collapsed")
+    st.markdown('<div style="margin-top: 10px;"></div>', unsafe_allow_html=True)
     password_input = st.text_input("Şifre", type="password", placeholder="Şifre", label_visibility="collapsed")
+    
     login_button = st.button("Sisteme Giriş Yap")
     
     if login_button:
@@ -164,15 +146,14 @@ if not st.session_state.logged_in:
             st.session_state.logged_in = True
             st.rerun()
         else:
-            st.error("Hatalı giriş!")
+            st.error("Hatalı Giriş!")
             
     st.markdown('</div>', unsafe_allow_html=True)
 
 # ==========================================
-# 4. BAĞIMSIZ ANA PANEL (GİRİŞ YAPILINCA GÖRÜNÜR)
+# 4. ANA PANEL (BAŞARILI GİRİŞ SONRASI)
 # ==========================================
 else:
-    # Ana panel CSS kodları (Artık asla login ekranına sızamaz)
     main_panel_css = """
     <style>
         .block-container { padding-top: 2rem !important; padding-bottom: 2rem !important; background-color: #ffffff !important; }
@@ -298,7 +279,7 @@ else:
             """
 
         k1, k2, k3 = st.columns(3)
-        with k1: st.markdown(kpi_card("📋 Toplam Çeşit:", f"{t_prod:,}".replace(",", ".") + " Adet", "#1E88E5"), unsafe_allow_html=True)
+        with k1: st.markdown(kpi_card("📋 Toplam Çesist:", f"{t_prod:,}".replace(",", ".") + " Adet", "#1E88E5"), unsafe_allow_html=True)
         with k2: st.markdown(kpi_card("📦 Toplam Stok:", f"{t_stok:,}".replace(",", ".") + " Adet", "#4CAF50"), unsafe_allow_html=True)
         with k3: st.markdown(kpi_card("💰 Toplam Maliyet:", f"${t_cost:,.0f}".replace(",", "."), "#FFC107"), unsafe_allow_html=True)
 
