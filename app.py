@@ -4,20 +4,6 @@ import os
 import base64
 from pathlib import Path
 
-# --- CANLI ARAMA EKLENTİSİ (BİZİM KENDİ LOKAL KLASÖRÜMÜZ) ---
-import streamlit.components.v1 as components
-parent_dir = os.path.dirname(os.path.abspath(__file__))
-custom_dir = os.path.join(parent_dir, "custom_keyup")
-
-try:
-    _st_keyup = components.declare_component("st_keyup", path=custom_dir)
-    def st_keyup(label, value="", key=None, placeholder="", debounce=300, label_visibility="visible"):
-        return _st_keyup(label=label, value=value, default=value, key=key, placeholder=placeholder, debounce=debounce, label_visibility=label_visibility)
-except Exception as e:
-    st.error("Lütfen 'custom_keyup' klasörünüzün app.py ile aynı dizinde olduğundan emin olun!")
-    st.stop()
-# -------------------------------------------------------------
-
 # ==========================================
 # 1. LOGO DÖNÜŞTÜRÜCÜ
 # ==========================================
@@ -43,7 +29,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# Yönlendirmeleri, rozetleri gizlemek ve ARAMA SÜTUNUNU SABİTLEMEK için CSS
+# Orijinal Streamlit kutusunu CANLI ARAMA kutusuna dönüştüren sihirli CSS ve JS enjeksiyonu
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -51,15 +37,19 @@ st.markdown("""
         [data-testid="stToolbar"] {display: none !important;}
         .stDeployButton {display: none !important;}
         header {visibility: hidden !important; display: none !important;}
-
-        /* --- SÜTUN SABİTLEME (ZIPLAMA VE DARALMA ENGELLEYİCİ) --- */
-        /* Arama kutusunun ilk sütununu milimetrik olarak betonluyoruz. */
-        div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:nth-child(1) { 
-            height: 75px !important;
-            min-height: 75px !important;
-            max-height: 75px !important;
-        }
     </style>
+    
+    <script>
+        // Sayfa her yüklendiğinde arama kutusunu bul ve her tuşa basıldığında Streamlit'i tetikle
+        parent.document.addEventListener('DOMContentLoaded', function() {
+            var input = parent.document.querySelector('input[aria-label="📝 Ürün Ara"]');
+            if (input) {
+                input.addEventListener('input', function() {
+                    input.dispatchEvent(new Event('change', { bubbles: true }));
+                });
+            }
+        });
+    </script>
 """, unsafe_allow_html=True)
 
 if "logged_in" not in st.session_state:
@@ -220,17 +210,15 @@ else:
         df[c_maliyet] = pd.to_numeric(df[c_maliyet], errors='coerce').fillna(0)
         df[c_fiyat] = pd.to_numeric(df[c_fiyat], errors='coerce').fillna(0)
 
-        # --- GÜVENLİ VE SABİT SAYAÇLI HAFIZA ---
+        # --- TERTEMİZ REEL SESSIONS ---
+        if "q_search" not in st.session_state: st.session_state.q_search = ""
         if "q_grup" not in st.session_state: st.session_state.q_grup = "Tümü"
         if "q_marka" not in st.session_state: st.session_state.q_marka = "Tümü"
         if "q_stok" not in st.session_state: st.session_state.q_stok = False
-        
-        # Döngüyü tamamen bitirmek için dinamik anahtar hilesine geri dönüyoruz
-        if "search_key" not in st.session_state: st.session_state.search_key = 0 
 
         def filtreleri_temizle():
-            # Temizleme anında ID değişecek, kutu sıfırlanacak ama CSS yuvayı tuttuğu için zıplamayacak!
-            st.session_state.search_key += 1 
+            # Orijinal kutu olduğu için artık hafızadan tek satırla PÜRÜZSÜZCE siliniyor!
+            st.session_state.q_search = "" 
             st.session_state.q_grup = "Tümü"
             st.session_state.q_marka = "Tümü"
             st.session_state.q_stok = False
@@ -282,15 +270,16 @@ else:
         if current_grup not in grup_ops:
             st.session_state.q_grup = "Tümü"
             
-        # --- ARAYÜZ (KUSURSUZ DOĞAL KUTU) ---
+        # --- ARAYÜZ (KUSURSUZ DOĞAL KUTULAR) ---
         with col1: 
-            v_search = st_keyup(
+            # Streamlit'in kendi has, kaya gibi sağlam orijinal text_input bileşeni.
+            # Yukarıda yazdığımız küçük JS kodu sayesinde harf yazıldığı an Enter'a basılmış gibi canlanır!
+            v_search = st.text_input(
                 label="📝 Ürün Ara", 
-                key=f"q_search_{st.session_state.search_key}", 
-                placeholder="Kod veya açıklama ara...", 
-                debounce=300
+                key="q_search", 
+                placeholder="Kod veya açıklama ara..."
             )
-                
+            
         with col2: 
             v_marka = st.selectbox("🏷️ Marka", marka_ops, key="q_marka")
         with col3: 
