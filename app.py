@@ -204,6 +204,12 @@ else:
             border: none !important; 
         }
         
+        /* --- TİTREMEYİ ÖNLEYEN YENİ CSS KURALI --- */
+        /* Yenilenme sırasında sütunların yüksekliğinin çökmesini (zıplamayı) engeller */
+        div[data-testid="column"] { 
+            min-height: 75px !important; 
+        }
+        
         hr { margin: 0.6rem 0 !important; opacity: 0.2; }
     </style>
     """
@@ -232,11 +238,10 @@ else:
         if "q_marka" not in st.session_state: st.session_state.q_marka = "Tümü"
         if "q_stok" not in st.session_state: st.session_state.q_stok = False
         
-        # Arama kutusunu sıfırlayabilmek için özel bir anahtar sayacı oluşturuyoruz
         if "search_key" not in st.session_state: st.session_state.search_key = 0 
 
         def filtreleri_temizle():
-            st.session_state.search_key += 1 # Kutuya yeni bir kimlik vererek sıfırlanmasını tetikler
+            st.session_state.search_key += 1 
             st.session_state.q_grup = "Tümü"
             st.session_state.q_marka = "Tümü"
             st.session_state.q_stok = False
@@ -290,10 +295,19 @@ else:
         if current_grup not in grup_ops:
             st.session_state.q_grup = "Tümü"
             
-        # --- ARAYÜZ (st_keyup Eklendi) ---
+        # --- ARAYÜZ (st_keyup Titreme Düzeltmesi) ---
         with col1: 
-            # Key parametresini dinamik hale getirdik
-            v_search = st_keyup("📝 Ürün Ara", key=f"q_search_{st.session_state.search_key}", placeholder="Kod veya açıklama ara...", debounce=300)
+            # 1. Başlığın (label) kaybolmaması için Streamlit'ten bağımsız HTML olarak yazdırıyoruz
+            st.markdown('<div style="font-size: 14px; font-weight: 400; color: #31333F; margin-bottom: 4px;">📝 Ürün Ara</div>', unsafe_allow_html=True)
+            
+            # 2. Bileşenin kendi başlığını (label) görünmez yapıyoruz (label_visibility="collapsed")
+            v_search = st_keyup(
+                label="Ürün Ara", 
+                key=f"q_search_{st.session_state.search_key}", 
+                placeholder="Kod veya açıklama ara...", 
+                debounce=300,
+                label_visibility="collapsed"
+            )
             
         with col2: 
             v_marka = st.selectbox("🏷️ Marka", marka_ops, key="q_marka")
