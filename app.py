@@ -203,6 +203,23 @@ else:
             color: white !important; 
             border: none !important; 
         }
+
+        /* --- İMKANSIZI BAŞARAN ÇELİK KAFES CSS YAMASI --- */
+        
+        /* 1. Sütunun yüksekliğini milimetrik olarak betonluyoruz (Zıplamayı kesinlikle önler) */
+        div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:nth-child(1) { 
+            height: 95px !important; 
+            min-height: 95px !important; 
+            max-height: 95px !important; 
+            display: flex;
+            flex-direction: column;
+            overflow: visible !important;
+        }
+        
+        /* 2. Eklentinin hata vermemesi için yazdığımız sahte iç başlığı tamamen siliyoruz */
+        div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:nth-child(1) label {
+            display: none !important;
+        }
         
         hr { margin: 0.6rem 0 !important; opacity: 0.2; }
     </style>
@@ -227,17 +244,15 @@ else:
         df[c_maliyet] = pd.to_numeric(df[c_maliyet], errors='coerce').fillna(0)
         df[c_fiyat] = pd.to_numeric(df[c_fiyat], errors='coerce').fillna(0)
 
-        # --- DOĞRU HAFIZA (SESSION STATE) YÖNETİMİ ---
-        # Tüm filtrelerin ilk değerlerini tanımlıyoruz
-        if "q_search" not in st.session_state: st.session_state.q_search = ""
+        # --- HAFIZA VE SAYAÇ YÖNETİMİ ---
         if "q_grup" not in st.session_state: st.session_state.q_grup = "Tümü"
         if "q_marka" not in st.session_state: st.session_state.q_marka = "Tümü"
         if "q_stok" not in st.session_state: st.session_state.q_stok = False
+        
+        if "search_key" not in st.session_state: st.session_state.search_key = 0 
 
-        # --- İŞTE O BASİT VE KESİN TEMİZLEME KODU ---
         def filtreleri_temizle():
-            # Tam olarak bahsettiğiniz "urunAra.text = ''" mantığının Streamlit versiyonu:
-            st.session_state.q_search = "" 
+            st.session_state.search_key += 1 # Eklentiyi mecburen sıfırlıyor
             st.session_state.q_grup = "Tümü"
             st.session_state.q_marka = "Tümü"
             st.session_state.q_stok = False
@@ -272,6 +287,7 @@ else:
         current_grup = st.session_state.q_grup
 
         # --- DİNAMİK (BAĞIMLI) FİLTRE HESAPLAMALARI ---
+        
         if current_grup != "Tümü":
             df_for_marka = df[df[c_grup].astype(str) == current_grup]
         else:
@@ -289,12 +305,15 @@ else:
         if current_grup not in grup_ops:
             st.session_state.q_grup = "Tümü"
             
-        # --- ARAYÜZ ---
+        # --- ARAYÜZ (TAMAMEN SARSILMAZ FORM) ---
         with col1: 
-            # Kutuya "q_search" kimliğini atıyoruz ki yazdığımız temizleme kodu burayı bulsun.
+            # 1. Asla kaybolmayacak olan sabit (çivilenmiş) HTML başlığımız
+            st.markdown('<div style="font-size: 14px; font-weight: 400; color: #31333F; margin-bottom: 6px;">📝 Ürün Ara</div>', unsafe_allow_html=True)
+            
+            # 2. Hata önlemek için sahte bir başlık verip CSS ile sildiğimiz arama kutusu
             v_search = st_keyup(
-                label="📝 Ürün Ara", 
-                key="q_search", 
+                label="GizliBaslik", 
+                key=f"q_search_{st.session_state.search_key}", 
                 placeholder="Kod veya açıklama ara...", 
                 debounce=300
             )
