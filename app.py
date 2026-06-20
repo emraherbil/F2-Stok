@@ -4,14 +4,6 @@ import os
 import base64
 from pathlib import Path
 
-# --- CANLI ARAMA EKLENTİSİ ---
-try:
-    from st_keyup import st_keyup
-except ImportError:
-    st.error("Lütfen terminalde 'pip install streamlit-keyup' çalıştırın veya requirements.txt dosyanıza 'streamlit-keyup' ekleyin.")
-    st.stop()
-# -----------------------------
-
 # ==========================================
 # 1. LOGO DÖNÜŞTÜRÜCÜ
 # ==========================================
@@ -204,12 +196,6 @@ else:
             border: none !important; 
         }
         
-        /* --- TİTREMEYİ ÖNLEYEN YENİ CSS KURALI --- */
-        /* Yenilenme sırasında sütunların yüksekliğinin çökmesini (zıplamayı) engeller */
-        div[data-testid="column"] { 
-            min-height: 75px !important; 
-        }
-        
         hr { margin: 0.6rem 0 !important; opacity: 0.2; }
     </style>
     """
@@ -233,15 +219,15 @@ else:
         df[c_maliyet] = pd.to_numeric(df[c_maliyet], errors='coerce').fillna(0)
         df[c_fiyat] = pd.to_numeric(df[c_fiyat], errors='coerce').fillna(0)
 
-        # Session State Tanımlamaları
+        # Orijinal Session State Tanımlamaları
+        if "q_search" not in st.session_state: st.session_state.q_search = ""
         if "q_grup" not in st.session_state: st.session_state.q_grup = "Tümü"
         if "q_marka" not in st.session_state: st.session_state.q_marka = "Tümü"
         if "q_stok" not in st.session_state: st.session_state.q_stok = False
-        
-        if "search_key" not in st.session_state: st.session_state.search_key = 0 
 
+        # Orijinal (Titremesiz) Temizleme Fonksiyonu
         def filtreleri_temizle():
-            st.session_state.search_key += 1 
+            st.session_state.q_search = ""
             st.session_state.q_grup = "Tümü"
             st.session_state.q_marka = "Tümü"
             st.session_state.q_stok = False
@@ -272,12 +258,10 @@ else:
 
         col1, col2, col3, col4, col5 = st.columns([3.2, 2.4, 2.4, 2.2, 1.2])
         
-        # Seçili filtreleri hafızadan çekiyoruz
         current_marka = st.session_state.q_marka
         current_grup = st.session_state.q_grup
 
         # --- DİNAMİK (BAĞIMLI) FİLTRE HESAPLAMALARI ---
-        
         if current_grup != "Tümü":
             df_for_marka = df[df[c_grup].astype(str) == current_grup]
         else:
@@ -295,19 +279,10 @@ else:
         if current_grup not in grup_ops:
             st.session_state.q_grup = "Tümü"
             
-        # --- ARAYÜZ (st_keyup Titreme Düzeltmesi) ---
+        # --- ARAYÜZ ---
         with col1: 
-            # 1. Başlığın (label) kaybolmaması için Streamlit'ten bağımsız HTML olarak yazdırıyoruz
-            st.markdown('<div style="font-size: 14px; font-weight: 400; color: #31333F; margin-bottom: 4px;">📝 Ürün Ara</div>', unsafe_allow_html=True)
-            
-            # 2. Bileşenin kendi başlığını (label) görünmez yapıyoruz (label_visibility="collapsed")
-            v_search = st_keyup(
-                label="Ürün Ara", 
-                key=f"q_search_{st.session_state.search_key}", 
-                placeholder="Kod veya açıklama ara...", 
-                debounce=300,
-                label_visibility="collapsed"
-            )
+            # Orijinal, temiz ve sorunsuz çalışan Streamlit metin kutusuna döndük
+            v_search = st.text_input("📝 Ürün Ara", key="q_search", placeholder="Kod veya açıklama ara...")
             
         with col2: 
             v_marka = st.selectbox("🏷️ Marka", marka_ops, key="q_marka")
