@@ -104,16 +104,16 @@ if not st.session_state.logged_in:
     """, unsafe_allow_html=True)
     
     with st.form("login_form"):
-        # LOGO
+        # LOGO (Alt boşluk 5px'den 15px'e çıkarıldı)
         if logo_data:
-            st.markdown(f'<div style="text-align: center; margin-bottom: 5px;"><img src="data:image/png;base64,{logo_data}" style="max-width: 200px; height: auto;"></div>', unsafe_allow_html=True)
+            st.markdown(f'<div style="text-align: center; margin-bottom: 15px;"><img src="data:image/png;base64,{logo_data}" style="max-width: 200px; height: auto;"></div>', unsafe_allow_html=True)
         else:
-            st.markdown('<div style="text-align: center; font-size: 2.5rem; margin-bottom: 5px;">📦</div>', unsafe_allow_html=True)
+            st.markdown('<div style="text-align: center; font-size: 2.5rem; margin-bottom: 15px;">📦</div>', unsafe_allow_html=True)
             
-        # BAŞLIK (Yazı boyutu 17px)
-        st.markdown('<div style="text-align: center; font-size: 17px; color: #64748b; margin-bottom: 25px; font-weight: 500;">Ofis Stok İzleme Paneli</div>', unsafe_allow_html=True)
+        # BAŞLIK (Alt boşluk 25px'den 15px'e düşürüldü, böylece üst ve alt boşluk eşitlendi)
+        st.markdown('<div style="text-align: center; font-size: 17px; color: #64748b; margin-bottom: 15px; font-weight: 500;">Ofis Stok İzleme Paneli</div>', unsafe_allow_html=True)
         
-        # GİRDİ KUTULARI (Hizalamalar düzeltildi)
+        # GİRDİ KUTULARI
         username_input = st.text_input("Kullanıcı Adı", placeholder="Kullanıcı adınızı yazın", label_visibility="collapsed")
         password_input = st.text_input("Şifre", type="password", placeholder="Şifrenizi yazın", label_visibility="collapsed")
         
