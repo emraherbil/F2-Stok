@@ -45,17 +45,6 @@ st.markdown("""
         [data-testid="stToolbar"] {display: none !important;}
         .stDeployButton {display: none !important;}
         header {visibility: hidden !important; display: none !important;}
-        
-        /* --- JİLET GİBİ TABAN HİZALAMA MÜHENDİSLİĞİ --- */
-        /* Yan yana duran tüm kolonları alt çizgilerine (tabanına) göre hizalar */
-        div[data-testid="stHorizontalBlock"] {
-            align-items: flex-end !important;
-        }
-        
-        /* Kutular temizlenirken dikeyde çökme yapmasın diye minimum yükseklik garantisi */
-        div[data-testid="stFragment"] div[data-testid="column"] {
-            min-height: 75px !important;
-        }
     </style>
 """, unsafe_allow_html=True)
 
@@ -164,8 +153,8 @@ else:
         }
         .block-container { 
             display: block !important;
-            padding-top: 2rem !important; 
-            padding-bottom: 2rem !important; 
+            padding-top: 1.5rem !important; 
+            padding-bottom: 1.5rem !important; 
             background-color: #ffffff !important; 
         }
         div[data-testid="stVerticalBlock"] > div:first-child {
@@ -185,16 +174,38 @@ else:
         }
         .custom-logo { height: 60px; object-fit: contain; }
         .custom-title-block { display: flex; flex-direction: column; justify-content: center; }
+        hr { margin: 0.5rem 0 !important; opacity: 0.2; }
+
+        /* ======================================================= */
+        /* --- MİLİMETRİK HİZALAMA VE ALTTAN YANAŞTIRMA CSS'LERİ --- */
+        /* ======================================================= */
         
-        /* Eski tahmini üst boşluk (margin-top) kodları tamamen temizlendi! */
+        /* 1. Filtre satırının dikey boşluğunu daraltıp altındaki KPI kartlarına yanaştırıyoruz */
+        div[data-testid="stHorizontalBlock"] {
+            margin-bottom: -18px !important;
+        }
+
+        /* 2. Arama kutusu iframe boyutu ve dikey taban oturumu ayarı */
+        div[data-testid="stHorizontalBlock"] div[data-testid="column"]:nth-child(1) iframe {
+            height: 76px !important;
+            width: 100% !important;
+        }
+
+        /* 3. Checkbox'ı selectbox'ların kutu taban çizgisine kusursuz indiren ayar */
+        div[data-testid="stHorizontalBlock"] div[data-testid="column"]:nth-child(4) .stCheckbox {
+            margin-top: 36px !important;
+        }
+
+        /* 4. Temizle butonunu selectbox'ların kutu taban çizgisine sabitleyen ayar */
         .stButton button { 
-            height: 42px !important; 
-            width: auto !important; 
+            margin-top: 31px !important;
+            height: 40px !important; 
+            width: 100% !important; 
             background-color: #1e293b !important; 
             color: white !important; 
             border: none !important; 
+            border-radius: 4px !important;
         }
-        hr { margin: 0.6rem 0 !important; opacity: 0.2; }
     </style>
     """
     st.markdown(main_panel_css, unsafe_allow_html=True)
