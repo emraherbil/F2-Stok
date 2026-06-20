@@ -153,4 +153,21 @@ if not st.session_state.logged_in:
         if submit_button:
             if username_input == VALID_USERNAME and password_input == VALID_PASSWORD:
                 st.session_state.logged_in = True
-                st.
+                st.rerun()
+            else:
+                st.error("Hatalı kullanıcı adı veya şifre!")
+
+# ==========================================
+# 4. ANA PANEL (BAŞARILI GİRİŞ SONRASI)
+# ==========================================
+else:
+    main_panel_css = """
+    <style>
+        html, body, [data-testid="stAppViewContainer"] { overflow: auto !important; }
+        [data-testid="stForm"] {
+            position: relative !important;
+            top: auto !important;
+            left: auto !important;
+            transform: none !important;
+            width: 100% !important;
+            max-width: 100%
