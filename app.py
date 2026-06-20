@@ -87,9 +87,9 @@ if not st.session_state.logged_in:
 
         /* 4. SADECE GİRİŞ BUTONUNU HEDEFLE VE ORTALA */
         [data-testid="stFormSubmitButton"] {
-            display: flex !important;
-            justify-content: center !important;
             width: 100% !important;
+            text-align: center !important;
+            display: block !important;
         }
 
         [data-testid="stFormSubmitButton"] button {
@@ -99,16 +99,15 @@ if not st.session_state.logged_in:
             border-radius: 6px !important;
             font-weight: 600 !important;
             height: 45px !important;
-            width: 200px !important; /* Butonun genişliği. İsterseniz bu değeri artırıp azaltabilirsiniz. */
-            margin-top: 15px !important;
+            width: 200px !important; /* Butonun genişliği */
+            margin: 15px auto 0 auto !important; /* Üstten 15px boşluk bırakır, sağdan ve soldan otomatik ortalar */
             transition: background-color 0.3s;
+            display: block !important;
         }
         
         [data-testid="stFormSubmitButton"] button:hover {
             background-color: #0f172a !important;
-        }
-        }
-    </style>
+        }    </style>
     """, unsafe_allow_html=True)
     
     with st.form("login_form"):
