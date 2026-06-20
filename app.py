@@ -203,23 +203,6 @@ else:
             color: white !important; 
             border: none !important; 
         }
-
-        /* --- İMKANSIZI BAŞARAN ÇELİK KAFES CSS YAMASI --- */
-        
-        /* 1. Sütunun yüksekliğini milimetrik olarak betonluyoruz (Zıplamayı kesinlikle önler) */
-        div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:nth-child(1) { 
-            height: 95px !important; 
-            min-height: 95px !important; 
-            max-height: 95px !important; 
-            display: flex;
-            flex-direction: column;
-            overflow: visible !important;
-        }
-        
-        /* 2. Eklentinin hata vermemesi için yazdığımız sahte iç başlığı tamamen siliyoruz */
-        div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:nth-child(1) label {
-            display: none !important;
-        }
         
         hr { margin: 0.6rem 0 !important; opacity: 0.2; }
     </style>
@@ -252,7 +235,7 @@ else:
         if "search_key" not in st.session_state: st.session_state.search_key = 0 
 
         def filtreleri_temizle():
-            st.session_state.search_key += 1 # Eklentiyi mecburen sıfırlıyor
+            st.session_state.search_key += 1 # Kutu sıfırlansın diye kimliği değiştirir
             st.session_state.q_grup = "Tümü"
             st.session_state.q_marka = "Tümü"
             st.session_state.q_stok = False
@@ -305,17 +288,18 @@ else:
         if current_grup not in grup_ops:
             st.session_state.q_grup = "Tümü"
             
-        # --- ARAYÜZ (TAMAMEN SARSILMAZ FORM) ---
+        # --- DOĞAL, HİLESİZ VE TERTEMİZ ARAYÜZ ---
         with col1: 
-            # 1. Asla kaybolmayacak olan sabit (çivilenmiş) HTML başlığımız
-            st.markdown('<div style="font-size: 14px; font-weight: 400; color: #31333F; margin-bottom: 6px;">📝 Ürün Ara</div>', unsafe_allow_html=True)
+            # 1. Asla kaybolmayacak olan temiz HTML başlığımız (CSS hilesi yok)
+            st.markdown('<div style="font-size: 14px; font-weight: 400; color: #31333F; margin-bottom: 5px;">📝 Ürün Ara</div>', unsafe_allow_html=True)
             
-            # 2. Hata önlemek için sahte bir başlık verip CSS ile sildiğimiz arama kutusu
+            # 2. Eklentinin kendi başlığını label_visibility="collapsed" ile KÖKTEN yok ediyoruz
             v_search = st_keyup(
-                label="GizliBaslik", 
+                label="Arama", 
                 key=f"q_search_{st.session_state.search_key}", 
                 placeholder="Kod veya açıklama ara...", 
-                debounce=300
+                debounce=300,
+                label_visibility="collapsed" # İşte o çirkin yazıları ve kaymaları önleyen sihirli özellik!
             )
             
         with col2: 
