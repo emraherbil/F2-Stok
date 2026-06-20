@@ -90,7 +90,7 @@ if not st.session_state.logged_in:
         }
         [data-baseweb="input"] {
             background-color: #f1f5f9 !important;
-            border: 1px solid #cbd5e1 !important;
+            border: none
             border-radius: 6px !important;
         }
         [data-testid="stFormSubmitButton"] button {
