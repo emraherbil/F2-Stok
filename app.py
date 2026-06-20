@@ -105,29 +105,33 @@ if not st.session_state.logged_in:
     """, unsafe_allow_html=True)
     
     with st.form("login_form"):
-        # LOGO (Alt boşluk 5px'den 15px'e çıkarıldı)
+        # LOGO 
         if logo_data:
             st.markdown(f'<div style="text-align: center; margin-bottom: 15px;"><img src="data:image/png;base64,{logo_data}" style="max-width: 200px; height: auto;"></div>', unsafe_allow_html=True)
         else:
             st.markdown('<div style="text-align: center; font-size: 2.5rem; margin-bottom: 15px;">📦</div>', unsafe_allow_html=True)
             
-        # BAŞLIK (Alt boşluk 25px'den 15px'e düşürüldü, böylece üst ve alt boşluk eşitlendi)
+        # BAŞLIK 
         st.markdown('<div style="text-align: center; font-size: 17px; color: #64748b; margin-bottom: 15px; font-weight: 500;">Ofis Stok İzleme Paneli</div>', unsafe_allow_html=True)
         
         # GİRDİ KUTULARI
         username_input = st.text_input("Kullanıcı Adı", placeholder="Kullanıcı adınızı yazın", label_visibility="collapsed")
         password_input = st.text_input("Şifre", type="password", placeholder="Şifrenizi yazın", label_visibility="collapsed")
         
-        # BUTON
-        submit_button = st.form_submit_button("Sisteme Giriş Yap")
+        # --- BUTONU ORTALAMAK İÇİN KESİN ÇÖZÜM ---
+        st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True) # Kutularla buton arasına biraz boşluk
+        col1, col2, col3 = st.columns([1, 1.5, 1]) # Ekranı 3'e bölüyoruz, buton ortada (1.5 birim) yer alacak
+        
+        with col2:
+            submit_button = st.form_submit_button("Sisteme Giriş Yap", use_container_width=True)
+        # ----------------------------------------
         
         if submit_button:
             if username_input == VALID_USERNAME and password_input == VALID_PASSWORD:
                 st.session_state.logged_in = True
                 st.rerun()
             else:
-                st.error("Hatalı kullanıcı adı veya şifre!")
-# ==========================================
+                st.error("Hatalı kullanıcı adı veya şifre!")# ==========================================
 # 4. ANA PANEL (BAŞARILI GİRİŞ SONRASI)
 # ==========================================
 else:
