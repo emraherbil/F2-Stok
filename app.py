@@ -42,48 +42,47 @@ logo_data = logo_to_base64("logo.png") or logo_to_base64("logo.jpg")
 if not st.session_state.logged_in:
     st.markdown("""
     <style>
-        /* 1. KAYDIRMA ÇUBUĞUNU YOK ET: Ekranı tam boyuta sabitle */
+        /* 1. EKRANI SABİTLE VE KAYDIRMAYI GİZLE */
         html, body, [data-testid="stAppViewContainer"] {
             overflow: hidden !important; 
             background-color: #f8fafc !important;
+            margin: 0; padding: 0;
         }
         
-        /* 2. ORTALAMA SİHİRBASI: Streamlit boşluklarını sıfırla ve formu merkeze al */
+        /* 2. FORMU TAM MERKEZE ÇİVİLE */
         .block-container {
             padding: 0 !important;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
+            height: 100vh !important;
+            max-width: 100% !important;
         }
 
-        /* Bulut İframe'ini ve Streamlit Üst Menüsünü Gizle */
-        iframe, iframe[title="Streamlit Cloud Status"] { display: none !important; }
-        [data-testid="stHeader"], .stDeployButton, footer { display: none !important; }
+        /* Üst Menü ve Gereksiz Boşlukları Gizle */
+        iframe, [data-testid="stHeader"], footer { display: none !important; }
 
-        /* BEYAZ ÇERÇEVE TASARIMI */
+        /* 3. BEYAZ ÇERÇEVE TASARIMI */
         [data-testid="stForm"] {
-            max-width: 380px !important;
-            width: 100%;
+            width: 380px !important;
+            max-width: 90vw !important;
             padding: 40px 30px !important;
             background-color: #ffffff !important;
             border-radius: 12px !important;
             box-shadow: 0px 8px 25px rgba(0, 0, 0, 0.05) !important;
             border: 1px solid #e2e8f0 !important;
-            margin: 0 !important; 
         }
 
-        /* ŞİFRE GÖZ İKONUNU BOZMAYAN GİRDİ KUTUSU */
-        [data-baseweb="input"] {
+        /* 4. ŞİFRE İKONUNU BOZMAYAN GİRDİ KUTUSU */
+        /* Sadece en dış çerçeveyi renklendiriyoruz, iç yapıyı Streamlit'e bırakıyoruz */
+        .stTextInput > div > div > div {
             background-color: #f1f5f9 !important;
-            border: 1px solid #cbd5e1 !important;
             border-radius: 6px !important;
-        }
-        [data-baseweb="input"] input {
-            color: #1e293b !important;
+            border: 1px solid #cbd5e1 !important;
         }
 
-        /* Buton Tasarımı */
+        /* 5. BUTON TASARIMI */
         [data-testid="stForm"] button {
             background-color: #1e293b !important;
             color: white !important;
@@ -92,7 +91,8 @@ if not st.session_state.logged_in:
             font-weight: 600 !important;
             height: 45px !important;
             margin-top: 15px !important;
-            transition: all 0.3s;
+            width: 100% !important;
+            transition: background-color 0.3s;
         }
         [data-testid="stForm"] button:hover {
             background-color: #0f172a !important;
@@ -101,7 +101,6 @@ if not st.session_state.logged_in:
     """, unsafe_allow_html=True)
     
     with st.form("login_form"):
-        
         # LOGO
         if logo_data:
             st.markdown(f'<div style="text-align: center; margin-bottom: 5px;"><img src="data:image/png;base64,{logo_data}" style="max-width: 240px; height: auto;"></div>', unsafe_allow_html=True)
@@ -116,7 +115,7 @@ if not st.session_state.logged_in:
         password_input = st.text_input("Şifre", type="password", placeholder="Şifrenizi yazın", label_visibility="collapsed")
         
         # BUTON
-        submit_button = st.form_submit_button("Sisteme Giriş Yap", use_container_width=True)
+        submit_button = st.form_submit_button("Sisteme Giriş Yap")
         
         if submit_button:
             if username_input == VALID_USERNAME and password_input == VALID_PASSWORD:
@@ -129,12 +128,15 @@ if not st.session_state.logged_in:
 # 4. ANA PANEL (BAŞARILI GİRİŞ SONRASI)
 # ==========================================
 else:
-    # Ana panele geçince scroll (kaydırma) özelliklerini ve blok yapısını geri yüklüyoruz
+    # Ana panele geçince scroll (kaydırma) ve blok yapısını geri yüklüyoruz
     main_panel_css = """
     <style>
         html, body, [data-testid="stAppViewContainer"] { overflow: auto !important; }
+        
+        /* Form ekranındaki merkezleme ayarlarını sıfırla */
         .block-container { 
             display: block !important;
+            height: auto !important;
             padding-top: 2rem !important; 
             padding-bottom: 2rem !important; 
             background-color: #ffffff !important; 
@@ -194,7 +196,6 @@ else:
             st.session_state.q_marka = "Tümü"
             st.session_state.q_stok = False
 
-        # LOGO + BAŞLIK PANELİ
         if logo_data:
             header_html = f"""
             <div class="custom-header-container">
@@ -218,7 +219,6 @@ else:
         st.markdown(header_html, unsafe_allow_html=True)
         st.markdown("---")
 
-        # FİLTRELER
         col1, col2, col3, col4, col5 = st.columns([3.2, 2.4, 2.4, 2.2, 1.2])
         
         with col1: 
@@ -234,7 +234,6 @@ else:
         with col5: 
             st.button("🧹 Temizle", on_click=filtreleri_temizle, use_container_width=True)
 
-        # Filtreleme Algoritması
         f_df = df.copy()
         if v_search:
             m1 = f_df[c_kod].astype(str).str.contains(v_search, case=False)
@@ -247,7 +246,6 @@ else:
         if v_stok: 
             f_df = f_df[f_df[c_stok] > 0]
 
-        # KPI Hesaplamaları
         t_prod = len(f_df)
         t_stok = int(f_df[c_stok].sum())
         t_cost = f_df[c_maliyet].sum()
@@ -265,7 +263,6 @@ else:
         with k2: st.markdown(kpi_card("📦 Toplam Stok:", f"{t_stok:,}".replace(",", ".") + " Adet", "#4CAF50"), unsafe_allow_html=True)
         with k3: st.markdown(kpi_card("💰 Toplam Maliyet:", f"${t_cost:,.0f}".replace(",", "."), "#FFC107"), unsafe_allow_html=True)
 
-        # AKAN VERİ TABLOSU
         st.markdown("<div style='margin-top:15px;'></div>", unsafe_allow_html=True)
         
         out_df = f_df[[c_kod, c_tanim, c_marka, c_grup, c_stok, c_fiyat, c_maliyet]].copy()
