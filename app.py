@@ -5,9 +5,8 @@ import base64
 from pathlib import Path
 
 # ==========================================
-# 1. BAĞIMSIZ YARDIMCI FONKSİYONLAR
+# 1. BAĞIMSIZ LOGO DÖNÜŞTÜRÜCÜ
 # ==========================================
-
 def logo_to_base64(img_path):
     try:
         if os.path.exists(img_path):
@@ -22,9 +21,8 @@ def load_data():
     return pd.read_excel('Stok Sayım Arşivi-v3.1-Web.xlsm', sheet_name='Stok', engine='openpyxl')
 
 # ==========================================
-# 2. SAYFA YAPILANDIRMASI VE OTURUM KONTROLÜ
+# 2. SAYFA YAPILANDIRMASI
 # ==========================================
-
 st.set_page_config(
     page_title="F2 ICT - Ofis Stok İzleme Paneli", 
     page_icon="📦",
@@ -36,127 +34,146 @@ if "logged_in" not in st.session_state:
 
 VALID_USERNAME = "admin"
 VALID_PASSWORD = "f2"
-
 logo_data = logo_to_base64("logo.png") or logo_to_base64("logo.jpg")
 
 # ==========================================
-# 3. KUSURSUZ VE HARİCİ KUTUSUZ GİRİŞ EKRANI
+# 3. %100 BAĞIMSIZ TASARLANMIŞ GİRİŞ EKRANI
 # ==========================================
 if not st.session_state.logged_in:
-    # Sayfadaki tüm hayalet çerçeveleri yıkan saf CSS sihirbazı
-    login_css = """
+    # Streamlit'in tüm varsayılan elementlerini (header, padding, boş kutular) tamamen yok ediyoruz
+    independent_css = """
     <style>
-        /* Arka planı temiz soft bir tona eşitle */
-        .stApp {
-            background-color: #f6f8fa !important;
-        }
-        
-        /* Tüm formu kapsayan tek ve gerçek beyaz kurumsal kart */
-        .custom-login-card {
-            max-width: 480px;
-            margin: 120px auto 0 auto;
-            padding: 40px;
-            background-color: #ffffff !important;
-            border-radius: 12px;
-            box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.05);
-            border: 1px solid #e1e4e8;
-            text-align: center;
-        }
-        
-        /* Logonun taşmasını önleyen ve kibar (300px) tutan kontrol alanı */
-        .login-logo-container {
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-        
-        .login-logo-img {
-            width: 100%;
-            max-width: 300px !important; /* Logo büyüklüğünü masaüstü için ideal sınıra çektik */
-            height: auto;
-            object-fit: contain;
-        }
-        
-        .login-subtitle {
-            font-size: 0.85rem;
-            color: #586069;
-            margin-bottom: 25px;
-            font-weight: 500;
-            letter-spacing: 0.3px;
-        }
-
-        /* Streamlit input kutularını ve butonunu tam 300px (Logo genişliği) boyutuna sabitleme */
-        div[data-testid="stColumn"] div[data-testid="stWidgetLabel"] {
+        /* Streamlit'in tüm standart arayüzünü gizle */
+        [data-testid="stHeader"], 
+        [data-testid="stSidebar"], 
+        .stDeployButton, 
+        footer {
             display: none !important;
         }
         
-        div[data-testid="stColumn"] .stTextInput, 
-        div[data-testid="stColumn"] .stButton,
-        div[data-testid="stColumn"] .stButton button {
-            max-width: 300px !important;
+        /* Ana ekranın arka planını temizle ve ortala */
+        .stApp {
+            background-color: #f8fafc !important;
+            display: flex !important;
+            justify-content: center !important;
+            align-items: center !important;
+        }
+        
+        /* Streamlit'in kendi blok yapısını tamamen görünmez yap */
+        div[data-testid="stVerticalBlock"] {
+            gap: 0 !important;
+        }
+        
+        /* Bize özel saf HTML Giriş Kartı */
+        .custom-login-container {
+            width: 380px;
+            padding: 40px;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+            text-align: center;
+        }
+        
+        .custom-login-logo {
+            width: 240px;
+            height: auto;
+            margin-bottom: 8px;
+            object-fit: contain;
+        }
+        
+        .custom-login-subtitle {
+            font-size: 14px;
+            color: #64748b;
+            margin-bottom: 30px;
+            font-weight: 500;
+        }
+
+        /* Streamlit text input kutularını saf HTML alanları gibi giydir ve milimetrik eşitle */
+        div.stTextInput > div {
+            border: none !important;
+            background: transparent !important;
+        }
+        
+        div.stTextInput input {
+            background-color: #f1f5f9 !important;
+            border: 1px solid #cbd5e1 !important;
+            border-radius: 8px !important;
+            padding: 12px 16px !important;
+            color: #1e293b !important;
+            font-size: 14px !important;
+            transition: all 0.2s;
+            width: 240px !important;
             margin: 0 auto !important;
         }
         
-        /* Butonun tasarımını metin kutularıyla pürüzsüzce eşitleme */
-        div[data-testid="stColumn"] .stButton button {
-            width: 100% !important;
-            height: 42px !important;
-            background-color: #ffffff !important;
-            color: #24292e !important;
-            border: 1px solid #cbd5e1 !important;
-            border-radius: 6px !important;
-            font-weight: 600 !important;
-            transition: all 0.2s ease;
+        div.stTextInput input:focus {
+            border-color: #64748b !important;
+            box-shadow: none !important;
         }
         
-        div[data-testid="stColumn"] .stButton button:hover {
-            border-color: #1e293b !important;
-            background-color: #f8fafc !important;
+        /* Butonu tamamen özelleştir ve genişliğini logoya (240px) kilitle */
+        div.stButton button {
+            width: 240px !important;
+            max-width: 240px !important;
+            height: 44px !important;
+            background-color: #1e293b !important;
+            color: #ffffff !important;
+            border: none !important;
+            border-radius: 8px !important;
+            font-size: 14px !important;
+            font-weight: 600 !important;
+            margin: 15px auto 0 auto !important;
+            display: block !important;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        div.stButton button:hover {
+            background-color: #0f172a !important;
+            color: #ffffff !important;
+        }
+        
+        /* Hata mesajı kutusunu daralt */
+        div.stAlert {
+            max-width: 240px !important;
+            margin: 15px auto 0 auto !important;
         }
     </style>
     """
-    st.markdown(login_css, unsafe_allow_html=True)
+    st.markdown(independent_css, unsafe_allow_html=True)
     
-    # Giriş Kartı Başlangıcı (Logo artık doğrudan bu kartın İÇİNDEDİR)
-    st.markdown('<div class="custom-login-card">', unsafe_allow_html=True)
+    # Saf HTML Tasarım Alanı Başlangıcı
+    st.markdown('<div class="custom-login-container">', unsafe_allow_html=True)
     
     if logo_data:
-        st.markdown(f'<div class="login-logo-container"><img src="data:image/png;base64,{logo_data}" class="login-logo-img"></div>', unsafe_allow_html=True)
+        st.markdown(f'<img src="data:image/png;base64,{logo_data}" class="custom-login-logo">', unsafe_allow_html=True)
     else:
         st.markdown('<div style="font-size: 3rem; margin-bottom: 10px;">📦</div>', unsafe_allow_html=True)
-        st.markdown('<div style="font-size: 1.4rem; font-weight:700; color:#24292e; margin-bottom:3px;">F2 ICT</div>', unsafe_allow_html=True)
+        st.markdown('<div style="font-size: 1.4rem; font-weight:700; color:#1e293b;">F2 ICT</div>', unsafe_allow_html=True)
         
-    st.markdown('<div class="login-subtitle">Ofis Stok İzleme Paneli</div>', unsafe_allow_html=True)
+    st.markdown('<div class="custom-login-subtitle">Ofis Stok İzleme Paneli</div>', unsafe_allow_html=True)
     
-    # st.form kullanmadan, elemanları dikeyde hizalamak için tekli sütun mimarisi kullanıyoruz
-    # Bu sayede hayalet üst kutu %100 yok edilir.
-    _, center_col, _ = st.columns([1, 10, 1])
+    # Girdiler ve Buton (Genişlikleri CSS tarafında doğrudan 240px'e çivilendi)
+    username_input = st.text_input("Kullanıcı Adı", placeholder="Kullanıcı adı", label_visibility="collapsed")
+    password_input = st.text_input("Şifre", type="password", placeholder="Şifre", label_visibility="collapsed")
+    login_button = st.button("Sisteme Giriş Yap")
     
-    with center_col:
-        username_input = st.text_input("Kullanıcı Adı", placeholder="Kullanıcı adınızı yazın", label_visibility="collapsed")
-        st.markdown('<div style="margin-top: 12px;"></div>', unsafe_allow_html=True)
-        password_input = st.text_input("Şifre", type="password", placeholder="Şifrenizi yazın", label_visibility="collapsed")
-        
-        st.markdown('<div style="margin-top: 22px;"></div>', unsafe_allow_html=True)
-        login_button = st.button("Sisteme Giriş Yap", use_container_width=True)
-        
-        if login_button:
-            if username_input == VALID_USERNAME and password_input == VALID_PASSWORD:
-                st.session_state.logged_in = True
-                st.success("Giriş başarılı!")
-                st.rerun()
-            else:
-                st.error("Hatalı kullanıcı adı veya şifre!")
-                
+    if login_button:
+        if username_input == VALID_USERNAME and password_input == VALID_PASSWORD:
+            st.session_state.logged_in = True
+            st.rerun()
+        else:
+            st.error("Hatalı giriş!")
+            
     st.markdown('</div>', unsafe_allow_html=True)
 
 # ==========================================
-# 4. ANA PANEL (YALNIZCA LOGGED_IN = TRUE İSE ÇALIŞIR)
+# 4. BAĞIMSIZ ANA PANEL (GİRİŞ YAPILINCA GÖRÜNÜR)
 # ==========================================
 else:
-    css_style = """
+    # Ana panel CSS kodları (Artık asla login ekranına sızamaz)
+    main_panel_css = """
     <style>
         .block-container { padding-top: 2rem !important; padding-bottom: 2rem !important; background-color: #ffffff !important; }
         
@@ -169,10 +186,6 @@ else:
             border-bottom: 1px solid #eef1f6 !important;
         }
         
-        [data-baseweb="popover"], div[data-baseweb="select"] {
-            z-index: 999999 !important;
-        }
-        
         .custom-header-container { 
             display: flex; 
             align-items: center; 
@@ -180,22 +193,14 @@ else:
             padding-top: 5px;
             padding-bottom: 5px;
         }
-        .custom-logo { 
-            height: 60px; 
-            object-fit: contain; 
-        }
-        .custom-title-block { 
-            display: flex; 
-            flex-direction: column; 
-            justify-content: center; 
-        }
-        
+        .custom-logo { height: 60px; object-fit: contain; }
+        .custom-title-block { display: flex; flex-direction: column; justify-content: center; }
         .stCheckbox { margin-top: 35px !important; }
-        .stButton button { margin-top: 28px !important; height: 42px !important; }
+        .stButton button { margin-top: 28px !important; height: 42px !important; width: auto !important; background-color: transparent !important; color: inherit !important; border: 1px solid #cbd5e1 !important; }
         hr { margin: 0.6rem 0 !important; opacity: 0.2; }
     </style>
     """
-    st.markdown(css_style, unsafe_allow_html=True)
+    st.markdown(main_panel_css, unsafe_allow_html=True)
 
     try:
         df = load_data()
