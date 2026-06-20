@@ -371,3 +371,6 @@ else:
             hide_index=True,
             height=480
         )
+
+    except Exception as e:
+        st.error(f"Hata oluştu: {e}")
