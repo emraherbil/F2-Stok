@@ -161,7 +161,7 @@ if not st.session_state.logged_in:
 # 4. ANA PANEL (BAŞARILI GİRİŞ SONRASI)
 # ==========================================
 else:
-    st.markdown("""
+    main_panel_css = """
     <style>
         html, body, [data-testid="stAppViewContainer"] { overflow: auto !important; }
         [data-testid="stForm"] {
@@ -212,7 +212,8 @@ else:
             border-radius: 4px !important;
         }
     </style>
-    """, unsafe_allow_html=True)
+    """
+    st.markdown(main_panel_css, unsafe_allow_html=True)
 
     try:
         df = load_data()
@@ -249,19 +250,22 @@ else:
         """, unsafe_allow_html=True)
 
         # =================================================================
-        # 5. FRAGMENT ALANI
+        # 5. FRAGMENT ALANI 
         # =================================================================
         @st.fragment
         def stok_paneli_icerik(data_frame):
             if "q_grup" not in st.session_state: st.session_state.q_grup = "Tümü"
             if "q_marka" not in st.session_state: st.session_state.q_marka = "Tümü"
             if "q_stok" not in st.session_state: st.session_state.q_stok = False
+            # Canlı arama kutusunu sıfırlamak için oluşturulan özel sayaç
+            if "search_reset_key" not in st.session_state: st.session_state.search_reset_key = 0
             
             def filtreleri_temizle():
-                st.session_state.q_search = ""
                 st.session_state.q_grup = "Tümü"
                 st.session_state.q_marka = "Tümü"
                 st.session_state.q_stok = False
+                # Bu değer her arttığında eski st_keyup bileşeni yok edilir ve sıfırlanmış yenisi yaratılır
+                st.session_state.search_reset_key += 1 
 
             col1, col2, col3, col4, col5 = st.columns([3.2, 2.4, 2.4, 2.2, 1.2])
             
@@ -287,12 +291,10 @@ else:
                 st.session_state.q_grup = "Tümü"
 
             with col1:
-                if "q_search" not in st.session_state:
-                    st.session_state.q_search = ""
-
+                # Key değerine reset sayacını ekleyerek dinamik hale getirdik
                 v_search = st_keyup(
                     label="📝 Ürün Ara",
-                    key="q_search",
+                    key=f"q_search_{st.session_state.search_reset_key}",
                     placeholder="Kod veya açıklama ara...",
                     debounce=500
                 )
