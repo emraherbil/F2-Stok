@@ -49,33 +49,22 @@ st.markdown("""
         /* --- ÇİZGİLERİ VE BÖLÜCÜLERİ TAMAMEN KALDIRMA --- */
         hr { display: none !important; visibility: hidden !important; }
         
-        /* --- KUSURSUZ TAVAN HİZALAMASI --- */
+        /* --- KUSURSUZ TAVAN HİZALAMASI (PARADOX ÇÖZÜCÜ) --- */
+        /* Tüm elemanları en üst çizgilerinden (tavanından) hizalar */
         div[data-testid="stHorizontalBlock"] {
             align-items: flex-start !important;
-            margin-bottom: -28px !important; 
+            margin-bottom: -28px !important; /* Alttaki KPI kartlarına iyice yanaştırma ayarı */
         }
         
+        /* Kutular temizlenirken dikeyde çökme veya zıplama yapmasın diye yuva koruması */
         div[data-testid="stFragment"] div[data-testid="column"] {
             min-height: 75px !important;
         }
 
+        /* Arama kutusu çerçeve yüksekliği sabitlemesi */
         div[data-testid="stHorizontalBlock"] div[data-testid="column"]:nth-child(1) iframe {
-            height: 42px !important;
+            height: 76px !important;
             width: 100% !important;
-        }
-
-        div[data-testid="stHorizontalBlock"] div[data-testid="column"]:nth-child(4) .stCheckbox {
-            margin-top: 26px !important;
-        }
-
-        .stButton button { 
-            margin-top: 24px !important;
-            height: 40px !important; 
-            width: 100% !important; 
-            background-color: #1e293b !important; 
-            color: white !important; 
-            border: none !important; 
-            border-radius: 4px !important;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -205,6 +194,22 @@ else:
         }
         .custom-logo { height: 60px; object-fit: contain; }
         .custom-title-block { display: flex; flex-direction: column; justify-content: center; }
+        
+        /* Üst başlığı olmayan Checkbox'ı, Arama kutusunun girdi gövdesiyle milimetrik eşitleyen ayar */
+        div[data-testid="stHorizontalBlock"] div[data-testid="column"]:nth-child(4) .stCheckbox {
+            margin-top: 24px !important;
+        }
+
+        /* Üst başlığı olmayan butonu, Arama kutusunun girdi gövdesiyle milimetrik eşitleyen ayar */
+        .stButton button { 
+            margin-top: 24px !important;
+            height: 40px !important; 
+            width: 100% !important; 
+            background-color: #1e293b !important; 
+            color: white !important; 
+            border: none !important; 
+            border-radius: 4px !important;
+        }
     </style>
     """
     st.markdown(main_panel_css, unsafe_allow_html=True)
@@ -227,6 +232,7 @@ else:
         df[c_maliyet] = pd.to_numeric(df[c_maliyet], errors='coerce').fillna(0)
         df[c_fiyat] = pd.to_numeric(df[c_fiyat], errors='coerce').fillna(0)
 
+        # Üst Başlık Alanı (SABİT VE TERTEMİZ ÇİZGİSİZ)
         if logo_data:
             logo_html = f'<img src="data:image/png;base64,{logo_data}" class="custom-logo">'
         else:
@@ -280,9 +286,8 @@ else:
             if current_grup not in grup_ops: st.session_state.q_grup = "Tümü"
                 
             with col1: 
-                st.markdown('<div style="font-size: 14px; color: #31333F; margin-bottom: 4px; font-weight: 500;">📝 Ürün Ara</div>', unsafe_allow_html=True)
                 v_search = st_keyup(
-                    label="", 
+                    label="📝 Ürün Ara", 
                     key=f"q_search_{st.session_state.search_key}", 
                     placeholder="Kod veya açıklama ara...", 
                     debounce=300
@@ -346,6 +351,7 @@ else:
                 height=480
             )
 
+        # Fragment fonksiyonunu çağırıyoruz
         stok_paneli_icerik(df)
 
     except Exception as e:
