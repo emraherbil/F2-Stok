@@ -254,6 +254,7 @@ else:
         # =================================================================
         @st.fragment
         def stok_paneli_icerik(data_frame):
+            if "search_key" not in st.session_state: st.session_state.search_key = 0
             if "q_grup" not in st.session_state: st.session_state.q_grup = "Tümü"
             if "q_marka" not in st.session_state: st.session_state.q_marka = "Tümü"
             if "q_stok" not in st.session_state: st.session_state.q_stok = False
@@ -288,14 +289,12 @@ else:
                 st.session_state.q_grup = "Tümü"
 
             with col1:
-                if "q_search" not in st.session_state:
-                    st.session_state.q_search = ""
-
-                v_search = st_keyup(
-                    label="📝 Ürün Ara",
-                    key="q_search",
-                    placeholder="Kod veya açıklama ara...",
-                    debounce=500
+    v_search = st_keyup(
+        label="📝 Ürün Ara",
+        key=f"q_search_{st.session_state.search_key}",
+        placeholder="Kod veya açıklama ara...",
+        debounce=500
+    )
                 )
 
             with col2:
