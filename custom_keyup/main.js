@@ -101,16 +101,21 @@ function onRender(event) {
     window.rendered = true
   }
 
-  // --- BİZİM CERRAHİ MÜDAHALEMİZ: PYTHON'DAN GELEN TEMİZLEME EMRİNİ DİNLE ---
+  // --- DOĞRU VE DÖNGÜYÜ KIRAN CERRAHİ MÜDAHALE ---
   var inputElement = document.querySelector("input");
   var pythonValue = event.detail.args.value;
   
   if (inputElement && pythonValue !== undefined && pythonValue !== null) {
+      // Sadece ve sadece değerler gerçekten birbirinden farklıysa kutuyu güncelle
       if (inputElement.value !== pythonValue) {
           inputElement.value = pythonValue;
+          
+          // Streamlit'e boş yere veri fırlatmasını engellemek için 
+          // eklentinin kendi iç hafızasını da senkronize ediyoruz
+          window.latestValue = pythonValue; 
       }
   }
-  // -------------------------------------------------------------------------
+  // ------------------------------------------------
 }
 
 Streamlit.events.addEventListener(Streamlit.RENDER_EVENT, onRender)
