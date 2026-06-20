@@ -282,8 +282,7 @@ else:
             grup_ops = ["Tümü"] + sorted([str(x) for x in data_frame[c_grup].dropna().unique() if str(x).lower() != 'nan'])
 
             if current_marka not in marka_ops: st.session_state.q_marka = "Tümü"
-            if current_grup not in grup_ops: st.session_state.q_grup = "Tümü"
-                
+            if current_grup not in grup_ops: st.session_state.q_grup = "Tümü"   
            with col1:
     if "q_search" not in st.session_state:
         st.session_state.q_search = ""
