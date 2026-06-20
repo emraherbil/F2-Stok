@@ -43,62 +43,62 @@ VALID_PASSWORD = "f2"
 logo_data = logo_to_base64("logo.png") or logo_to_base64("logo.jpg")
 
 # ==========================================
-# 3. KUSURSUZ SİMETRİK GİRİŞ (LOGIN) EKRANI
+# 3. KUSURSUZ GÖRSEL GİRİŞ (LOGIN) EKRANI
 # ==========================================
 if not st.session_state.logged_in:
-    # Tüm elemanları logonun genişliğiyle senkronize eden özel CSS
+    # Boş çerçeveleri yok eden ve elemanları logoya kilitleyen temiz CSS
     login_css = """
     <style>
-        /* Arka planı hafif konforlu bir gri tonu yap */
+        /* Arka plan konfor tonu */
         .stApp {
             background-color: #f4f6f9 !important;
         }
         
-        /* Giriş Kartının Tamamı - Logoyu içine alan ana beyaz kutu */
+        /* Ana Giriş Kartı: Üstteki boş beyaz çerçeveyi yok edip logoyu içeri alan kutu */
         .login-card {
-            max-width: 460px;
+            max-width: 380px;
             margin: 100px auto 0 auto;
-            padding: 40px;
-            background-color: #ffffff;
+            padding: 35px;
+            background-color: #ffffff !important;
             border-radius: 12px;
-            box-shadow: 0px 15px 35px rgba(0, 0, 0, 0.05);
+            box-shadow: 0px 12px 30px rgba(0, 0, 0, 0.06);
             border: 1px solid #eef1f6;
             text-align: center;
         }
         
-        /* Logo Konteyner - Kartın en tepesinde tam ortalı */
+        /* Logonun devasa büyümesini engelleyen ve kibar tutan alan */
         .login-logo-container {
             width: 100%;
             display: flex;
             justify-content: center;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
         
         .login-logo-img {
             width: 100%;
-            max-width: 320px; /* Logonun kutu içindeki ideal genişliği */
+            max-width: 240px; /* Logonun büyümesini engelleyen kritik kilit sınır */
             height: auto;
             object-fit: contain;
         }
         
         .login-subtitle {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             color: #64748b;
             margin-bottom: 25px;
             font-weight: 500;
         }
 
-        /* Streamlit bileşenlerinin (Kutuların ve Butonun) dış hat genişliğini 
-           logonun kapladığı alana (max-width: 320px) milimetrik sabitleme */
+        /* Streamlit'in kendi form sınır çizgilerini ve padding'lerini tamamen kapatıyoruz */
         div[data-testid="stForm"] {
             border: none !important;
+            background: transparent !important;
             padding: 0 !important;
             margin: 0 auto !important;
-            max-width: 320px !important; /* Genişliği doğrudan logoya kilitledik */
+            max-width: 240px !important; /* Textbox'ları ve butonu logonun tam genişliğine eşitler */
         }
         
-        /* Metin girdilerinin altındaki gereksiz Streamlit boşluklarını daralt */
+        /* Girdi alanlarının alt marjin optimizasyonu */
         div[data-testid="stForm"] .stTextInput {
             margin-bottom: -10px !important;
         }
@@ -106,25 +106,24 @@ if not st.session_state.logged_in:
     """
     st.markdown(login_css, unsafe_allow_html=True)
     
-    # Yeni Tasarım: Logoyu ve form elemanlarını aynı beyaz kartın içine topladık
+    # HTML Yapısı: Logo artık beyaz kartın tam olarak İÇİNDEDİR. Üstte harici boş kutu kalmaz.
     st.markdown('<div class="login-card">', unsafe_allow_html=True)
     
-    # Logo Yerleşimi (Beyaz çerçevenin tam içi)
     if logo_data:
         st.markdown(f'<div class="login-logo-container"><img src="data:image/png;base64,{logo_data}" class="login-logo-img"></div>', unsafe_allow_html=True)
     else:
-        st.markdown('<div style="font-size: 3.5rem; margin-bottom: 10px;">📦</div>', unsafe_allow_html=True)
-        st.markdown('<div style="font-size: 1.5rem; font-weight:700; color:#1e293b; margin-bottom:5px;">F2 ICT</div>', unsafe_allow_html=True)
+        st.markdown('<div style="font-size: 3rem; margin-bottom: 10px;">📦</div>', unsafe_allow_html=True)
+        st.markdown('<div style="font-size: 1.35rem; font-weight:700; color:#1e293b; margin-bottom:5px;">F2 ICT</div>', unsafe_allow_html=True)
         
     st.markdown('<div class="login-subtitle">Ofis Stok İzleme Paneli</div>', unsafe_allow_html=True)
     
-    # Genişliği logoya kilitlenmiş Streamlit Form alanı
+    # Genişliği logoya (240px) kilitlenmiş form bileşenleri
     with st.form("login_form", clear_on_submit=False):
         username_input = st.text_input("Kullanıcı Adı", placeholder="Kullanıcı adınızı yazın", label_visibility="collapsed")
-        st.markdown('<div style="margin-top: 15px;"></div>', unsafe_allow_html=True)
+        st.markdown('<div style="margin-top: 12px;"></div>', unsafe_allow_html=True)
         password_input = st.text_input("Şifre", type="password", placeholder="Şifrenizi yazın", label_visibility="collapsed")
         
-        st.markdown('<div style="margin-top: 25px;"></div>', unsafe_allow_html=True)
+        st.markdown('<div style="margin-top: 20px;"></div>', unsafe_allow_html=True)
         login_button = st.form_submit_button("Sisteme Giriş Yap", use_container_width=True)
         
         if login_button:
@@ -138,7 +137,7 @@ if not st.session_state.logged_in:
     st.markdown('</div>', unsafe_allow_html=True)
 
 # ==========================================
-# 4. ANA PANEL (YALNIZCA LOGGED_IN = TRUE İSE ÇALIŞIR)
+# 4. ANA PANEL (YALNIZCA LOGGED_IN = TRUE İSE ÇAĞRILIR)
 # ==========================================
 else:
     css_style = """
@@ -146,7 +145,6 @@ else:
         .block-container { padding-top: 2rem !important; padding-bottom: 2rem !important; background-color: #ffffff !important; }
         
         div[data-testid="stVerticalBlock"] > div:first-child {
-            position: -webkit-sticky !important;
             position: sticky !important;
             top: 0px !important;
             background-color: white !important;
