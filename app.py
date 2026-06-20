@@ -46,36 +46,46 @@ if not st.session_state.logged_in:
         html, body, [data-testid="stAppViewContainer"], .stApp {
             overflow: hidden !important; 
             background-color: #f8fafc !important;
-            margin: 0; padding: 0;
+            margin: 0 !important; 
+            padding: 0 !important;
+            height: 100vh !important;
         }
         
-        /* Üst Menü ve Gereksiz Boşlukları Gizle */
-        iframe, [data-testid="stHeader"], footer { display: none !important; }
+        /* Üst Menü, Alt Bilgi ve Gereksiz Boşlukları Gizle */
+        header[data-testid="stHeader"], footer, .stDeployButton { display: none !important; }
 
-        /* 2. FORMU EKRANIN TAM MERKEZİNE SABİTLE (Kesin Çözüm) */
+        /* Streamlit'in varsayılan geniş boşluklarını sıfırla */
+        .block-container {
+            padding: 0 !important;
+            max-width: 100% !important;
+        }
+
+        /* 2. FORMU EKRANIN TAM MERKEZİNE SABİTLE (Fixed ile Kesin Çözüm) */
         [data-testid="stForm"] {
-            position: absolute !important;
+            position: fixed !important; /* Absolute yerine Fixed kullanıyoruz */
             top: 50% !important;
             left: 50% !important;
             transform: translate(-50%, -50%) !important;
             width: 380px !important;
             max-width: 90vw !important;
+            height: auto !important; /* Yüksekliğin uzamasını engeller, içeriğe göre ayarlar */
             padding: 40px 30px !important;
             background-color: #ffffff !important;
             border-radius: 12px !important;
-            box-shadow: 0px 8px 25px rgba(0, 0, 0, 0.05) !important;
+            box-shadow: 0px 10px 40px rgba(0, 0, 0, 0.08) !important; /* Gölgeyi biraz yumuşattık */
             border: 1px solid #e2e8f0 !important;
             margin: 0 !important;
+            z-index: 99999 !important; /* Her şeyin üstünde kalmasını sağlar */
         }
 
-        /* 3. GİRDİ KUTULARI (Streamlit'in iç yapısına dokunmadan sadece dış çerçeveyi stillendiriyoruz) */
+        /* 3. GİRDİ KUTULARI */
         [data-baseweb="input"] {
             background-color: #f1f5f9 !important;
             border: 1px solid #cbd5e1 !important;
             border-radius: 6px !important;
         }
 
-        /* 4. SADECE GİRİŞ BUTONUNU HEDEFLE (Şifre göz ikonu butonunu bozmamak için) */
+        /* 4. SADECE GİRİŞ BUTONUNU HEDEFLE */
         [data-testid="stFormSubmitButton"] button {
             background-color: #1e293b !important;
             color: white !important;
@@ -96,7 +106,7 @@ if not st.session_state.logged_in:
     with st.form("login_form"):
         # LOGO
         if logo_data:
-            st.markdown(f'<div style="text-align: center; margin-bottom: 5px;"><img src="data:image/png;base64,{logo_data}" style="max-width: 240px; height: auto;"></div>', unsafe_allow_html=True)
+            st.markdown(f'<div style="text-align: center; margin-bottom: 5px;"><img src="data:image/png;base64,{logo_data}" style="max-width: 200px; height: auto;"></div>', unsafe_allow_html=True)
         else:
             st.markdown('<div style="text-align: center; font-size: 2.5rem; margin-bottom: 5px;">📦</div>', unsafe_allow_html=True)
             
@@ -116,7 +126,6 @@ if not st.session_state.logged_in:
                 st.rerun()
             else:
                 st.error("Hatalı kullanıcı adı veya şifre!")
-
 # ==========================================
 # 4. ANA PANEL (BAŞARILI GİRİŞ SONRASI)
 # ==========================================
