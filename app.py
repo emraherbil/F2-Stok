@@ -204,12 +204,6 @@ else:
             border: none !important; 
         }
         
-        /* --- CANLI ARAMA TİTREME (FLICKER) MASKESİ --- */
-        /* Arama kutusunun olduğu kolonun yüksekliğini sabitliyoruz */
-        div[data-testid="column"]:nth-of-type(1) { 
-            min-height: 85px !important; 
-        }
-        
         hr { margin: 0.6rem 0 !important; opacity: 0.2; }
     </style>
     """
@@ -294,15 +288,11 @@ else:
         if current_grup not in grup_ops:
             st.session_state.q_grup = "Tümü"
             
-        # --- ARAYÜZ (GÖZ YANILSAMASI TEKNİĞİ UYGULANDI) ---
+        # --- ARAYÜZ (DOĞAL HİZALAMA) ---
         with col1: 
-            # 1. Başlığı eklentinin içinden kopardık. Sayfaya HTML olarak çiviledik (Yıkılmaz).
-            # Ayrıca "margin-bottom: -28px" ile eklentinin boş bırakacağı yuvaya tam olarak oturttuk.
-            st.markdown('<div style="font-size: 14px; color: #31333F; margin-bottom: -28px; position: relative; z-index: 10;">📝 Ürün Ara</div>', unsafe_allow_html=True)
-            
-            # 2. Eklentiyi tamamen İSİMSİZ olarak alt kata yerleştirdik
+            # Sahte HTML başlıkları silindi. Doğal başlık ve hizalama geri getirildi.
             v_search = st_keyup(
-                label=" ",  # Boşluk karakteri, hata vermesini ve kırmızı çerçeveyi önler
+                label="📝 Ürün Ara", 
                 key=f"q_search_{st.session_state.search_key}", 
                 placeholder="Kod veya açıklama ara...", 
                 debounce=300
