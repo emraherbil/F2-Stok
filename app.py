@@ -37,7 +37,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# Genel arayüz temizliği için temel CSS kurallaranı yüklüyoruz
+# Genel arayüz temizliği için temel CSS kurallarını yüklüyoruz
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -137,37 +137,4 @@ if not st.session_state.logged_in:
     
     with st.form("login_form"):
         if logo_data:
-            st.markdown(f'<div style="text-align: center; margin-bottom: 15px;"><img src="data:image/png;base64,{logo_data}" style="max-width: 200px; height: auto;"></div>', unsafe_allow_html=True)
-        else:
-            st.markdown('<div style="text-align: center; font-size: 2.5rem; margin-bottom: 15px;">📦</div>', unsafe_allow_html=True)
-            
-        st.markdown('<div style="text-align: center; font-size: 17px; color: #64748b; margin-bottom: 15px; font-weight: 500;">Ofis Stok İzleme Paneli</div>', unsafe_allow_html=True)
-        
-        username_input = st.text_input("Kullanıcı Adı", placeholder="Kullanıcı adınızı yazın", label_visibility="collapsed")
-        password_input = st.text_input("Şifre", type="password", placeholder="Şifrenizi yazın", label_visibility="collapsed")
-        
-        st.markdown("<div style='margin-top: 5px;'></div>", unsafe_allow_html=True) 
-        
-        submit_button = st.form_submit_button("Sisteme Giriş Yap")
-        
-        if submit_button:
-            if username_input == VALID_USERNAME and password_input == VALID_PASSWORD:
-                st.session_state.logged_in = True
-                st.rerun()
-            else:
-                st.error("Hatalı kullanıcı adı veya şifre!")
-
-# ==========================================
-# 4. ANA PANEL (BAŞARILI GİRİŞ SONRASI)
-# ==========================================
-else:
-    main_panel_css = """
-    <style>
-        html, body, [data-testid="stAppViewContainer"] { overflow: auto !important; }
-        [data-testid="stForm"] {
-            position: relative !important;
-            top: auto !important;
-            left: auto !important;
-            transform: none !important;
-            width: 100% !important;
-            max-width: 100%
+            st.markdown(f'<div style="text-align: center; margin-bottom: 15px;"><img src="data:image/png;base64,{logo_data}" style="max-width:
