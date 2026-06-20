@@ -228,13 +228,15 @@ else:
         df[c_fiyat] = pd.to_numeric(df[c_fiyat], errors='coerce').fillna(0)
 
         # Session State Tanımlamaları
-        if "q_search" not in st.session_state: st.session_state.q_search = ""
         if "q_grup" not in st.session_state: st.session_state.q_grup = "Tümü"
         if "q_marka" not in st.session_state: st.session_state.q_marka = "Tümü"
         if "q_stok" not in st.session_state: st.session_state.q_stok = False
+        
+        # Arama kutusunu sıfırlayabilmek için özel bir anahtar sayacı oluşturuyoruz
+        if "search_key" not in st.session_state: st.session_state.search_key = 0 
 
         def filtreleri_temizle():
-            st.session_state.q_search = ""
+            st.session_state.search_key += 1 # Kutuya yeni bir kimlik vererek sıfırlanmasını tetikler
             st.session_state.q_grup = "Tümü"
             st.session_state.q_marka = "Tümü"
             st.session_state.q_stok = False
@@ -290,7 +292,8 @@ else:
             
         # --- ARAYÜZ (st_keyup Eklendi) ---
         with col1: 
-            v_search = st_keyup("📝 Ürün Ara", key="q_search", placeholder="Kod veya açıklama ara...", debounce=300)
+            # Key parametresini dinamik hale getirdik
+            v_search = st_keyup("📝 Ürün Ara", key=f"q_search_{st.session_state.search_key}", placeholder="Kod veya açıklama ara...", debounce=300)
             
         with col2: 
             v_marka = st.selectbox("🏷️ Marka", marka_ops, key="q_marka")
