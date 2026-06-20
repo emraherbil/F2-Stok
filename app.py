@@ -85,7 +85,13 @@ if not st.session_state.logged_in:
             border-radius: 6px !important;
         }
 
-        /* 4. SADECE GİRİŞ BUTONUNU HEDEFLE */
+        /* 4. SADECE GİRİŞ BUTONUNU HEDEFLE VE ORTALA */
+        [data-testid="stFormSubmitButton"] {
+            display: flex !important;
+            justify-content: center !important;
+            width: 100% !important;
+        }
+
         [data-testid="stFormSubmitButton"] button {
             background-color: #1e293b !important;
             color: white !important;
@@ -93,12 +99,14 @@ if not st.session_state.logged_in:
             border-radius: 6px !important;
             font-weight: 600 !important;
             height: 45px !important;
-            width: 100% !important;
+            width: 200px !important; /* Butonun genişliği. İsterseniz bu değeri artırıp azaltabilirsiniz. */
             margin-top: 15px !important;
             transition: background-color 0.3s;
         }
+        
         [data-testid="stFormSubmitButton"] button:hover {
             background-color: #0f172a !important;
+        }
         }
     </style>
     """, unsafe_allow_html=True)
