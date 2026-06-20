@@ -35,73 +35,120 @@ st.set_page_config(
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 
-# Sabit Kullanıcı Bilgileri (Buradan değiştirebilirsiniz)
+# Sabit Kullanıcı Bilgileri
 VALID_USERNAME = "admin"
 VALID_PASSWORD = "f2"
 
+# Base64 logo dönüşümü (Hem login hem ana panelde kullanılmak üzere en üstte)
+logo_data = logo_to_base64("logo.png") or logo_to_base64("logo.jpg")
+
 # ==========================================
-# 3. GİRİŞ (LOGIN) EKRANI MİMARİSİ
+# 3. GELİŞMİŞ GÖRSEL GİRİŞ (LOGIN) EKRANI
 # ==========================================
 if not st.session_state.logged_in:
-    # Login Ekranı için Özel CSS (Kutuyu ortalar ve şık bir hava katar)
+    # Login sayfasının form elemanlarını ve çerçevesini kusursuz eşitleyen CSS
     login_css = """
     <style>
-        .login-container {
-            max-width: 400px;
-            margin: 100px auto;
-            padding: 30px;
+        /* Arka planı hafif gri yaparak kartı öne çıkarma */
+        .stApp {
+            background-color: #f8f9fa !important;
+        }
+        
+        /* Giriş kartının kutu tasarımı */
+        .login-card {
+            max-width: 420px;
+            margin: 80px auto 20px auto;
+            padding: 40px;
             background-color: #ffffff;
-            border-radius: 10px;
-            box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.08);
+            border-radius: 12px;
+            box-shadow: 0px 12px 35px rgba(0, 0, 0, 0.06);
             border: 1px solid #eef1f6;
             text-align: center;
         }
-        .login-title {
-            font-size: 1.6rem;
-            font-weight: 700;
-            color: #262730;
-            margin-bottom: 5px;
+        
+        /* Logonun ve form elemanlarının genişlik simetrisi */
+        .login-logo-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 25px;
         }
+        
+        .login-logo-img {
+            max-width: 100%;
+            height: auto;
+            max-height: 75px;
+            object-fit: contain;
+        }
+
+        .login-emoji-logo {
+            font-size: 4rem;
+            margin-bottom: 10px;
+        }
+        
+        .login-title {
+            font-size: 1.45rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 5px;
+            letter-spacing: -0.5px;
+        }
+        
         .login-subtitle {
             font-size: 0.85rem;
-            color: #7d7f87;
-            margin-bottom: 25px;
+            color: #64748b;
+            margin-bottom: 30px;
+        }
+
+        /* Streamlit bileşenlerinin iç boşluklarını (margin) kart sınırlarına eşitleme */
+        div[data-testid="stForm"] {
+            border: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
         }
     </style>
     """
     st.markdown(login_css, unsafe_allow_html=True)
     
-    # Görsel Kutu Başlangıcı
-    st.markdown('<div class="login-container">', unsafe_allow_html=True)
-    st.markdown('<div class="login-title">📦 F2 ICT</div>', unsafe_allow_html=True)
+    # Görsel Kart Başlangıcı
+    st.markdown('<div class="login-card">', unsafe_allow_html=True)
+    
+    # Logo Alanı: Eğer görsel varsa logonun genişliğinde hizalanır, yoksa emoji basılır
+    if logo_data:
+        st.markdown(f'<div class="login-logo-container"><img src="data:image/png;base64,{logo_data}" class="login-logo-img"></div>', unsafe_allow_html=True)
+    else:
+        st.markdown('<div class="login-emoji-logo">📦</div>', unsafe_allow_html=True)
+        st.markdown('<div class="login-title">F2 ICT</div>', unsafe_allow_html=True)
+        
     st.markdown('<div class="login-subtitle">Ofis Stok İzleme Paneli Girişi</div>', unsafe_allow_html=True)
     
-    # Giriş Form Elemanları
-    username_input = st.text_input("Kullanıcı Adı", placeholder="Kullanıcı adınızı girin")
-    password_input = st.text_input("Şifre", type="password", placeholder="Şifrenizi girin")
-    
-    st.markdown('<div style="margin-top: 15px;"></div>', unsafe_allow_html=True)
-    login_button = st.button("Giriş Yap", use_container_width=True)
-    
-    if login_button:
-        if username_input == VALID_USERNAME and password_input == VALID_PASSWORD:
-            st.session_state.logged_in = True
-            st.success("Giriş başarılı! Yönlendiriliyorsunuz...")
-            st.rerun()  # Sayfayı yenileyerek ana paneli yükler
-        else:
-            st.error("Hatalı kullanıcı adı veya şifre!")
-            
+    # Elemanların tam ve eşit genişlikte hizalanması için Streamlit Form mimarisi kullanıyoruz
+    with st.form("login_form", clear_on_submit=False):
+        username_input = st.text_input("Kullanıcı Adı", placeholder="Kullanıcı adınızı yazın", label_visibility="collapsed")
+        st.markdown('<div style="margin-top: 10px;"></div>', unsafe_allow_html=True)
+        password_input = st.text_input("Şifre", type="password", placeholder="Şifrenizi yazın", label_visibility="collapsed")
+        
+        st.markdown('<div style="margin-top: 25px;"></div>', unsafe_allow_html=True)
+        login_button = st.form_submit_button("Sisteme Giriş Yap", use_container_width=True)
+        
+        if login_button:
+            if username_input == VALID_USERNAME and password_input == VALID_PASSWORD:
+                st.session_state.logged_in = True
+                st.success("Giriş başarılı! Yönlendiriliyorsunuz...")
+                st.rerun()
+            else:
+                st.error("Hatalı kullanıcı adı veya şifre!")
+                
     st.markdown('</div>', unsafe_allow_html=True)
 
 # ==========================================
 # 4. ANA PANEL (YALNIZCA LOGGED_IN = TRUE İSE ÇALIŞIR)
 # ==========================================
 else:
-    logo_data = logo_to_base64("logo.png") or logo_to_base64("logo.jpg")
-
     css_style = """
     <style>
-        .block-container { padding-top: 2rem !important; padding-bottom: 2rem !important; }
+        .block-container { padding-top: 2rem !important; padding-bottom: 2rem !important; background-color: #ffffff !important; }
         
         div[data-testid="stVerticalBlock"] > div:first-child {
             position: -webkit-sticky !important;
