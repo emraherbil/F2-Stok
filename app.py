@@ -4,6 +4,14 @@ import os
 import base64
 from pathlib import Path
 
+# --- CANLI ARAMA EKLENTİSİ ---
+try:
+    from st_keyup import st_keyup
+except ImportError:
+    st.error("Lütfen terminalde 'pip install streamlit-keyup' çalıştırın veya requirements.txt dosyanıza 'streamlit-keyup' ekleyin.")
+    st.stop()
+# -----------------------------
+
 # ==========================================
 # 1. LOGO DÖNÜŞTÜRÜCÜ
 # ==========================================
@@ -29,7 +37,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# Yönlendirmeleri ve rozetleri gizlemek için CSS (Opsiyonel ama temiz görünüm sağlar)
+# Yönlendirmeleri ve rozetleri gizlemek için CSS 
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -263,29 +271,27 @@ else:
 
         # --- DİNAMİK (BAĞIMLI) FİLTRE HESAPLAMALARI ---
         
-        # Marka opsiyonları: Eğer bir Ürün Grubu seçiliyse, sadece o gruba ait markaları getir
         if current_grup != "Tümü":
             df_for_marka = df[df[c_grup].astype(str) == current_grup]
         else:
             df_for_marka = df
         marka_ops = ["Tümü"] + sorted([str(x) for x in df_for_marka[c_marka].dropna().unique() if str(x).lower() != 'nan'])
 
-        # Ürün Grubu opsiyonları: Eğer bir Marka seçiliyse, sadece o markaya ait grupları getir
         if current_marka != "Tümü":
             df_for_grup = df[df[c_marka].astype(str) == current_marka]
         else:
             df_for_grup = df
         grup_ops = ["Tümü"] + sorted([str(x) for x in df_for_grup[c_grup].dropna().unique() if str(x).lower() != 'nan'])
 
-        # Hata önleme: Eğer seçili değer yeni opsiyonlarda yoksa, "Tümü"ne sıfırla
         if current_marka not in marka_ops:
             st.session_state.q_marka = "Tümü"
         if current_grup not in grup_ops:
             st.session_state.q_grup = "Tümü"
             
-        # --- ARAYÜZ ---
+        # --- ARAYÜZ (st_keyup Eklendi) ---
         with col1: 
-            v_search = st.text_input("📝 Ürün Ara", key="q_search", placeholder="Kod veya açıklama ara...")
+            v_search = st_keyup("📝 Ürün Ara", key="q_search", placeholder="Kod veya açıklama ara...", debounce=300)
+            
         with col2: 
             v_marka = st.selectbox("🏷️ Marka", marka_ops, key="q_marka")
         with col3: 
