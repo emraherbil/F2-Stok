@@ -85,13 +85,7 @@ if not st.session_state.logged_in:
             border-radius: 6px !important;
         }
 
-        /* 4. SADECE GİRİŞ BUTONUNU HEDEFLE VE ORTALA */
-        [data-testid="stFormSubmitButton"] {
-            width: 100% !important;
-            text-align: center !important;
-            display: block !important;
-        }
-
+       /* 4. SADECE GİRİŞ BUTONUNU HEDEFLE (Hizalamayı Python ile yapacağız) */
         [data-testid="stFormSubmitButton"] button {
             background-color: #1e293b !important;
             color: white !important;
@@ -99,12 +93,12 @@ if not st.session_state.logged_in:
             border-radius: 6px !important;
             font-weight: 600 !important;
             height: 45px !important;
-            width: 200px !important; /* Butonun genişliği */
-            margin: 15px auto 0 auto !important; /* Üstten 15px boşluk bırakır, sağdan ve soldan otomatik ortalar */
+            width: 100% !important;
             transition: background-color 0.3s;
-            display: block !important;
         }
-        
+        [data-testid="stFormSubmitButton"] button:hover {
+            background-color: #0f172a !important;
+        }        
         [data-testid="stFormSubmitButton"] button:hover {
             background-color: #0f172a !important;
         }    </style>
