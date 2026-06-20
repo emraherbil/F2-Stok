@@ -46,11 +46,15 @@ st.markdown("""
         .stDeployButton {display: none !important;}
         header {visibility: hidden !important; display: none !important;}
         
-        /* --- ZIPLAMAYI %100 BİTİREN FRAGMENT CSS YAMASI --- */
-        /* Filtre parçası içindeki sütunların yüksekliğini betonluyoruz. */
-        /* Kutu temizlenirken silinse bile yuvası asla çökmez, zıplama tamamen biter! */
+        /* --- JİLET GİBİ TABAN HİZALAMA MÜHENDİSLİĞİ --- */
+        /* Yan yana duran tüm kolonları alt çizgilerine (tabanına) göre hizalar */
+        div[data-testid="stHorizontalBlock"] {
+            align-items: flex-end !important;
+        }
+        
+        /* Kutular temizlenirken dikeyde çökme yapmasın diye minimum yükseklik garantisi */
         div[data-testid="stFragment"] div[data-testid="column"] {
-            min-height: 90px !important;
+            min-height: 75px !important;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -181,9 +185,9 @@ else:
         }
         .custom-logo { height: 60px; object-fit: contain; }
         .custom-title-block { display: flex; flex-direction: column; justify-content: center; }
-        .stCheckbox { margin-top: 35px !important; }
+        
+        /* Eski tahmini üst boşluk (margin-top) kodları tamamen temizlendi! */
         .stButton button { 
-            margin-top: 28px !important; 
             height: 42px !important; 
             width: auto !important; 
             background-color: #1e293b !important; 
@@ -213,7 +217,7 @@ else:
         df[c_maliyet] = pd.to_numeric(df[c_maliyet], errors='coerce').fillna(0)
         df[c_fiyat] = pd.to_numeric(df[c_fiyat], errors='coerce').fillna(0)
 
-        # --- SABİT HEADER BÖLÜMÜ (ASLA YENİLENMEZ) ---
+        # --- SABİT HEADER BÖLÜMÜ ---
         if logo_data:
             header_html = f"""
             <div class="custom-header-container">
