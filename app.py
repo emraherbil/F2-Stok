@@ -42,53 +42,40 @@ logo_data = logo_to_base64("logo.png") or logo_to_base64("logo.jpg")
 if not st.session_state.logged_in:
     st.markdown("""
     <style>
-        /* 1. EKRANI SABİTLE VE KAYDIRMAYI GİZLE */
-        html, body, [data-testid="stAppViewContainer"], .stApp {
-            overflow: hidden !important; 
-            background-color: #f8fafc !important;
-            margin: 0; padding: 0;
+        /* 1. Sayfa Kapsayıcısını Ekranın Tam Merkezine Kilitle */
+        [data-testid="stAppViewContainer"] {
+            display: flex !important;
+            justify-content: center !important;
+            align-items: center !important;
+            height: 100vh !important;
+            overflow: hidden !important;
         }
-        
-        /* Üst Menü ve Gereksiz Boşlukları Gizle */
-        iframe, [data-testid="stHeader"], footer { display: none !important; }
 
-        /* 2. FORMU EKRANIN TAM MERKEZİNE SABİTLE (Kesin Çözüm) */
+        /* 2. Formun Boyutunu İçeriğe Göre Otomatik Ayarla (Uzamayı Engeller) */
         [data-testid="stForm"] {
-            position: absolute !important;
-            top: 50% !important;
-            left: 50% !important;
-            transform: translate(-50%, -50%) !important;
-            width: 380px !important;
-            max-width: 90vw !important;
-            padding: 40px 30px !important;
-            background-color: #ffffff !important;
+            width: 400px !important;      
+            height: auto !important;      /* İçerik kadar yer kaplar */
+            min-height: auto !important;  /* Gereksiz uzamayı durdurur */
+            padding: 30px !important;
+            background-color: white !important;
             border-radius: 12px !important;
-            box-shadow: 0px 8px 25px rgba(0, 0, 0, 0.05) !important;
+            box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.1) !important;
             border: 1px solid #e2e8f0 !important;
             margin: 0 !important;
         }
 
-        /* 3. GİRDİ KUTULARI (Streamlit'in iç yapısına dokunmadan sadece dış çerçeveyi stillendiriyoruz) */
-        [data-baseweb="input"] {
-            background-color: #f1f5f9 !important;
-            border: 1px solid #cbd5e1 !important;
-            border-radius: 6px !important;
+        /* 3. Göz İkonunu (Şifre Göster) Düzelt */
+        [data-baseweb="input"] button {
+            background-color: transparent !important;
+            border: none !important;
+            width: auto !important;
+            height: auto !important;
         }
 
-        /* 4. SADECE GİRİŞ BUTONUNU HEDEFLE (Şifre göz ikonu butonunu bozmamak için) */
+        /* 4. "Sisteme Giriş Yap" Butonunu Şekillendir */
         [data-testid="stFormSubmitButton"] button {
-            background-color: #1e293b !important;
-            color: white !important;
-            border: none !important;
-            border-radius: 6px !important;
-            font-weight: 600 !important;
-            height: 45px !important;
             width: 100% !important;
-            margin-top: 15px !important;
-            transition: background-color 0.3s;
-        }
-        [data-testid="stFormSubmitButton"] button:hover {
-            background-color: #0f172a !important;
+            margin-top: 10px !important;
         }
     </style>
     """, unsafe_allow_html=True)
