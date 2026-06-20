@@ -49,11 +49,11 @@ st.markdown("""
         /* --- ÇİZGİLERİ VE BÖLÜCÜLERİ TAMAMEN KALDIRMA --- */
         hr { display: none !important; visibility: hidden !important; }
         
-        /* --- JİLET GİBİ TABAN HİZALAMASI --- */
-        /* Yan yana duran tüm bileşenleri alt çizgilerinden hizalar */
+        /* --- KUSURSUZ TAVAN HİZALAMASI (PARADOX ÇÖZÜCÜ) --- */
+        /* Tüm elemanları en üst çizgilerinden (tavanından) hizalar */
         div[data-testid="stHorizontalBlock"] {
-            align-items: flex-end !important;
-            margin-bottom: -15px !important;
+            align-items: flex-start !important;
+            margin-bottom: -28px !important; /* Alttaki KPI kartlarına iyice yanaştırma ayarı */
         }
         
         /* Kutular temizlenirken dikeyde çökme veya zıplama yapmasın diye yuva koruması */
@@ -195,12 +195,14 @@ else:
         .custom-logo { height: 60px; object-fit: contain; }
         .custom-title-block { display: flex; flex-direction: column; justify-content: center; }
         
+        /* Üst başlığı olmayan Checkbox'ı, Arama kutusunun girdi gövdesiyle milimetrik eşitleyen ayar */
         div[data-testid="stHorizontalBlock"] div[data-testid="column"]:nth-child(4) .stCheckbox {
-            margin-top: 36px !important;
+            margin-top: 24px !important;
         }
 
+        /* Üst başlığı olmayan butonu, Arama kutusunun girdi gövdesiyle milimetrik eşitleyen ayar */
         .stButton button { 
-            margin-top: 31px !important;
+            margin-top: 24px !important;
             height: 40px !important; 
             width: 100% !important; 
             background-color: #1e293b !important; 
@@ -230,7 +232,7 @@ else:
         df[c_maliyet] = pd.to_numeric(df[c_maliyet], errors='coerce').fillna(0)
         df[c_fiyat] = pd.to_numeric(df[c_fiyat], errors='coerce').fillna(0)
 
-        # Üst Başlık Alanı (SABİT VE ÇİZGİSİZ)
+        # Üst Başlık Alanı (SABİT VE TERTEMİZ ÇİZGİSİZ)
         if logo_data:
             logo_html = f'<img src="data:image/png;base64,{logo_data}" class="custom-logo">'
         else:
@@ -278,7 +280,7 @@ else:
                 df_for_grup = data_frame[data_frame[c_marka].astype(str) == current_marka]
             else:
                 df_for_grup = data_frame
-            grup_ops = ["Tümü"] + sorted([str(x) for x in df_for_grup[c_grup].dropna().unique() if str(x).lower() != 'nan'])
+            grup_ops = ["Tümü"] + sorted([str(x) for x in data_frame[c_grup].dropna().unique() if str(x).lower() != 'nan'])
 
             if current_marka not in marka_ops: st.session_state.q_marka = "Tümü"
             if current_grup not in grup_ops: st.session_state.q_grup = "Tümü"
