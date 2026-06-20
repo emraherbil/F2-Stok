@@ -4,6 +4,14 @@ import os
 import base64
 from pathlib import Path
 
+# --- RESMİ CANLI ARAMA EKLENTİSİ ---
+try:
+    from st_keyup import st_keyup
+except ImportError:
+    st.error("Lütfen terminalde 'pip install streamlit-keyup' çalıştırın veya requirements.txt dosyanıza 'streamlit-keyup' ekleyin.")
+    st.stop()
+# -----------------------------------
+
 # ==========================================
 # 1. LOGO DÖNÜŞTÜRÜCÜ
 # ==========================================
@@ -29,7 +37,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# Yönlendirmeleri ve rozetleri gizlemek için CSS
+# Yönlendirmeleri gizlemek ve ARAMA KUTUSUNUN DARALMASINI/DALGALANMASINI ÖNLEMEK için CSS
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -37,6 +45,23 @@ st.markdown("""
         [data-testid="stToolbar"] {display: none !important;}
         .stDeployButton {display: none !important;}
         header {visibility: hidden !important; display: none !important;}
+
+        /* --- KUSURSUZ SABİTLEME KALIBI --- */
+        /* Arama kutusunun olduğu 1. sütunu yukarı-aşağı oynamasın diye sabitliyoruz */
+        div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:nth-child(1) { 
+            min-height: 80px !important;
+        }
+        /* Eklentinin yuvasını betonluyoruz, kutu yenilenirken asla çökme yapamaz */
+        div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:nth-child(1) div[data-testid="element-container"] {
+            min-height: 75px !important;
+            height: 75px !important;
+        }
+        /* Eklentinin çerçevesini (iframe) kilitliyoruz; sağa-sola daralma/genişleme tamamen biter */
+        div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:nth-child(1) iframe {
+            min-height: 75px !important;
+            height: 75px !important;
+            width: 100% !important;
+        }
     </style>
 """, unsafe_allow_html=True)
 
@@ -198,15 +223,15 @@ else:
         df[c_maliyet] = pd.to_numeric(df[c_maliyet], errors='coerce').fillna(0)
         df[c_fiyat] = pd.to_numeric(df[c_fiyat], errors='coerce').fillna(0)
 
-        # --- TERTEMİZ DOĞAL HAFIZA YÖNETİMİ ---
-        if "q_search" not in st.session_state: st.session_state.q_search = ""
+        # --- DOĞAL HAFIZA VE DİNAMİK ANAHTAR YAPISI ---
         if "q_grup" not in st.session_state: st.session_state.q_grup = "Tümü"
         if "q_marka" not in st.session_state: st.session_state.q_marka = "Tümü"
         if "q_stok" not in st.session_state: st.session_state.q_stok = False
+        if "search_key" not in st.session_state: st.session_state.search_key = 0 
 
         def filtreleri_temizle():
-            # Orijinal kutu olduğu için artık Python hafızasından tek satırla PÜRÜZSÜZCE ve ZIPLAMADAN siliniyor!
-            st.session_state.q_search = "" 
+            # Temizle butonuna basıldığında anahtar değişir, kutu pürüzsüzce sıfırlanır
+            st.session_state.search_key += 1 
             st.session_state.q_grup = "Tümü"
             st.session_state.q_marka = "Tümü"
             st.session_state.q_stok = False
@@ -258,31 +283,16 @@ else:
         if current_grup not in grup_ops:
             st.session_state.q_grup = "Tümü"
             
-        # --- ARAYÜZ (KUSURSUZ DOĞAL KUTULAR) ---
+        # --- ARAYÜZ (KUSURSUZ VE CANLI ARATAN REEL KUTU) ---
         with col1: 
-            # Senin gönderdiğin örnekteki o taş gibi sağlam orijinal Streamlit text_input kutusu!
-            v_search = st.text_input(
+            # Resmi st_keyup eklentisini çağırdık. 
+            # CSS kalıbımız sayesinde yenilenirken asla daralmaz, şişmez veya zıplamaz!
+            v_search = st_keyup(
                 label="📝 Ürün Ara", 
-                key="q_search", 
-                placeholder="Kod veya açıklama ara..."
+                key=f"q_search_{st.session_state.search_key}", 
+                placeholder="Kod veya açıklama ara...",
+                debounce=300
             )
-            
-            # --- İŞTE İMKANSIZI BAŞARAN GÖRÜNMEZ CANLI TETİKLEYİCİ ---
-            # Kullanıcı harf yazdığı an arka planda sanki Enter'a basılmış simülasyonu yapar.
-            # Böylece hem harf harf canlı arar, hem de Temizle'ye basınca sıfır zıplamayla içi boşalır!
-            st.markdown("""
-                <script>
-                    var inputlar = window.parent.document.querySelectorAll('input[placeholder="Kod veya açıklama ara..."]');
-                    inputlar.forEach(function(input) {
-                        if (!input.dataset.bound) {
-                            input.dataset.bound = true;
-                            input.addEventListener('input', function() {
-                                input.dispatchEvent(new Event('change', { bubbles: true }));
-                            });
-                        }
-                    });
-                </script>
-            """, unsafe_allow_html=True)
             
         with col2: 
             v_marka = st.selectbox("🏷️ Marka", marka_ops, key="q_marka")
@@ -293,7 +303,7 @@ else:
         with col5: 
             st.button("🧹 Temizle", on_click=filtreleri_temizle, use_container_width=True)
 
-        # Tablo Filtreleme Mantığı (Senin gönderdiğin str.contains mantığıyla jilet gibi filtreliyor)
+        # Tablo Filtreleme Mantığı
         f_df = df.copy()
         if v_search:
             m1 = f_df[c_kod].astype(str).str.contains(v_search, case=False)
