@@ -49,30 +49,25 @@ st.markdown("""
         /* --- ÇİZGİLERİ VE BÖLÜCÜLERİ TAMAMEN KALDIRMA --- */
         hr { display: none !important; visibility: hidden !important; }
         
-        /* --- KUSURSUZ TAVAN HİZALAMASI (PARADOX ÇÖZÜCÜ) --- */
-        /* Tüm elemanları en üst çizgilerinden (tavanından) hizalar */
+        /* --- KUSURSUZ TAVAN HİZALAMASI --- */
         div[data-testid="stHorizontalBlock"] {
             align-items: flex-start !important;
-            margin-bottom: -28px !important; /* Alttaki KPI kartlarına tam yanaştırma ayarı */
+            margin-bottom: -28px !important; 
         }
         
-        /* Kutular temizlenirken dikeyde çökme veya zıplama yapmasın diye yuva koruması */
         div[data-testid="stFragment"] div[data-testid="column"] {
             min-height: 75px !important;
         }
 
-        /* Etiketsiz arama kutusu çerçeve yüksekliği sabitlemesi (Sadece girdi alanının net boyutu) */
         div[data-testid="stHorizontalBlock"] div[data-testid="column"]:nth-child(1) iframe {
             height: 42px !important;
             width: 100% !important;
         }
 
-        /* Üst başlığı olmayan Checkbox'ı, Arama kutusunun girdi gövdesiyle milimetrik eşitleyen ayar */
         div[data-testid="stHorizontalBlock"] div[data-testid="column"]:nth-child(4) .stCheckbox {
             margin-top: 26px !important;
         }
 
-        /* Üst başlığı olmayan butonu, Arama kutusunun girdi gövdesiyle milimetrik eşitleyen ayar */
         .stButton button { 
             margin-top: 24px !important;
             height: 40px !important; 
@@ -232,7 +227,6 @@ else:
         df[c_maliyet] = pd.to_numeric(df[c_maliyet], errors='coerce').fillna(0)
         df[c_fiyat] = pd.to_numeric(df[c_fiyat], errors='coerce').fillna(0)
 
-        # Üst Başlık Alanı (SABİT VE ÇİZGİSİZ)
         if logo_data:
             logo_html = f'<img src="data:image/png;base64,{logo_data}" class="custom-logo">'
         else:
@@ -256,7 +250,7 @@ else:
         def stok_paneli_icerik(data_frame):
             if "q_grup" not in st.session_state: st.session_state.q_grup = "Tümü"
             if "q_marka" not in st.session_state: st.session_state.q_marka = "Tümü"
-            if "q_stok" nickname in st.session_state: st.session_state.q_stok = False
+            if "q_stok" not in st.session_state: st.session_state.q_stok = False
             if "search_key" not in st.session_state: st.session_state.search_key = 0 
 
             def filtreleri_temizle():
@@ -286,10 +280,7 @@ else:
             if current_grup not in grup_ops: st.session_state.q_grup = "Tümü"
                 
             with col1: 
-                # 1. Asla silinmeyecek ve göz kırpmayacak olan çakılı dış etiketimiz
                 st.markdown('<div style="font-size: 14px; color: #31333F; margin-bottom: 4px; font-weight: 500;">📝 Ürün Ara</div>', unsafe_allow_html=True)
-                
-                # 2. İç etiketi boş bırakılmış tertemiz arama kutumuz
                 v_search = st_keyup(
                     label="", 
                     key=f"q_search_{st.session_state.search_key}", 
@@ -355,7 +346,6 @@ else:
                 height=480
             )
 
-        # Fragment fonksiyonunu çağırıyoruz
         stok_paneli_icerik(df)
 
     except Exception as e:
