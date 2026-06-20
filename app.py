@@ -110,10 +110,10 @@ if not st.session_state.logged_in:
         else:
             st.markdown('<div style="text-align: center; font-size: 2.5rem; margin-bottom: 5px;">📦</div>', unsafe_allow_html=True)
             
-        # BAŞLIK
-# BAŞLIK (Yazı boyutu 14px'den 17px'e çıkarıldı)
-st.markdown('<div style="text-align: center; font-size: 17px; color: #64748b; margin-bottom: 25px; font-weight: 500;">Ofis Stok İzleme Paneli</div>', unsafe_allow_html=True)
-        # GİRDİ KUTULARI
+        # BAŞLIK (Yazı boyutu 17px)
+        st.markdown('<div style="text-align: center; font-size: 17px; color: #64748b; margin-bottom: 25px; font-weight: 500;">Ofis Stok İzleme Paneli</div>', unsafe_allow_html=True)
+        
+        # GİRDİ KUTULARI (Hizalamalar düzeltildi)
         username_input = st.text_input("Kullanıcı Adı", placeholder="Kullanıcı adınızı yazın", label_visibility="collapsed")
         password_input = st.text_input("Şifre", type="password", placeholder="Şifrenizi yazın", label_visibility="collapsed")
         
