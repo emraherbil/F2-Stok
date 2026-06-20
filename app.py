@@ -37,7 +37,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# Yönlendirmeleri ve varsayılan Streamlit rozetlerini gizleyen CSS
+# Yönlendirmeleri, rozetleri ve kutuların altındaki tüm çizgileri kaldıran CSS
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -45,6 +45,27 @@ st.markdown("""
         [data-testid="stToolbar"] {display: none !important;}
         .stDeployButton {display: none !important;}
         header {visibility: hidden !important; display: none !important;}
+
+        /* --- ÇİZGİLERİ VE BÖLÜCÜLERİ TAMAMEN KALDIRMA --- */
+        hr { display: none !important; visibility: hidden !important; }
+        
+        /* --- JİLET GİBİ TABAN HİZALAMASI --- */
+        /* Yan yana duran tüm bileşenleri alt çizgilerinden hizalar */
+        div[data-testid="stHorizontalBlock"] {
+            align-items: flex-end !important;
+            margin-bottom: -15px !important;
+        }
+        
+        /* Kutular temizlenirken dikeyde çökme veya zıplama yapmasın diye yuva koruması */
+        div[data-testid="stFragment"] div[data-testid="column"] {
+            min-height: 75px !important;
+        }
+
+        /* Arama kutusu çerçeve yüksekliği sabitlemesi */
+        div[data-testid="stHorizontalBlock"] div[data-testid="column"]:nth-child(1) iframe {
+            height: 76px !important;
+            width: 100% !important;
+        }
     </style>
 """, unsafe_allow_html=True)
 
@@ -90,7 +111,7 @@ if not st.session_state.logged_in:
         }
         [data-baseweb="input"] {
             background-color: #f1f5f9 !important;
-            border: none
+            border: 1px solid #cbd5e1 !important;
             border-radius: 6px !important;
         }
         [data-testid="stFormSubmitButton"] button {
@@ -163,7 +184,6 @@ else:
             background-color: white !important;
             z-index: 9999 !important;
             padding-bottom: 15px !important;
-            border-bottom: 1px solid #eef1f6 !important;
         }
         .custom-header-container { 
             display: flex; 
@@ -174,29 +194,11 @@ else:
         }
         .custom-logo { height: 60px; object-fit: contain; }
         .custom-title-block { display: flex; flex-direction: column; justify-content: center; }
-        hr { margin: 0.5rem 0 !important; opacity: 0.2; }
-
-        /* ======================================================= */
-        /* --- MİLİMETRİK HİZALAMA VE ALTTAN YANAŞTIRMA CSS'LERİ --- */
-        /* ======================================================= */
         
-        /* 1. Filtre satırının dikey boşluğunu daraltıp altındaki KPI kartlarına yanaştırıyoruz */
-        div[data-testid="stHorizontalBlock"] {
-            margin-bottom: -18px !important;
-        }
-
-        /* 2. Arama kutusu iframe boyutu ve dikey taban oturumu ayarı */
-        div[data-testid="stHorizontalBlock"] div[data-testid="column"]:nth-child(1) iframe {
-            height: 76px !important;
-            width: 100% !important;
-        }
-
-        /* 3. Checkbox'ı selectbox'ların kutu taban çizgisine kusursuz indiren ayar */
         div[data-testid="stHorizontalBlock"] div[data-testid="column"]:nth-child(4) .stCheckbox {
             margin-top: 36px !important;
         }
 
-        /* 4. Temizle butonunu selectbox'ların kutu taban çizgisine sabitleyen ayar */
         .stButton button { 
             margin-top: 31px !important;
             height: 40px !important; 
@@ -228,29 +230,22 @@ else:
         df[c_maliyet] = pd.to_numeric(df[c_maliyet], errors='coerce').fillna(0)
         df[c_fiyat] = pd.to_numeric(df[c_fiyat], errors='coerce').fillna(0)
 
-        # --- SABİT HEADER BÖLÜMÜ ---
+        # Üst Başlık Alanı (SABİT VE ÇİZGİSİZ)
         if logo_data:
-            header_html = f"""
+            logo_html = f'<img src="data:image/png;base64,{logo_data}" class="custom-logo">'
+        else:
+            logo_html = '<div style="font-size: 2.5rem;">📦</div>'
+
+        st.markdown(f"""
             <div class="custom-header-container">
-                <img src="data:image/png;base64,{logo_data}" class="custom-logo">
+                {logo_html}
                 <div class="custom-title-block">
                     <h2 style="margin:0; padding:0; font-size:1.85rem; color:#262730; font-weight:700; line-height:1.2;">Ofis Stok İzleme Paneli</h2>
                     <span style="color:#7d7f87; font-size:0.85rem; margin-top:4px;">📅 <b>Son Güncelleme / Sayım Tarihi:</b> {c_stok}</span>
                 </div>
             </div>
-            """
-        else:
-            header_html = f"""
-            <div class="custom-header-container">
-                <h1 style="margin:0;">📦</h1>
-                <div class="custom-title-block">
-                    <h2 style="margin:0; padding:0; font-size:1.85rem; color:#262730; font-weight:700;">Ofis Stok İzleme Paneli</h2>
-                    <span style="color:#7d7f87; font-size:0.85rem; margin-top:4px;">📅 <b>Son Güncelleme / Sayım Tarihi:</b> {c_stok}</span>
-                </div>
-            </div>
-            """
-        st.markdown(header_html, unsafe_allow_html=True)
-        st.markdown("---")
+            <div style="margin-top:10px;"></div>
+        """, unsafe_allow_html=True)
 
         # =================================================================
         # 5. SİHİRLİ PARÇA (FRAGMENT) ALANI
