@@ -29,7 +29,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# Orijinal Streamlit kutusunu CANLI ARAMA kutusuna dönüştüren sihirli CSS ve JS enjeksiyonu
+# Tarayıcıyı canlı canlı tetikleyen o sihirli JavaScript kodu
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -40,15 +40,13 @@ st.markdown("""
     </style>
     
     <script>
-        // Sayfa her yüklendiğinde arama kutusunu bul ve her tuşa basıldığında Streamlit'i tetikle
-        parent.document.addEventListener('DOMContentLoaded', function() {
-            var input = parent.document.querySelector('input[aria-label="📝 Ürün Ara"]');
-            if (input) {
-                input.addEventListener('input', function() {
-                    input.dispatchEvent(new Event('change', { bubbles: true }));
-                });
-            }
-        });
+        function canlıAra(val) {
+            const url = new URL(window.location);
+            url.searchParams.set('search', val);
+            window.history.replaceState({}, '', url);
+            // Streamlit'e sayfanın değiştiğini haber ver
+            window.parent.postMessage({type: 'streamlit:set_page_config'}, '*');
+        }
     </script>
 """, unsafe_allow_html=True)
 
@@ -210,15 +208,16 @@ else:
         df[c_maliyet] = pd.to_numeric(df[c_maliyet], errors='coerce').fillna(0)
         df[c_fiyat] = pd.to_numeric(df[c_fiyat], errors='coerce').fillna(0)
 
-        # --- TERTEMİZ REEL SESSIONS ---
-        if "q_search" not in st.session_state: st.session_state.q_search = ""
+        # --- QUERY PARAMETERS VE HAFIZA ENTEGRASYONU ---
+        # Canlı aramayı tarayıcı adresinden okuyoruz
+        query_search = st.query_params.get("search", "")
+
         if "q_grup" not in st.session_state: st.session_state.q_grup = "Tümü"
         if "q_marka" not in st.session_state: st.session_state.q_marka = "Tümü"
         if "q_stok" not in st.session_state: st.session_state.q_stok = False
 
         def filtreleri_temizle():
-            # Orijinal kutu olduğu için artık hafızadan tek satırla PÜRÜZSÜZCE siliniyor!
-            st.session_state.q_search = "" 
+            st.query_params.clear() # Adresteki canlı aramayı siler
             st.session_state.q_grup = "Tümü"
             st.session_state.q_marka = "Tümü"
             st.session_state.q_stok = False
@@ -270,15 +269,28 @@ else:
         if current_grup not in grup_ops:
             st.session_state.q_grup = "Tümü"
             
-        # --- ARAYÜZ (KUSURSUZ DOĞAL KUTULAR) ---
+        # --- ARAYÜZ ---
         with col1: 
-            # Streamlit'in kendi has, kaya gibi sağlam orijinal text_input bileşeni.
-            # Yukarıda yazdığımız küçük JS kodu sayesinde harf yazıldığı an Enter'a basılmış gibi canlanır!
+            # Orijinal, kaya gibi sağlam Streamlit kutusu
             v_search = st.text_input(
                 label="📝 Ürün Ara", 
-                key="q_search", 
-                placeholder="Kod veya açıklama ara..."
+                value=query_search,
+                placeholder="Kod veya açıklama ara...",
+                key="real_search_input"
             )
+            
+            # Klavyeden her harf girildiğinde yukarıdaki JS fonksiyonunu tetikliyoruz
+            st.markdown(f"""
+                <script>
+                    var input = window.parent.document.querySelector('input[placeholder="Kod veya açıklama ara..."]');
+                    if (input && !input.dataset.bound) {{
+                        input.dataset.bound = true;
+                        input.addEventListener('input', function(e) {{
+                            window.parent.canlıAra(e.target.value);
+                        }});
+                    }}
+                </script>
+            """, unsafe_allow_html=True)
             
         with col2: 
             v_marka = st.selectbox("🏷️ Marka", marka_ops, key="q_marka")
@@ -289,12 +301,16 @@ else:
         with col5: 
             st.button("🧹 Temizle", on_click=filtreleri_temizle, use_container_width=True)
 
-        # Tablo Filtreleme Mantığı
+        # Tablo Filtreleme Mantığı (Canlı aramayı query_search üzerinden yapıyor)
         f_df = df.copy()
-        if v_search:
-            m1 = f_df[c_kod].astype(str).str.contains(v_search, case=False)
-            m2 = f_df[c_tanim].astype(str).str.contains(v_search, case=False)
+        
+        # Eğer input boşaltıldıysa aramayı sıfırla, doluysa filtrele
+        active_search = query_search if query_search else v_search
+        if active_search:
+            m1 = f_df[c_kod].astype(str).str.contains(active_search, case=False)
+            m2 = f_df[c_tanim].astype(str).str.contains(active_search, case=False)
             f_df = f_df[m1 | m2]
+            
         if v_marka != "Tümü": 
             f_df = f_df[f_df[c_marka].astype(str) == v_marka]
         if v_grup != "Tümü": 
