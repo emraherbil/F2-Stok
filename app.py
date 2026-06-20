@@ -154,7 +154,7 @@ else:
     <style>
         html, body, [data-testid="stAppViewContainer"] { overflow: auto !important; }
         
-        /* Giriş ekranındaki merkeze sabitleme ayarını iptal et */
+        /* Giri ekranındaki merkeze sabitleme ayarını iptal et */
         [data-testid="stForm"] {
             position: relative !important;
             top: auto !important;
@@ -204,8 +204,8 @@ else:
             border: none !important; 
         }
 
-        /* --- ZIPLAMAYI ÖNLEYEN ZARARSIZ MİNİMUM YÜKSEKLİK --- */
-        /* Arama kutusunun olduğu sütunu esnetmeden sadece alt sınırını sabitliyoruz */
+        /* --- ZIPLAMAYI ÖNLEYEN SÜTUN DİREĞİ --- */
+        /* Arama kutusu yenilenirken altındaki KPI kartlarının yukarı zıplamasını önler */
         div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:nth-child(1) { 
             min-height: 85px !important; 
         }
@@ -241,7 +241,7 @@ else:
         if "search_key" not in st.session_state: st.session_state.search_key = 0 
 
         def filtreleri_temizle():
-            st.session_state.search_key += 1 # Eklentiyi sıfırlar
+            st.session_state.search_key += 1 # Sadece eklentiyi sıfırlar
             st.session_state.q_grup = "Tümü"
             st.session_state.q_marka = "Tümü"
             st.session_state.q_stok = False
@@ -293,14 +293,19 @@ else:
         if current_grup not in grup_ops:
             st.session_state.q_grup = "Tümü"
             
-        # --- ARAYÜZ (KUSURSUZ DOĞAL KUTU) ---
+        # --- ARAYÜZ (YIKILMAZ BAŞLIK + TERTEMİZ KUTU) ---
         with col1: 
-            # Kutu kendi doğal başlığı ile çiziliyor. Esnetme ve sahte HTML yazıları yok.
+            # 1. Asla silinmeyecek ve kaybolmayacak olan çivilenmiş başlığımız
+            # (padding-bottom: 2px ile sağdaki Marka seçeneğinin başlığıyla aynı hizaya getirdik)
+            st.markdown('<div style="font-size: 14px; color: #31333F; padding-bottom: 2px;">📝 Ürün Ara</div>', unsafe_allow_html=True)
+            
+            # 2. Kendi başlığı KÖKTEN kapatılmış arama kutumuz
             v_search = st_keyup(
-                label="📝 Ürün Ara", 
+                label="gizli", 
                 key=f"q_search_{st.session_state.search_key}", 
                 placeholder="Kod veya açıklama ara...", 
-                debounce=300
+                debounce=300,
+                label_visibility="collapsed" # Bu sihirli kod kutuyu şekilsizleştirmeden kendi başlığını siler.
             )
             
         with col2: 
