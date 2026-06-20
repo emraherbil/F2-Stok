@@ -281,9 +281,13 @@ else:
                 df_for_grup = data_frame
             grup_ops = ["Tümü"] + sorted([str(x) for x in data_frame[c_grup].dropna().unique() if str(x).lower() != 'nan'])
 
-            if current_marka not in marka_ops: st.session_state.q_marka = "Tümü"
-            if current_grup not in grup_ops: st.session_state.q_grup = "Tümü"   
-           with col1:
+            if current_marka not in marka_ops:
+    st.session_state.q_marka = "Tümü"
+
+if current_grup not in grup_ops:
+    st.session_state.q_grup = "Tümü"
+
+with col1:
     if "q_search" not in st.session_state:
         st.session_state.q_search = ""
 
@@ -293,11 +297,33 @@ else:
         placeholder="Kod veya açıklama ara...",
         debounce=500
     )
-                
-            with col2: v_marka = st.selectbox("🏷️ Marka", marka_ops, key="q_marka")
-            with col3: v_grup = st.selectbox("📂 Ürün Grubu", grup_ops, key="q_grup")
-            with col4: v_stok = st.checkbox("🚫 Tükenenleri Gizle", key="q_stok")
-            with col5: st.button("🧹 Temizle", on_click=filtreleri_temizle, use_container_width=True)
+
+with col2:
+    v_marka = st.selectbox(
+        "🏷️ Marka",
+        marka_ops,
+        key="q_marka"
+    )
+
+with col3:
+    v_grup = st.selectbox(
+        "📂 Ürün Grubu",
+        grup_ops,
+        key="q_grup"
+    )
+
+with col4:
+    v_stok = st.checkbox(
+        "🚫 Tükenenleri Gizle",
+        key="q_stok"
+    )
+
+with col5:
+    st.button(
+        "🧹 Temizle",
+        on_click=filtreleri_temizle,
+        use_container_width=True
+    )
 
             # Tablo Filtreleme Mantığı
             f_df = data_frame.copy()
