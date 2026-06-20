@@ -51,9 +51,9 @@ st.markdown("""
         
         /* --- KUSURSUZ TAVAN HİZALAMASI (PARADOX ÇÖZÜCÜ) --- */
         /* Tüm elemanları en üst çizgilerinden (tavanından) hizalar */
-        div[data-testid="stHorizontalBlock"] {
-            align-items: flex-start !important;
-            margin-bottom: -28px !important; /* Alttaki KPI kartlarına iyice yanaştırma ayarı */
+       div[data-testid="stHorizontalBlock"] {
+    align-items: flex-start !important;
+} 
         }
         
         /* Kutular temizlenirken dikeyde çökme veya zıplama yapmasın diye yuva koruması */
@@ -257,13 +257,12 @@ else:
             if "q_grup" not in st.session_state: st.session_state.q_grup = "Tümü"
             if "q_marka" not in st.session_state: st.session_state.q_marka = "Tümü"
             if "q_stok" not in st.session_state: st.session_state.q_stok = False
-            if "search_key" not in st.session_state: st.session_state.search_key = 0 
-
+            
             def filtreleri_temizle():
-                st.session_state.search_key += 1 
-                st.session_state.q_grup = "Tümü"
-                st.session_state.q_marka = "Tümü"
-                st.session_state.q_stok = False
+            st.session_state.q_search = ""
+            st.session_state.q_grup = "Tümü"
+            st.session_state.q_marka = "Tümü"
+            st.session_state.q_stok = False
 
             col1, col2, col3, col4, col5 = st.columns([3.2, 2.4, 2.4, 2.2, 1.2])
             
@@ -285,13 +284,16 @@ else:
             if current_marka not in marka_ops: st.session_state.q_marka = "Tümü"
             if current_grup not in grup_ops: st.session_state.q_grup = "Tümü"
                 
-            with col1: 
-                v_search = st_keyup(
-                    label="📝 Ürün Ara", 
-                    key=f"q_search_{st.session_state.search_key}", 
-                    placeholder="Kod veya açıklama ara...", 
-                    debounce=300
-                )
+           with col1:
+    if "q_search" not in st.session_state:
+        st.session_state.q_search = ""
+
+    v_search = st_keyup(
+        label="📝 Ürün Ara",
+        key="q_search",
+        placeholder="Kod veya açıklama ara...",
+        debounce=500
+    )
                 
             with col2: v_marka = st.selectbox("🏷️ Marka", marka_ops, key="q_marka")
             with col3: v_grup = st.selectbox("📂 Ürün Grubu", grup_ops, key="q_grup")
