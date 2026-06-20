@@ -43,28 +43,21 @@ if not st.session_state.logged_in:
     st.markdown("""
     <style>
         /* 1. EKRANI SABİTLE VE KAYDIRMAYI GİZLE */
-        html, body, [data-testid="stAppViewContainer"] {
+        html, body, [data-testid="stAppViewContainer"], .stApp {
             overflow: hidden !important; 
             background-color: #f8fafc !important;
             margin: 0; padding: 0;
         }
         
-        /* 2. FORMU TAM MERKEZE ÇİVİLE */
-        .block-container {
-            padding: 0 !important;
-            display: flex !important;
-            flex-direction: column !important;
-            align-items: center !important;
-            justify-content: center !important;
-            height: 100vh !important;
-            max-width: 100% !important;
-        }
-
         /* Üst Menü ve Gereksiz Boşlukları Gizle */
         iframe, [data-testid="stHeader"], footer { display: none !important; }
 
-        /* 3. BEYAZ ÇERÇEVE TASARIMI */
+        /* 2. FORMU EKRANIN TAM MERKEZİNE SABİTLE (Kesin Çözüm) */
         [data-testid="stForm"] {
+            position: absolute !important;
+            top: 50% !important;
+            left: 50% !important;
+            transform: translate(-50%, -50%) !important;
             width: 380px !important;
             max-width: 90vw !important;
             padding: 40px 30px !important;
@@ -72,29 +65,29 @@ if not st.session_state.logged_in:
             border-radius: 12px !important;
             box-shadow: 0px 8px 25px rgba(0, 0, 0, 0.05) !important;
             border: 1px solid #e2e8f0 !important;
+            margin: 0 !important;
         }
 
-        /* 4. ŞİFRE İKONUNU BOZMAYAN GİRDİ KUTUSU */
-        /* Sadece en dış çerçeveyi renklendiriyoruz, iç yapıyı Streamlit'e bırakıyoruz */
-        .stTextInput > div > div > div {
+        /* 3. GİRDİ KUTULARI (Streamlit'in iç yapısına dokunmadan sadece dış çerçeveyi stillendiriyoruz) */
+        [data-baseweb="input"] {
             background-color: #f1f5f9 !important;
-            border-radius: 6px !important;
             border: 1px solid #cbd5e1 !important;
+            border-radius: 6px !important;
         }
 
-        /* 5. BUTON TASARIMI */
-        [data-testid="stForm"] button {
+        /* 4. SADECE GİRİŞ BUTONUNU HEDEFLE (Şifre göz ikonu butonunu bozmamak için) */
+        [data-testid="stFormSubmitButton"] button {
             background-color: #1e293b !important;
             color: white !important;
             border: none !important;
             border-radius: 6px !important;
             font-weight: 600 !important;
             height: 45px !important;
-            margin-top: 15px !important;
             width: 100% !important;
+            margin-top: 15px !important;
             transition: background-color 0.3s;
         }
-        [data-testid="stForm"] button:hover {
+        [data-testid="stFormSubmitButton"] button:hover {
             background-color: #0f172a !important;
         }
     </style>
@@ -128,15 +121,26 @@ if not st.session_state.logged_in:
 # 4. ANA PANEL (BAŞARILI GİRİŞ SONRASI)
 # ==========================================
 else:
-    # Ana panele geçince scroll (kaydırma) ve blok yapısını geri yüklüyoruz
+    # Ana panele geçince giriş formundaki özel ayarları sıfırlıyoruz ki ana ekrandaki formlar bozulmasın
     main_panel_css = """
     <style>
         html, body, [data-testid="stAppViewContainer"] { overflow: auto !important; }
         
-        /* Form ekranındaki merkezleme ayarlarını sıfırla */
+        /* Giriş ekranındaki merkeze sabitleme ayarını iptal et */
+        [data-testid="stForm"] {
+            position: relative !important;
+            top: auto !important;
+            left: auto !important;
+            transform: none !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            padding: 20px !important;
+            box-shadow: none !important;
+            border: 1px solid #e2e8f0 !important;
+        }
+
         .block-container { 
             display: block !important;
-            height: auto !important;
             padding-top: 2rem !important; 
             padding-bottom: 2rem !important; 
             background-color: #ffffff !important; 
