@@ -37,118 +37,81 @@ VALID_PASSWORD = "f2"
 logo_data = logo_to_base64("logo.png") or logo_to_base64("logo.jpg")
 
 # ==========================================
-# 3. GİRİŞ EKRANI (TAMAMEN İZOLE EDİLMİŞ)
+# 3. KUSURSUZ GİRİŞ EKRANI (Logo İçeride!)
 # ==========================================
 if not st.session_state.logged_in:
-    # İnceleme ekranında bulduğunuz hayalet iframe'i ve tüm fazlalıkları yok eden CSS
     st.markdown("""
     <style>
-        /* 1. İnceleme ekranındaki o sinir bozucu beyaz kutu iframe'ini tamamen gizle */
-        iframe, iframe[title="Streamlit Cloud Status"] {
-            display: none !important;
-            visibility: hidden !important;
-            height: 0px !important;
-            width: 0px !important;
-        }
+        /* Bulut İframe'ini ve Streamlit Üst Menüsünü Gizle */
+        iframe, iframe[title="Streamlit Cloud Status"] { display: none !important; }
+        [data-testid="stHeader"], .stDeployButton, footer { display: none !important; }
         
-        /* 2. Streamlit standart arayüz elemanlarını temizle */
-        [data-testid="stHeader"], .stDeployButton, footer {
-            display: none !important;
-        }
-        
-        /* 3. Arka planı temiz gri yap */
-        .stApp {
-            background-color: #f8fafc !important;
-        }
-        
-        /* 4. Logoya göre hizalanmış merkezî giriş kartı */
-        .login-box {
-            max-width: 320px;
-            margin: 80px auto 0 auto;
-            padding: 35px;
-            background: #ffffff;
-            border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-            border: 1px solid #e2e8f0;
-            text-align: center;
-        }
-        
-        .login-logo {
-            width: 240px;
-            height: auto;
-            margin-bottom: 10px;
-            object-fit: contain;
-        }
-        
-        .login-title {
-            font-size: 13px;
-            color: #64748b;
-            margin-bottom: 25px;
-            font-weight: 500;
+        /* Arka Planı Temizle */
+        .stApp { background-color: #f8fafc !important; }
+
+        /* İŞTE SİHİR BURADA: Streamlit formunu bizim Beyaz Kutumuza dönüştürüyoruz */
+        [data-testid="stForm"] {
+            max-width: 380px !important;
+            margin: 10vh auto !important; /* Ekranın ortasına hizalar */
+            padding: 40px 30px !important;
+            background-color: #ffffff !important;
+            border-radius: 12px !important;
+            box-shadow: 0px 8px 25px rgba(0, 0, 0, 0.05) !important;
+            border: 1px solid #e2e8f0 !important;
         }
 
-        /* Input kutularını ve butonu tam 240px'e sabitle (Logo genişliği) */
-        div.stTextInput input {
+        /* Girdi Kutularının Tasarımı */
+        [data-testid="stForm"] input {
             background-color: #f1f5f9 !important;
             border: 1px solid #cbd5e1 !important;
             border-radius: 6px !important;
-            padding: 10px 14px !important;
             color: #1e293b !important;
-            width: 240px !important;
-            margin: 0 auto !important;
+            padding: 12px !important;
         }
-        
-        /* Butonun tamamen formu kaplamasını ve logoyla simetrik olmasını sağla */
-        div.stButton button {
-            width: 240px !important;
-            height: 42px !important;
+
+        /* Buton Tasarımı */
+        [data-testid="stForm"] button {
             background-color: #1e293b !important;
             color: white !important;
             border: none !important;
             border-radius: 6px !important;
             font-weight: 600 !important;
-            margin: 10px auto 0 auto !important;
-            display: block !important;
+            height: 45px !important;
+            margin-top: 15px !important;
+            transition: all 0.3s;
         }
-        
-        div.stButton button:hover {
+        [data-testid="stForm"] button:hover {
             background-color: #0f172a !important;
-            color: white !important;
-        }
-        
-        /* Hata mesajı kutusunu kibarlaştır */
-        div.stAlert {
-            max-width: 240px !important;
-            margin: 12px auto 0 auto !important;
         }
     </style>
     """, unsafe_allow_html=True)
     
-    # Giriş Kartı Gövdesi
-    st.markdown('<div class="login-box">', unsafe_allow_html=True)
-    
-    if logo_data:
-        st.markdown(f'<img src="data:image/png;base64,{logo_data}" class="login-logo">', unsafe_allow_html=True)
-    else:
-        st.markdown('<div style="font-size: 2.5rem; margin-bottom: 10px;">📦</div>', unsafe_allow_html=True)
+    # Streamlit'in Form yapısını kullanıyoruz, bu sayede her şey çerçevenin içinde kalır.
+    with st.form("login_form"):
         
-    st.markdown('<div class="login-title">Ofis Stok İzleme Paneli</div>', unsafe_allow_html=True)
-    
-    # Giriş Form Elemanları (Etiketleri kaldırarak temiz görünüm elde ettik)
-    username_input = st.text_input("Kullanıcı Adı", placeholder="Kullanıcı adı", label_visibility="collapsed")
-    st.markdown('<div style="margin-top: 10px;"></div>', unsafe_allow_html=True)
-    password_input = st.text_input("Şifre", type="password", placeholder="Şifre", label_visibility="collapsed")
-    
-    login_button = st.button("Sisteme Giriş Yap")
-    
-    if login_button:
-        if username_input == VALID_USERNAME and password_input == VALID_PASSWORD:
-            st.session_state.logged_in = True
-            st.rerun()
+        # LOGO - Formun En Üstünde
+        if logo_data:
+            st.markdown(f'<div style="text-align: center; margin-bottom: 5px;"><img src="data:image/png;base64,{logo_data}" style="max-width: 240px; height: auto;"></div>', unsafe_allow_html=True)
         else:
-            st.error("Hatalı Giriş!")
+            st.markdown('<div style="text-align: center; font-size: 2.5rem; margin-bottom: 5px;">📦</div>', unsafe_allow_html=True)
             
-    st.markdown('</div>', unsafe_allow_html=True)
+        # BAŞLIK
+        st.markdown('<div style="text-align: center; font-size: 14px; color: #64748b; margin-bottom: 25px; font-weight: 500;">Ofis Stok İzleme Paneli</div>', unsafe_allow_html=True)
+        
+        # GİRDİ KUTULARI
+        username_input = st.text_input("Kullanıcı Adı", placeholder="Kullanıcı adınızı yazın", label_visibility="collapsed")
+        password_input = st.text_input("Şifre", type="password", placeholder="Şifrenizi yazın", label_visibility="collapsed")
+        
+        # BUTON
+        submit_button = st.form_submit_button("Sisteme Giriş Yap", use_container_width=True)
+        
+        # GİRİŞ KONTROLÜ
+        if submit_button:
+            if username_input == VALID_USERNAME and password_input == VALID_PASSWORD:
+                st.session_state.logged_in = True
+                st.rerun()
+            else:
+                st.error("Hatalı kullanıcı adı veya şifre!")
 
 # ==========================================
 # 4. ANA PANEL (BAŞARILI GİRİŞ SONRASI)
@@ -279,7 +242,7 @@ else:
             """
 
         k1, k2, k3 = st.columns(3)
-        with k1: st.markdown(kpi_card("📋 Toplam Çesist:", f"{t_prod:,}".replace(",", ".") + " Adet", "#1E88E5"), unsafe_allow_html=True)
+        with k1: st.markdown(kpi_card("📋 Toplam Çeşit:", f"{t_prod:,}".replace(",", ".") + " Adet", "#1E88E5"), unsafe_allow_html=True)
         with k2: st.markdown(kpi_card("📦 Toplam Stok:", f"{t_stok:,}".replace(",", ".") + " Adet", "#4CAF50"), unsafe_allow_html=True)
         with k3: st.markdown(kpi_card("💰 Toplam Maliyet:", f"${t_cost:,.0f}".replace(",", "."), "#FFC107"), unsafe_allow_html=True)
 
