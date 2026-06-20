@@ -43,7 +43,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# Yönlendirmeleri ve rozetleri gizlemek için CSS 
+# Yönlendirmeleri, rozetleri gizlemek ve ARAMA SÜTUNUNU SABİTLEMEK için CSS
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -51,6 +51,14 @@ st.markdown("""
         [data-testid="stToolbar"] {display: none !important;}
         .stDeployButton {display: none !important;}
         header {visibility: hidden !important; display: none !important;}
+
+        /* --- SÜTUN SABİTLEME (ZIPLAMA VE DARALMA ENGELLEYİCİ) --- */
+        /* Arama kutusunun ilk sütununu milimetrik olarak betonluyoruz. */
+        div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:nth-child(1) { 
+            height: 75px !important;
+            min-height: 75px !important;
+            max-height: 75px !important;
+        }
     </style>
 """, unsafe_allow_html=True)
 
@@ -67,7 +75,6 @@ logo_data = logo_to_base64("logo.png") or logo_to_base64("logo.jpg")
 if not st.session_state.logged_in:
     st.markdown("""
     <style>
-        /* EKRANI SABİTLE VE KAYDIRMAYI GİZLE */
         html, body, [data-testid="stAppViewContainer"], .stApp {
             overflow: hidden !important; 
             background-color: #f8fafc !important;
@@ -75,14 +82,10 @@ if not st.session_state.logged_in:
             padding: 0 !important;
             height: 100vh !important;
         }
-        
-        /* Streamlit'in varsayılan geniş boşluklarını sıfırla */
         .block-container {
             padding: 0 !important;
             max-width: 100% !important;
         }
-
-        /* FORMU EKRANIN TAM MERKEZİNE SABİTLE */
         [data-testid="stForm"] {
             position: fixed !important;
             top: 50% !important;
@@ -99,15 +102,11 @@ if not st.session_state.logged_in:
             margin: 0 !important;
             z-index: 99999 !important;
         }
-
-        /* GİRDİ KUTULARI */
         [data-baseweb="input"] {
             background-color: #f1f5f9 !important;
             border: 1px solid #cbd5e1 !important;
             border-radius: 6px !important;
         }
-
-       /* SADECE GİRİŞ BUTONUNU HEDEFLE */
         [data-testid="stFormSubmitButton"] button {
             background-color: #1e293b !important;
             color: white !important;
@@ -125,20 +124,16 @@ if not st.session_state.logged_in:
     """, unsafe_allow_html=True)
     
     with st.form("login_form"):
-        # LOGO 
         if logo_data:
             st.markdown(f'<div style="text-align: center; margin-bottom: 15px;"><img src="data:image/png;base64,{logo_data}" style="max-width: 200px; height: auto;"></div>', unsafe_allow_html=True)
         else:
             st.markdown('<div style="text-align: center; font-size: 2.5rem; margin-bottom: 15px;">📦</div>', unsafe_allow_html=True)
             
-        # BAŞLIK 
         st.markdown('<div style="text-align: center; font-size: 17px; color: #64748b; margin-bottom: 15px; font-weight: 500;">Ofis Stok İzleme Paneli</div>', unsafe_allow_html=True)
         
-        # GİRDİ KUTULARI
         username_input = st.text_input("Kullanıcı Adı", placeholder="Kullanıcı adınızı yazın", label_visibility="collapsed")
         password_input = st.text_input("Şifre", type="password", placeholder="Şifrenizi yazın", label_visibility="collapsed")
         
-        # BUTONU ORTALAMAK
         st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True) 
         col1, col2, col3 = st.columns([1, 1.5, 1]) 
         
@@ -159,8 +154,6 @@ else:
     main_panel_css = """
     <style>
         html, body, [data-testid="stAppViewContainer"] { overflow: auto !important; }
-        
-        /* Giriş ekranındaki merkeze sabitleme ayarını iptal et */
         [data-testid="stForm"] {
             position: relative !important;
             top: auto !important;
@@ -172,14 +165,12 @@ else:
             box-shadow: none !important;
             border: 1px solid #e2e8f0 !important;
         }
-
         .block-container { 
             display: block !important;
             padding-top: 2rem !important; 
             padding-bottom: 2rem !important; 
             background-color: #ffffff !important; 
         }
-        
         div[data-testid="stVerticalBlock"] > div:first-child {
             position: sticky !important;
             top: 0px !important;
@@ -188,7 +179,6 @@ else:
             padding-bottom: 15px !important;
             border-bottom: 1px solid #eef1f6 !important;
         }
-        
         .custom-header-container { 
             display: flex; 
             align-items: center; 
@@ -199,8 +189,6 @@ else:
         .custom-logo { height: 60px; object-fit: contain; }
         .custom-title-block { display: flex; flex-direction: column; justify-content: center; }
         .stCheckbox { margin-top: 35px !important; }
-        
-        /* TEMİZLE BUTONU */
         .stButton button { 
             margin-top: 28px !important; 
             height: 42px !important; 
@@ -209,7 +197,6 @@ else:
             color: white !important; 
             border: none !important; 
         }
-        
         hr { margin: 0.6rem 0 !important; opacity: 0.2; }
     </style>
     """
@@ -233,15 +220,17 @@ else:
         df[c_maliyet] = pd.to_numeric(df[c_maliyet], errors='coerce').fillna(0)
         df[c_fiyat] = pd.to_numeric(df[c_fiyat], errors='coerce').fillna(0)
 
-        # --- HAFIZA YÖNETİMİ ---
-        if "q_search" not in st.session_state: st.session_state.q_search = ""
+        # --- GÜVENLİ VE SABİT SAYAÇLI HAFIZA ---
         if "q_grup" not in st.session_state: st.session_state.q_grup = "Tümü"
         if "q_marka" not in st.session_state: st.session_state.q_marka = "Tümü"
         if "q_stok" not in st.session_state: st.session_state.q_stok = False
+        
+        # Döngüyü tamamen bitirmek için dinamik anahtar hilesine geri dönüyoruz
+        if "search_key" not in st.session_state: st.session_state.search_key = 0 
 
         def filtreleri_temizle():
-            # Kutuyu yıkmadan, JS yamamız sayesinde metni pürüzsüzce siliyoruz!
-            st.session_state.q_search = ""
+            # Temizleme anında ID değişecek, kutu sıfırlanacak ama CSS yuvayı tuttuğu için zıplamayacak!
+            st.session_state.search_key += 1 
             st.session_state.q_grup = "Tümü"
             st.session_state.q_marka = "Tümü"
             st.session_state.q_stok = False
@@ -293,19 +282,14 @@ else:
         if current_grup not in grup_ops:
             st.session_state.q_grup = "Tümü"
             
-        # --- ARAYÜZ (TAMAMEN DOĞAL VE SARSILMAZ) ---
+        # --- ARAYÜZ (KUSURSUZ DOĞAL KUTU) ---
         with col1: 
             v_search = st_keyup(
                 label="📝 Ürün Ara", 
-                value=st.session_state.q_search,  # JS yamamız bu değere itaat edecek
-                key="q_search_widget",  # Kutunun kimliği sabit kaldı (Zıplama İptal)
+                key=f"q_search_{st.session_state.search_key}", 
                 placeholder="Kod veya açıklama ara...", 
                 debounce=300
             )
-            
-            # Yazılan metni hafızaya kopyalıyoruz
-            if v_search is not None:
-                st.session_state.q_search = v_search
                 
         with col2: 
             v_marka = st.selectbox("🏷️ Marka", marka_ops, key="q_marka")
@@ -316,11 +300,11 @@ else:
         with col5: 
             st.button("🧹 Temizle", on_click=filtreleri_temizle, use_container_width=True)
 
-        # Tablo Filtreleme Mantığı (Artık q_search kullanılıyor)
+        # Tablo Filtreleme Mantığı
         f_df = df.copy()
-        if st.session_state.q_search:
-            m1 = f_df[c_kod].astype(str).str.contains(st.session_state.q_search, case=False)
-            m2 = f_df[c_tanim].astype(str).str.contains(st.session_state.q_search, case=False)
+        if v_search:
+            m1 = f_df[c_kod].astype(str).str.contains(v_search, case=False)
+            m2 = f_df[c_tanim].astype(str).str.contains(v_search, case=False)
             f_df = f_df[m1 | m2]
         if v_marka != "Tümü": 
             f_df = f_df[f_df[c_marka].astype(str) == v_marka]
