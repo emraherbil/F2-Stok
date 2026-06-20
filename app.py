@@ -227,15 +227,16 @@ else:
         df[c_maliyet] = pd.to_numeric(df[c_maliyet], errors='coerce').fillna(0)
         df[c_fiyat] = pd.to_numeric(df[c_fiyat], errors='coerce').fillna(0)
 
-        # Session State Tanımlamaları
+        # --- DOĞRU HAFIZA (SESSION STATE) YÖNETİMİ ---
+        # Arama kutusu için de hafızayı en baştan tanımlıyoruz
+        if "q_search" not in st.session_state: st.session_state.q_search = ""
         if "q_grup" not in st.session_state: st.session_state.q_grup = "Tümü"
         if "q_marka" not in st.session_state: st.session_state.q_marka = "Tümü"
         if "q_stok" not in st.session_state: st.session_state.q_stok = False
-        
-        if "search_key" not in st.session_state: st.session_state.search_key = 0 
 
         def filtreleri_temizle():
-            st.session_state.search_key += 1 
+            # Kutuyu YIKMADAN, sadece içindeki metni (hafızasını) siliyoruz.
+            st.session_state.q_search = "" 
             st.session_state.q_grup = "Tümü"
             st.session_state.q_marka = "Tümü"
             st.session_state.q_stok = False
@@ -288,12 +289,13 @@ else:
         if current_grup not in grup_ops:
             st.session_state.q_grup = "Tümü"
             
-        # --- ARAYÜZ (DOĞAL HİZALAMA) ---
+        # --- ARAYÜZ ---
         with col1: 
-            # Sahte HTML başlıkları silindi. Doğal başlık ve hizalama geri getirildi.
+            # Key artık sabit ("q_search"). Dinamik sayaç (search_key) iptal edildi.
+            # Kutu asla yıkılmayacak, sadece içindeki yazı silinecek.
             v_search = st_keyup(
                 label="📝 Ürün Ara", 
-                key=f"q_search_{st.session_state.search_key}", 
+                key="q_search", 
                 placeholder="Kod veya açıklama ara...", 
                 debounce=300
             )
