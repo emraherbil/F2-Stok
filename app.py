@@ -37,36 +37,50 @@ VALID_PASSWORD = "f2"
 logo_data = logo_to_base64("logo.png") or logo_to_base64("logo.jpg")
 
 # ==========================================
-# 3. KUSURSUZ GİRİŞ EKRANI (Logo İçeride!)
+# 3. KUSURSUZ GİRİŞ EKRANI
 # ==========================================
 if not st.session_state.logged_in:
     st.markdown("""
     <style>
+        /* 1. KAYDIRMA ÇUBUĞUNU YOK ET: Ekranı tam boyuta sabitle */
+        html, body, [data-testid="stAppViewContainer"] {
+            overflow: hidden !important; 
+            background-color: #f8fafc !important;
+        }
+        
+        /* 2. ORTALAMA SİHİRBASI: Streamlit boşluklarını sıfırla ve formu merkeze al */
+        .block-container {
+            padding: 0 !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
         /* Bulut İframe'ini ve Streamlit Üst Menüsünü Gizle */
         iframe, iframe[title="Streamlit Cloud Status"] { display: none !important; }
         [data-testid="stHeader"], .stDeployButton, footer { display: none !important; }
-        
-        /* Arka Planı Temizle */
-        .stApp { background-color: #f8fafc !important; }
 
-        /* İŞTE SİHİR BURADA: Streamlit formunu bizim Beyaz Kutumuza dönüştürüyoruz */
+        /* BEYAZ ÇERÇEVE TASARIMI */
         [data-testid="stForm"] {
             max-width: 380px !important;
-            margin: 10vh auto !important; /* Ekranın ortasına hizalar */
+            width: 100%;
             padding: 40px 30px !important;
             background-color: #ffffff !important;
             border-radius: 12px !important;
             box-shadow: 0px 8px 25px rgba(0, 0, 0, 0.05) !important;
             border: 1px solid #e2e8f0 !important;
+            margin: 0 !important; 
         }
 
-        /* Girdi Kutularının Tasarımı */
-        [data-testid="stForm"] input {
+        /* ŞİFRE GÖZ İKONUNU BOZMAYAN GİRDİ KUTUSU */
+        [data-baseweb="input"] {
             background-color: #f1f5f9 !important;
             border: 1px solid #cbd5e1 !important;
             border-radius: 6px !important;
+        }
+        [data-baseweb="input"] input {
             color: #1e293b !important;
-            padding: 12px !important;
         }
 
         /* Buton Tasarımı */
@@ -86,10 +100,9 @@ if not st.session_state.logged_in:
     </style>
     """, unsafe_allow_html=True)
     
-    # Streamlit'in Form yapısını kullanıyoruz, bu sayede her şey çerçevenin içinde kalır.
     with st.form("login_form"):
         
-        # LOGO - Formun En Üstünde
+        # LOGO
         if logo_data:
             st.markdown(f'<div style="text-align: center; margin-bottom: 5px;"><img src="data:image/png;base64,{logo_data}" style="max-width: 240px; height: auto;"></div>', unsafe_allow_html=True)
         else:
@@ -105,7 +118,6 @@ if not st.session_state.logged_in:
         # BUTON
         submit_button = st.form_submit_button("Sisteme Giriş Yap", use_container_width=True)
         
-        # GİRİŞ KONTROLÜ
         if submit_button:
             if username_input == VALID_USERNAME and password_input == VALID_PASSWORD:
                 st.session_state.logged_in = True
@@ -117,9 +129,16 @@ if not st.session_state.logged_in:
 # 4. ANA PANEL (BAŞARILI GİRİŞ SONRASI)
 # ==========================================
 else:
+    # Ana panele geçince scroll (kaydırma) özelliklerini ve blok yapısını geri yüklüyoruz
     main_panel_css = """
     <style>
-        .block-container { padding-top: 2rem !important; padding-bottom: 2rem !important; background-color: #ffffff !important; }
+        html, body, [data-testid="stAppViewContainer"] { overflow: auto !important; }
+        .block-container { 
+            display: block !important;
+            padding-top: 2rem !important; 
+            padding-bottom: 2rem !important; 
+            background-color: #ffffff !important; 
+        }
         
         div[data-testid="stVerticalBlock"] > div:first-child {
             position: sticky !important;
@@ -272,4 +291,4 @@ else:
         )
 
     except Exception as e:
-        st.error(f"Hata olustu: {e}")
+        st.error(f"Hata oluştu: {e}")
