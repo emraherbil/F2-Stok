@@ -39,47 +39,43 @@ logo_data = logo_to_base64("logo.png") or logo_to_base64("logo.jpg")
 # ==========================================
 # 3. KUSURSUZ GİRİŞ EKRANI
 # ==========================================
-if not st.session_state.logged_in:
-    st.markdown("""
-    <style>
-        /* 1. Sayfa Kapsayıcısını Ekranın Tam Merkezine Kilitle */
-        [data-testid="stAppViewContainer"] {
-            display: flex !important;
-            justify-content: center !important;
-            align-items: center !important;
-            height: 100vh !important;
-            overflow: hidden !important;
-        }
+st.markdown("""
+<style>
+    /* 1. Uygulamanın en dış kapsayıcısını dikey ve yatay merkeze al */
+    [data-testid="stAppViewContainer"] {
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        height: 100vh !important;
+        margin: 0 !important;
+    }
 
-        /* 2. Formun Boyutunu İçeriğe Göre Otomatik Ayarla (Uzamayı Engeller) */
-        [data-testid="stForm"] {
-            width: 400px !important;      
-            height: auto !important;      /* İçerik kadar yer kaplar */
-            min-height: auto !important;  /* Gereksiz uzamayı durdurur */
-            padding: 30px !important;
-            background-color: white !important;
-            border-radius: 12px !important;
-            box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.1) !important;
-            border: 1px solid #e2e8f0 !important;
-            margin: 0 !important;
-        }
+    /* 2. Formu sadece içeriği kadar boyutlandır ve merkeze kilitle */
+    [data-testid="stForm"] {
+        width: 400px !important;      /* İstediğiniz sabit genişlik */
+        height: auto !important;      /* İçeriğe göre yükseklik (uzamayı durdurur) */
+        padding: 30px !important;
+        background-color: white !important;
+        border-radius: 12px !important;
+        box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.1) !important;
+        border: 1px solid #e2e8f0 !important;
+        margin: 0 !important;
+        display: flex !important;
+        flex-direction: column !important;
+    }
 
-        /* 3. Göz İkonunu (Şifre Göster) Düzelt */
-        [data-baseweb="input"] button {
-            background-color: transparent !important;
-            border: none !important;
-            width: auto !important;
-            height: auto !important;
-        }
-
-        /* 4. "Sisteme Giriş Yap" Butonunu Şekillendir */
-        [data-testid="stFormSubmitButton"] button {
-            width: 100% !important;
-            margin-top: 10px !important;
-        }
-    </style>
-    """, unsafe_allow_html=True)
+    /* 3. Şifre göz ikonu için butonun bozulmasını engelle */
+    [data-baseweb="input"] button {
+        background-color: transparent !important;
+        border: none !important;
+        height: auto !important;
+        width: auto !important;
+    }
     
+    /* 4. Streamlit'in form altındaki boşluklarını sıfırla */
+    .stApp { overflow: hidden !important; }
+</style>
+""", unsafe_allow_html=True)    
     with st.form("login_form"):
         # LOGO
         if logo_data:
