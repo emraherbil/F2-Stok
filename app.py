@@ -228,16 +228,16 @@ else:
         df[c_fiyat] = pd.to_numeric(df[c_fiyat], errors='coerce').fillna(0)
 
         # --- DOĞRU HAFIZA (SESSION STATE) YÖNETİMİ ---
+        # Tüm filtrelerin ilk değerlerini tanımlıyoruz
+        if "q_search" not in st.session_state: st.session_state.q_search = ""
         if "q_grup" not in st.session_state: st.session_state.q_grup = "Tümü"
         if "q_marka" not in st.session_state: st.session_state.q_marka = "Tümü"
         if "q_stok" not in st.session_state: st.session_state.q_stok = False
 
-        # --- YENİ TEMİZLEME MANTIĞI: HAFIZAYI (KEY) SİLME ---
+        # --- İŞTE O BASİT VE KESİN TEMİZLEME KODU ---
         def filtreleri_temizle():
-            # Kutuya atanmış hafızayı kökten siliyoruz. Yeniden render edildiğinde kutu boş doğacak.
-            if "q_search" in st.session_state:
-                del st.session_state["q_search"]
-                
+            # Tam olarak bahsettiğiniz "urunAra.text = ''" mantığının Streamlit versiyonu:
+            st.session_state.q_search = "" 
             st.session_state.q_grup = "Tümü"
             st.session_state.q_marka = "Tümü"
             st.session_state.q_stok = False
@@ -289,9 +289,9 @@ else:
         if current_grup not in grup_ops:
             st.session_state.q_grup = "Tümü"
             
-        # --- ARAYÜZ (Zıplamasız ve Temizlenebilir Form) ---
+        # --- ARAYÜZ ---
         with col1: 
-            # Key tamamen sabit ("q_search"). 
+            # Kutuya "q_search" kimliğini atıyoruz ki yazdığımız temizleme kodu burayı bulsun.
             v_search = st_keyup(
                 label="📝 Ürün Ara", 
                 key="q_search", 
