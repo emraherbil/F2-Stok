@@ -178,7 +178,7 @@ else:
         .custom-logo { height: 60px; object-fit: contain; }
         .custom-title-block { display: flex; flex-direction: column; justify-content: center; }
         .stCheckbox { margin-top: 35px !important; }
-        .stButton button { margin-top: 28px !important; height: 42px !important; width: auto !important; background-color: transparent !important; color: inherit !important; border: 1px solid #cbd5e1 !important; }
+        .stButton button { margin-top: 28px !important; height: 42px !important; width: auto !important; background-color: #1e293b !important; color: white !important; border: none !important; }
         hr { margin: 0.6rem 0 !important; opacity: 0.2; }
     </style>
     """
