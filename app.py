@@ -315,4 +315,41 @@ else:
         
         def kpi_card(label, val, color):
             return f"""
-            <div style='background-color: rgba(28, 31, 46, 0.03); padding: 12px 15px; border-radius: 6px;
+            <div style='background-color: rgba(28, 31, 46, 0.03); padding: 12px 15px; border-radius: 6px; border-left: 5px solid {color}; display: flex; justify-content: space-between; align-items: center;'>
+                <span style='font-size:13px; color:#555; font-weight:bold;'>{label}</span>
+                <span style='font-size:1.15rem; font-weight: 800; color:#111;'>{val}</span>
+            </div>
+            """
+
+        k1, k2, k3 = st.columns(3)
+        with k1: st.markdown(kpi_card("📋 Toplam Çeşit:", f"{t_prod:,}".replace(",", ".") + " Adet", "#1E88E5"), unsafe_allow_html=True)
+        with k2: st.markdown(kpi_card("📦 Toplam Stok:", f"{t_stok:,}".replace(",", ".") + " Adet", "#4CAF50"), unsafe_allow_html=True)
+        with k3: st.markdown(kpi_card("💰 Toplam Maliyet:", f"${t_cost:,.0f}".replace(",", "."), "#FFC107"), unsafe_allow_html=True)
+
+        st.markdown("<div style='margin-top:15px;'></div>", unsafe_allow_html=True)
+        
+        # Tablo Çıktısı Formatlaması
+        out_df = f_df[[c_kod, c_tanim, c_marka, c_grup, c_stok, c_fiyat, c_maliyet]].copy()
+        out_df.columns = ["Ürün Kodu", "Açıklama", "Marka", "Ürün Grubu", "Güncel Stok", "Birim Maliyet", "Toplam Maliyet"]
+        
+        out_df = out_df.reset_index(drop=True)
+        raw_stok = out_df["Güncel Stok"].copy()
+
+        out_df["Birim Maliyet"] = out_df["Birim Maliyet"].apply(lambda v: f"${v:,.0f}".replace(",", "."))
+        out_df["Toplam Maliyet"] = out_df["Toplam Maliyet"].apply(lambda v: f"${v:,.0f}".replace(",", "."))
+        out_df["Güncel Stok"] = out_df["Güncel Stok"].apply(lambda v: f"{int(v):,}".replace(",", "."))
+
+        def row_style(row):
+            if raw_stok.loc[row.name] == 0:
+                return ['background-color: rgba(255, 75, 75, 0.08)'] * len(row)
+            return [''] * len(row)
+
+        st.dataframe(
+            out_df.style.apply(row_style, axis=1), 
+            use_container_width=True, 
+            hide_index=True,
+            height=480
+        )
+
+    except Exception as e:
+        st.error(f"Hata oluştu: {e}")
