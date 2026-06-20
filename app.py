@@ -4,13 +4,19 @@ import os
 import base64
 from pathlib import Path
 
-# --- CANLI ARAMA EKLENTİSİ ---
+# --- CANLI ARAMA EKLENTİSİ (BİZİM KENDİ LOKAL KLASÖRÜMÜZ) ---
+import streamlit.components.v1 as components
+parent_dir = os.path.dirname(os.path.abspath(__file__))
+custom_dir = os.path.join(parent_dir, "custom_keyup")
+
 try:
-    from st_keyup import st_keyup
-except ImportError:
-    st.error("Lütfen terminalde 'pip install streamlit-keyup' çalıştırın veya requirements.txt dosyanıza 'streamlit-keyup' ekleyin.")
+    _st_keyup = components.declare_component("st_keyup", path=custom_dir)
+    def st_keyup(label, value="", key=None, placeholder="", debounce=300, label_visibility="visible"):
+        return _st_keyup(label=label, value=value, default=value, key=key, placeholder=placeholder, debounce=debounce, label_visibility=label_visibility)
+except Exception as e:
+    st.error("Lütfen 'custom_keyup' klasörünüzün app.py ile aynı dizinde olduğundan emin olun!")
     st.stop()
-# -----------------------------
+# -------------------------------------------------------------
 
 # ==========================================
 # 1. LOGO DÖNÜŞTÜRÜCÜ
@@ -203,16 +209,6 @@ else:
             color: white !important; 
             border: none !important; 
         }
-
-        /* --- SİHİRLİ KALIP (DARALMAYI VE ZIPLAMAYI ÖNLER) --- */
-        /* 1. Sütunun yüksekliğini sabitler (aşağı-yukarı zıplama biter) */
-        div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:nth-child(1) { 
-            min-height: 85px !important; 
-        }
-        /* 2. Eklentiyi tam genişlikte tutar (sağa-sola daralma biter) */
-        iframe[title*="st_keyup"] {
-            width: 100% !important;
-        }
         
         hr { margin: 0.6rem 0 !important; opacity: 0.2; }
     </style>
@@ -237,15 +233,15 @@ else:
         df[c_maliyet] = pd.to_numeric(df[c_maliyet], errors='coerce').fillna(0)
         df[c_fiyat] = pd.to_numeric(df[c_fiyat], errors='coerce').fillna(0)
 
-        # --- HAFIZA VE SAYAÇ YÖNETİMİ ---
+        # --- HAFIZA YÖNETİMİ ---
+        if "q_search" not in st.session_state: st.session_state.q_search = ""
         if "q_grup" not in st.session_state: st.session_state.q_grup = "Tümü"
         if "q_marka" not in st.session_state: st.session_state.q_marka = "Tümü"
         if "q_stok" not in st.session_state: st.session_state.q_stok = False
-        
-        if "search_key" not in st.session_state: st.session_state.search_key = 0 
 
         def filtreleri_temizle():
-            st.session_state.search_key += 1 # Eklentiyi sıfırlar
+            # Kutuyu yıkmadan, JS yamamız sayesinde metni pürüzsüzce siliyoruz!
+            st.session_state.q_search = ""
             st.session_state.q_grup = "Tümü"
             st.session_state.q_marka = "Tümü"
             st.session_state.q_stok = False
@@ -297,17 +293,20 @@ else:
         if current_grup not in grup_ops:
             st.session_state.q_grup = "Tümü"
             
-        # --- ARAYÜZ (KUSURSUZ DOĞAL KUTU) ---
+        # --- ARAYÜZ (TAMAMEN DOĞAL VE SARSILMAZ) ---
         with col1: 
-            # Hiçbir sahte başlık/HTML hilesi yok. Eklentinin tamamen kendi doğal formu.
-            # Diğer kutularla milimetrik aynı boyutta ve hizada olacaktır.
             v_search = st_keyup(
                 label="📝 Ürün Ara", 
-                key=f"q_search_{st.session_state.search_key}", 
+                value=st.session_state.q_search,  # JS yamamız bu değere itaat edecek
+                key="q_search_widget",  # Kutunun kimliği sabit kaldı (Zıplama İptal)
                 placeholder="Kod veya açıklama ara...", 
                 debounce=300
             )
             
+            # Yazılan metni hafızaya kopyalıyoruz
+            if v_search is not None:
+                st.session_state.q_search = v_search
+                
         with col2: 
             v_marka = st.selectbox("🏷️ Marka", marka_ops, key="q_marka")
         with col3: 
@@ -317,11 +316,11 @@ else:
         with col5: 
             st.button("🧹 Temizle", on_click=filtreleri_temizle, use_container_width=True)
 
-        # Tablo Filtreleme Mantığı
+        # Tablo Filtreleme Mantığı (Artık q_search kullanılıyor)
         f_df = df.copy()
-        if v_search:
-            m1 = f_df[c_kod].astype(str).str.contains(v_search, case=False)
-            m2 = f_df[c_tanim].astype(str).str.contains(v_search, case=False)
+        if st.session_state.q_search:
+            m1 = f_df[c_kod].astype(str).str.contains(st.session_state.q_search, case=False)
+            m2 = f_df[c_tanim].astype(str).str.contains(st.session_state.q_search, case=False)
             f_df = f_df[m1 | m2]
         if v_marka != "Tümü": 
             f_df = f_df[f_df[c_marka].astype(str) == v_marka]
@@ -372,6 +371,3 @@ else:
             hide_index=True,
             height=480
         )
-
-    except Exception as e:
-        st.error(f"Hata oluştu: {e}")
