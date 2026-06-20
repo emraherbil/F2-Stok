@@ -28,24 +28,6 @@ st.set_page_config(
     page_icon="📦",
     layout="wide"
 )
-# --- STREAMLIT ROZETLERİNİ VE GEREKSİZ MENÜLERİ GİZLEME KODU ---
-st.markdown("""
-    <style>
-        /* 1. Sayfa en altındaki 'Made with Streamlit' footer alanını gizle */
-        footer {visibility: hidden !important; display: none !important;}
-        
-        /* 2. Sağ alttaki Streamlit Cloud 'Manage App' ve Avatar rozetlerini gizle */
-        .viewerBadge_container {display: none !important;}
-        
-        /* 3. Sağ üstteki hamburger menü (üç nokta) ve Deploy butonunu gizle */
-        [data-testid="stToolbar"] {display: none !important;}
-        .stDeployButton {display: none !important;}
-        
-        /* 4. Sayfanın en üstündeki varsayılan boşluk çubuğunu gizle */
-        header {visibility: hidden !important; display: none !important;}
-    </style>
-""", unsafe_allow_html=True)
-# --------------------------------------------------------------
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 
