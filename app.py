@@ -70,7 +70,7 @@ VALID_PASSWORD = "f2"
 logo_data = logo_to_base64("logo.png") or logo_to_base64("logo.jpg")
 
 # ==========================================
-# 3. KUSURSUZ GİRİŞ EKRANI (KESİN ORTALANMIŞ VE STABİL)
+# 3. KUSURSUZ GİRİŞ EKRANI (SAHTE HTML BUTON MANTIĞI)
 # ==========================================
 if not st.session_state.logged_in:
     st.markdown("""
@@ -121,40 +121,31 @@ if not st.session_state.logged_in:
             height: auto !important;
         }
         
-        /* --- GİZLİ EN İÇ HİZALAMA KATMANINI VE BUTONU ORTALAMA --- */
+        /* Orijinal, hizalamayı bozan Streamlit butonunu tamamen görünmez yapıyoruz */
         [data-testid="stForm"] div[data-testid="stFormSubmitButton"] {
-            display: flex !important;
-            justify-content: center !important;
-            align-items: center !important;
-            width: 100% !important;
-            text-align: center !important;
-            margin-top: 15px !important;
-        }
-
-        /* Streamlit'in butonu sola yaslayan gizli ara katmanı */
-        [data-testid="stForm"] div[data-testid="stFormSubmitButton"] > div {
-            width: 100% !important;
-            display: flex !important;
-            justify-content: center !important;
+            display: none !important;
+            visibility: hidden !important;
         }
         
-        [data-testid="stForm"] div[data-testid="stFormSubmitButton"] button {
+        /* Bizim eklediğimiz özel HTML butonun kusursuz tasarımı */
+        .custom-login-btn {
             background-color: #1e293b !important;
             color: white !important;
             border: none !important;
             border-radius: 6px !important;
             font-weight: 600 !important;
+            font-size: 14px !important;
             height: 45px !important;
-            width: 100% !important; /* Butonu kutunun tamamına yayar */
-            max-width: 100% !important;
-            margin: 0 auto !important;
+            width: 100% !important;
             display: block !important;
+            cursor: pointer !important;
+            text-align: center !important;
             transition: background-color 0.3s;
+            margin-top: 15px !important;
         }
-        
-        [data-testid="stForm"] div[data-testid="stFormSubmitButton"] button:hover {
+        .custom-login-btn:hover {
             background-color: #0f172a !important;
-        }        
+        }
     </style>
     """, unsafe_allow_html=True)
     
@@ -169,9 +160,17 @@ if not st.session_state.logged_in:
         username_input = st.text_input("Kullanıcı Adı", placeholder="Kullanıcı adınızı yazın", label_visibility="collapsed")
         password_input = st.text_input("Şifre", type="password", placeholder="Şifrenizi yazın", label_visibility="collapsed")
         
-        st.markdown("<div style='margin-top: 5px;'></div>", unsafe_allow_html=True) 
+        # Formun çalışması için arka planda gizli duran zorunlu buton
+        submit_button = st.form_submit_button("Gizli")
         
-        submit_button = st.form_submit_button("Sisteme Giriş Yap")
+        # Kullanıcının göreceği, formu tam kaplayan ve ortalı HTML butonu.
+        # Tıklandığında üstteki gerçek gizli butona JavaScript ile tıklama gönderir.
+        st.markdown("""
+            <button type="button" class="custom-login-btn" onclick="
+                const realBtn = window.parent.document.querySelector('div[data-testid=\\'stForm\\'] button[kind=\\'formSubmit\\']');
+                if(realBtn) { realBtn.click(); }
+            ">Sisteme Giriş Yap</button>
+        """, unsafe_allow_html=True)
         
         if submit_button:
             if username_input == VALID_USERNAME and password_input == VALID_PASSWORD:
