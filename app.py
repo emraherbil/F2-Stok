@@ -70,12 +70,12 @@ VALID_PASSWORD = "f2"
 logo_data = logo_to_base64("logo.png") or logo_to_base64("logo.jpg")
 
 # ==========================================
-# 3. KUSURSUZ GİRİŞ EKRANI (SPESİFİK CSS)
+# 3. KUSURSUZ GİRİŞ EKRANI (KESİN ORTALANMIŞ BUTON)
 # ==========================================
 if not st.session_state.logged_in:
-    # Sadece giriş ekranını etkileyen, ana paneli asla kirletmeyen özel CSS
     st.markdown("""
     <style>
+        /* Ekranın kaymasını engelleyen maske */
         html, body, [data-testid="stAppViewContainer"], .stApp {
             overflow: hidden !important; 
             background-color: #f8fafc !important;
@@ -121,11 +121,13 @@ if not st.session_state.logged_in:
             height: auto !important;
         }
         
-        /* Giriş butonunun genişliğini forma eşitleyip tam oturtma */
+        /* --- BUTONU VE KAPSAYICISINI TAM ORTALAMA CSS KURALLARI --- */
         [data-testid="stForm"] [data-testid="stFormSubmitButton"] {
+            display: flex !important;
+            justify-content: center !important; /* Esnek kutu içinde yatayda ortala */
+            align-items: center !important;
             width: 100% !important;
-            display: block !important;
-            text-align: center !important;
+            margin-top: 10px !important;
         }
         
         [data-testid="stForm"] [data-testid="stFormSubmitButton"] button {
@@ -135,11 +137,13 @@ if not st.session_state.logged_in:
             border-radius: 6px !important;
             font-weight: 600 !important;
             height: 45px !important;
-            width: 100% !important;
+            width: 100% !important; /* Butonun genişliğini forma yayar */
+            max-width: 100% !important;
             margin: 0 auto !important;
             display: block !important;
             transition: background-color 0.3s;
         }
+        
         [data-testid="stForm"] [data-testid="stFormSubmitButton"] button:hover {
             background-color: #0f172a !important;
         }        
@@ -172,7 +176,6 @@ if not st.session_state.logged_in:
 # 4. ANA PANEL (GİRİŞ SONRASI - ASLA ZIPLAMAZ)
 # ==========================================
 else:
-    # Giriş yapıldıktan sonra sayfayı temizleyen ve zıplatmayan stabilizesi yüksek hafif CSS
     st.markdown("""
     <style>
         html, body, [data-testid="stAppViewContainer"] { 
