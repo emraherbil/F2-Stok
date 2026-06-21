@@ -87,7 +87,7 @@ if not st.session_state.logged_in:
             padding: 0 !important;
             max-width: 100% !important;
         }
-        /* Beyaz çerçeveyi ekrana tam ortalayan mutlak konumlandırma */
+        /* Beyaz çerçeveyi ekrana tam ortalayan ve gereksiz uzamayı bitiren mutlak konumlandırma */
         [data-testid="stForm"] {
             position: fixed !important;
             top: 50% !important;
@@ -118,9 +118,8 @@ if not st.session_state.logged_in:
             width: auto !important;
             height: auto !important;
         }
-        
-        /* Buton Tasarımı (Ortalamayı artık sütunlar yapacağı için sadece stil veriyoruz) */
-        div.stFormSubmitButton > button {
+        /* Giriş butonunu tam sığdıran ayar */
+        [data-testid="stFormSubmitButton"] button {
             background-color: #1e293b !important;
             color: white !important;
             border: none !important;
@@ -130,7 +129,7 @@ if not st.session_state.logged_in:
             width: 100% !important;
             transition: background-color 0.3s;
         }
-        div.stFormSubmitButton > button:hover {
+        [data-testid="stFormSubmitButton"] button:hover {
             background-color: #0f172a !important;
         }        
     </style>
@@ -149,12 +148,7 @@ if not st.session_state.logged_in:
         
         st.markdown("<div style='margin-top: 5px;'></div>", unsafe_allow_html=True) 
         
-        # --- SÜTUNLAR İLE KESİN ORTALAMA MANTIĞI ---
-        # Sol boşluk (1 birim), Orta buton alanı (2 birim), Sağ boşluk (1 birim)
-        btn_col_left, btn_col_main, btn_col_right = st.columns([1, 2, 1])
-        
-        with btn_col_main:
-            submit_button = st.form_submit_button("Sisteme Giriş Yap")
+        submit_button = st.form_submit_button("Sisteme Giriş Yap")
         
         if submit_button:
             if username_input == VALID_USERNAME and password_input == VALID_PASSWORD:
@@ -167,7 +161,7 @@ if not st.session_state.logged_in:
 # 4. ANA PANEL (BAŞARILI GİRİŞ SONRASI)
 # ==========================================
 else:
-    main_panel_css = """
+    st.markdown("""
     <style>
         html, body, [data-testid="stAppViewContainer"] { overflow: auto !important; }
         [data-testid="stForm"] {
@@ -218,8 +212,7 @@ else:
             border-radius: 4px !important;
         }
     </style>
-    """
-    st.markdown(main_panel_css, unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
 
     try:
         df = load_data()
@@ -256,20 +249,19 @@ else:
         """, unsafe_allow_html=True)
 
         # =================================================================
-        # 5. FRAGMENT ALANI 
+        # 5. FRAGMENT ALANI
         # =================================================================
         @st.fragment
         def stok_paneli_icerik(data_frame):
             if "q_grup" not in st.session_state: st.session_state.q_grup = "Tümü"
             if "q_marka" not in st.session_state: st.session_state.q_marka = "Tümü"
             if "q_stok" not in st.session_state: st.session_state.q_stok = False
-            if "search_reset_key" not in st.session_state: st.session_state.search_reset_key = 0
             
             def filtreleri_temizle():
+                st.session_state.q_search = ""
                 st.session_state.q_grup = "Tümü"
                 st.session_state.q_marka = "Tümü"
                 st.session_state.q_stok = False
-                st.session_state.search_reset_key += 1 
 
             col1, col2, col3, col4, col5 = st.columns([3.2, 2.4, 2.4, 2.2, 1.2])
             
@@ -295,9 +287,12 @@ else:
                 st.session_state.q_grup = "Tümü"
 
             with col1:
+                if "q_search" not in st.session_state:
+                    st.session_state.q_search = ""
+
                 v_search = st_keyup(
                     label="📝 Ürün Ara",
-                    key=f"q_search_{st.session_state.search_reset_key}",
+                    key="q_search",
                     placeholder="Kod veya açıklama ara...",
                     debounce=500
                 )
