@@ -37,7 +37,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# Genel arayüz temizliği için temel CSS kurallarını yüklüyoruz
+# Genel arayüz temizliği için temel CSS kuralları (Zıplatma yapmayan global kurallar)
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -70,12 +70,12 @@ VALID_PASSWORD = "f2"
 logo_data = logo_to_base64("logo.png") or logo_to_base64("logo.jpg")
 
 # ==========================================
-# 3. KUSURSUZ GİRİŞ EKRANI (TAM ORTALANMIŞ)
+# 3. KUSURSUZ GİRİŞ EKRANI (SPESİFİK CSS)
 # ==========================================
 if not st.session_state.logged_in:
+    # Sadece giriş ekranını etkileyen, ana paneli asla kirletmeyen özel CSS
     st.markdown("""
     <style>
-        /* Ekranın kaymasını engelleyen maske */
         html, body, [data-testid="stAppViewContainer"], .stApp {
             overflow: hidden !important; 
             background-color: #f8fafc !important;
@@ -87,8 +87,9 @@ if not st.session_state.logged_in:
             padding: 0 !important;
             max-width: 100% !important;
         }
-        /* Beyaz çerçeveyi ekrana tam ortalayan ve gereksiz uzamayı bitiren mutlak konumlandırma */
-        [data-testid="stForm"] {
+        
+        /* Sadece giriş formunu yakalamak için hedefli seçici */
+        div[data-testid="stAppViewContainer"] [data-testid="stForm"] {
             position: fixed !important;
             top: 50% !important;
             left: 50% !important;
@@ -105,21 +106,29 @@ if not st.session_state.logged_in:
             margin: 0 !important;
             z-index: 99999 !important;
         }
-        /* Şifre göz butonunu bozmayan girdi gövdesi */
-        [data-baseweb="input"] {
+        
+        /* Giriş formundaki girdiler */
+        [data-testid="stForm"] [data-baseweb="input"] {
             background-color: #f1f5f9 !important;
             border: 1px solid #cbd5e1 !important;
             border-radius: 6px !important;
         }
-        /* Göz ikonu düzeltmesi */
-        [data-baseweb="input"] button {
+        
+        [data-testid="stForm"] [data-baseweb="input"] button {
             background-color: transparent !important;
             border: none !important;
             width: auto !important;
             height: auto !important;
         }
-        /* Giriş butonunu tam sığdıran ayar */
-        [data-testid="stFormSubmitButton"] button {
+        
+        /* Giriş butonunun genişliğini forma eşitleyip tam oturtma */
+        [data-testid="stForm"] [data-testid="stFormSubmitButton"] {
+            width: 100% !important;
+            display: block !important;
+            text-align: center !important;
+        }
+        
+        [data-testid="stForm"] [data-testid="stFormSubmitButton"] button {
             background-color: #1e293b !important;
             color: white !important;
             border: none !important;
@@ -127,9 +136,11 @@ if not st.session_state.logged_in:
             font-weight: 600 !important;
             height: 45px !important;
             width: 100% !important;
+            margin: 0 auto !important;
+            display: block !important;
             transition: background-color 0.3s;
         }
-        [data-testid="stFormSubmitButton"] button:hover {
+        [data-testid="stForm"] [data-testid="stFormSubmitButton"] button:hover {
             background-color: #0f172a !important;
         }        
     </style>
@@ -158,22 +169,16 @@ if not st.session_state.logged_in:
                 st.error("Hatalı kullanıcı adı veya şifre!")
 
 # ==========================================
-# 4. ANA PANEL (BAŞARILI GİRİŞ SONRASI)
+# 4. ANA PANEL (GİRİŞ SONRASI - ASLA ZIPLAMAZ)
 # ==========================================
 else:
+    # Giriş yapıldıktan sonra sayfayı temizleyen ve zıplatmayan stabilizesi yüksek hafif CSS
     st.markdown("""
     <style>
-        html, body, [data-testid="stAppViewContainer"] { overflow: auto !important; }
-        [data-testid="stForm"] {
-            position: relative !important;
-            top: auto !important;
-            left: auto !important;
-            transform: none !important;
-            width: 100% !important;
-            max-width: 100% !important;
-            padding: 20px !important;
-            box-shadow: none !important;
-            border: 1px solid #e2e8f0 !important;
+        html, body, [data-testid="stAppViewContainer"] { 
+            overflow: auto !important; 
+            height: auto !important;
+            background-color: #ffffff !important;
         }
         .block-container { 
             display: block !important;
