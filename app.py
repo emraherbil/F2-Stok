@@ -70,7 +70,7 @@ VALID_PASSWORD = "f2"
 logo_data = logo_to_base64("logo.png") or logo_to_base64("logo.jpg")
 
 # ==========================================
-# 3. KUSURSUZ GİRİŞ EKRANI (DOĞAL GENİŞLEYEN YEREL BUTON)
+# 3. KUSURSUZ GİRİŞ EKRANI (ORİJİNAL BOYUTTA ORTALANMIŞ BUTON)
 # ==========================================
 if not st.session_state.logged_in:
     st.markdown("""
@@ -121,16 +121,19 @@ if not st.session_state.logged_in:
             height: auto !important;
         }
         
-        /* --- STREAMLIT ORİJİNAL BUTONUNU DOĞAL OLARAK %100 GENİŞLETME --- */
+        /* --- GENİŞLİĞİ BOZMADAN ORTALAMA CSS KURALLARI --- */
         [data-testid="stForm"] div[data-testid="stFormSubmitButton"] {
+            display: flex !important;
+            justify-content: center !important; /* Buton sarmalayıcısını yatayda tam ortalar */
+            align-items: center !important;
             width: 100% !important;
-            display: block !important;
             margin-top: 15px !important;
         }
 
         [data-testid="stForm"] div[data-testid="stFormSubmitButton"] > div {
+            display: flex !important;
+            justify-content: center !important; /* Streamlit'in iç div hizalamasını ortalar */
             width: 100% !important;
-            display: block !important;
         }
         
         [data-testid="stForm"] div[data-testid="stFormSubmitButton"] button {
@@ -140,8 +143,9 @@ if not st.session_state.logged_in:
             border-radius: 6px !important;
             font-weight: 600 !important;
             height: 45px !important;
-            width: 100% !important; /* Butonu zorla %100 genişliğe çeker */
-            display: block !important;
+            /* width: 100% satırını sildik, böylece orijinal genişliği bozulmaz */
+            padding-left: 30px !important; /* Butonun şık durması için iç boşluklar */
+            padding-right: 30px !important;
             transition: background-color 0.3s;
         }
         
@@ -164,7 +168,6 @@ if not st.session_state.logged_in:
         
         st.markdown("<div style='margin-top: 5px;'></div>", unsafe_allow_html=True)
         
-        # Tamamen yerel, %100 çalışan Streamlit butonu
         submit_button = st.form_submit_button("Sisteme Giriş Yap")
         
         if submit_button:
