@@ -70,7 +70,7 @@ VALID_PASSWORD = "f2"
 logo_data = logo_to_base64("logo.png") or logo_to_base64("logo.jpg")
 
 # ==========================================
-# 3. KUSURSUZ GİRİŞ EKRANI (KAYMAZ VE SÜTUNLARLA ORTALANMIŞ)
+# 3. KUSURSUZ GİRİŞ EKRANI
 # ==========================================
 if not st.session_state.logged_in:
     st.markdown("""
@@ -121,7 +121,21 @@ if not st.session_state.logged_in:
             height: auto !important;
         }
         
-        /* Butonun şık ve kurumsal durması için temel renk ayarı */
+        /* --- GENİŞLİĞİ BOZMADAN ORTALAMA CSS KURALLARI --- */
+        [data-testid="stForm"] div[data-testid="stFormSubmitButton"] {
+            display: flex !important;
+            justify-content: center !important;
+            align-items: center !important;
+            width: 100% !important;
+            margin-top: 15px !important;
+        }
+
+        [data-testid="stForm"] div[data-testid="stFormSubmitButton"] > div {
+            display: flex !important;
+            justify-content: center !important;
+            width: 100% !important;
+        }
+        
         [data-testid="stForm"] div[data-testid="stFormSubmitButton"] button {
             background-color: #1e293b !important;
             color: white !important;
@@ -129,9 +143,8 @@ if not st.session_state.logged_in:
             border-radius: 6px !important;
             font-weight: 600 !important;
             height: 45px !important;
-            padding-left: 20px !important;
-            padding-right: 20px !important;
-            white-space: nowrap !important;
+            padding-left: 30px !important;
+            padding-right: 30px !important;
             transition: background-color 0.3s;
         }
         
@@ -154,12 +167,7 @@ if not st.session_state.logged_in:
         
         st.markdown("<div style='margin-top: 5px;'></div>", unsafe_allow_html=True)
         
-        # --- BUTONU SÜTUNLARLA DOĞAL VE TAM GEOMETRİK OLARAK ORTALAMA ---
-        # Sol ve sağ sütunlar (1.15 boyutu) boşluk görevi görür, ortadaki (2.0 boyutu) butonu tam merkeze oturtur.
-        btn_col_left, btn_col_center, btn_col_right = st.columns([1.15, 2.0, 1.15])
-        
-        with btn_col_center:
-            submit_button = st.form_submit_button("Sisteme Giriş Yap")
+        submit_button = st.form_submit_button("Sisteme Giriş Yap")
         
         if submit_button:
             if username_input == VALID_USERNAME and password_input == VALID_PASSWORD:
@@ -202,10 +210,15 @@ else:
         .custom-logo { height: 60px; object-fit: contain; }
         .custom-title-block { display: flex; flex-direction: column; justify-content: center; }
         
-        div[data-testid="stHorizontalBlock"] div[data-testid="column"]:nth-child(4) .stCheckbox {
-            margin-top: 24px !important;
+        /* --- FILTRE ALANI KUSURSUZ HİZALAMA CSS KURALLARI --- */
+        /* Onay kutusunu (Checkbox) Ürün grubu ve temizle butonuyla tam dikey ortalar */
+        div[data-testid="stHorizontalBlock"] div[data-testid="stCheckbox"] {
+            margin-top: 32px !important;
+            padding-top: 0px !important;
+            padding-bottom: 0px !important;
         }
 
+        /* Temizle butonunun üst boşluk ayarı */
         .stButton button { 
             margin-top: 24px !important;
             height: 40px !important; 
@@ -216,7 +229,7 @@ else:
             border-radius: 4px !important;
         }
     </style>
-    """, unsafe_allow_html=True)
+""", unsafe_allow_html=True)
 
     try:
         df = load_data()
@@ -267,6 +280,7 @@ else:
                 st.session_state.q_marka = "Tümü"
                 st.session_state.q_stok = False
 
+            # Sütun yapısı dikey kaymaları önlemek için sabitlendi
             col1, col2, col3, col4, col5 = st.columns([3.2, 2.4, 2.4, 2.2, 1.2])
             
             current_marka = st.session_state.q_marka
