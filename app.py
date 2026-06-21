@@ -119,24 +119,25 @@ if not st.session_state.logged_in:
             height: auto !important;
         }
         
-        /* --- GİRİŞ BUTONU ORTALAMA DÜZELTMELERİ --- */
-        [data-testid="stFormSubmitButton"] {
-            display: flex !important;
-            justify-content: center !important;
+        /* --- KESİN BUTON ORTALAMA CSS KURALLARI --- */
+        div.stFormSubmitButton {
+            text-align: center !important;
             width: 100% !important;
+            display: block !important;
         }
-        [data-testid="stFormSubmitButton"] button {
+        div.stFormSubmitButton > button {
             background-color: #1e293b !important;
             color: white !important;
             border: none !important;
             border-radius: 6px !important;
             font-weight: 600 !important;
             height: 45px !important;
-            width: 100% !important; /* Butonun kutu genişliğine tam yayılması için */
-            max-width: 100% !important;
+            width: 100% !important; /* Form genişliğini tam kaplasın */
+            margin: 0 auto !important; /* Dış boşlukları sıfırlayıp ortala */
+            display: block !important;
             transition: background-color 0.3s;
         }
-        [data-testid="stFormSubmitButton"] button:hover {
+        div.stFormSubmitButton > button:hover {
             background-color: #0f172a !important;
         }        
     </style>
