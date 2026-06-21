@@ -37,7 +37,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# Genel arayüz temizliği için temel CSS kuralları (Zıplatma yapmayan global kurallar)
+# Genel arayüz temizliği için temel CSS kuralları
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -66,7 +66,7 @@ VALID_PASSWORD = "f2"
 logo_data = logo_to_base64("logo.png") or logo_to_base64("logo.jpg")
 
 # ==========================================
-# 3. KUSURSUZ GİRİŞ EKRANI
+# 3. KUSURSUZ GİRİŞ EKRANI (TAM ORTALANMIŞ)
 # ==========================================
 if not st.session_state.logged_in:
     st.markdown("""
@@ -83,8 +83,7 @@ if not st.session_state.logged_in:
             padding: 0 !important;
             max-width: 100% !important;
         }
-        
-        /* Sadece giriş formunu yakalamak için hedefli seçici */
+        /* Beyaz çerçeveyi ekrana tam ortalayan mutlak konumlandırma */
         div[data-testid="stAppViewContainer"] [data-testid="stForm"] {
             position: fixed !important;
             top: 50% !important;
@@ -102,57 +101,55 @@ if not st.session_state.logged_in:
             margin: 0 !important;
             z-index: 99999 !important;
         }
-        
-        /* Giriş formundaki girdiler */
-        [data-testid="stForm"] [data-baseweb="input"] {
+        /* Şifre göz butonunu bozmayan girdi gövdesi */
+        [data-testid="stAppViewContainer"] [data-baseweb="input"] {
             background-color: #f1f5f9 !important;
             border: 1px solid #cbd5e1 !important;
             border-radius: 6px !important;
         }
-        
-        [data-testid="stForm"] [data-baseweb="input"] button {
+        /* Göz ikonu düzeltmesi */
+        [data-testid="stAppViewContainer"] [data-baseweb="input"] button {
             background-color: transparent !important;
             border: none !important;
             width: auto !important;
             height: auto !important;
         }
         
-        /* G GİRİŞ BUTONUNU VE İÇİNDEKİ METNİ KUSURSUZ ORTALAMA KURALLARI */
-        [data-testid="stForm"] div[data-testid="stFormSubmitButton"] {
+        /* BUTON KAPSAYICISINI VE BUTONU FORMUN ORTASINA KİLİTLEYEN CSS */
+        div[data-testid="stAppViewContainer"] [data-testid="stForm"] div[data-testid="stFormSubmitButton"] {
             display: flex !important;
-            justify-content: center !important; /* Buton bloğunu formun ortasına alır */
+            justify-content: center !important;
             align-items: center !important;
             width: 100% !important;
-            margin-top: 15px !important;
+            margin-top: 20px !important;
         }
 
-        [data-testid="stForm"] div[data-testid="stFormSubmitButton"] > div {
+        div[data-testid="stAppViewContainer"] [data-testid="stForm"] div[data-testid="stFormSubmitButton"] > div {
             display: flex !important;
             justify-content: center !important;
             width: auto !important;
         }
         
-        [data-testid="stForm"] div[data-testid="stFormSubmitButton"] button {
+        div[data-testid="stAppViewContainer"] [data-testid="stForm"] [data-testid="stFormSubmitButton"] button {
             background-color: #1e293b !important;
             color: white !important;
             border: none !important;
             border-radius: 6px !important;
             font-weight: 600 !important;
             height: 45px !important;
+            padding-left: 35px !important;
+            padding-right: 35px !important;
             
-            /* Metnin buton içerisinde tam merkezde kalmasını garanti altına alıyoruz */
+            /* Yazıyı buton içine kusursuz ortalar */
             display: inline-flex !important;
             align-items: center !important;
             justify-content: center !important;
             text-align: center !important;
             
-            padding-left: 30px !important;
-            padding-right: 30px !important;
             white-space: nowrap !important;
             transition: background-color 0.3s;
         }
-        
-        [data-testid="stForm"] div[data-testid="stFormSubmitButton"] button:hover {
+        div[data-testid="stAppViewContainer"] [data-testid="stForm"] [data-testid="stFormSubmitButton"] button:hover {
             background-color: #0f172a !important;
         }        
     </style>
@@ -169,7 +166,7 @@ if not st.session_state.logged_in:
         username_input = st.text_input("Kullanıcı Adı", placeholder="Kullanıcı adınızı yazın", label_visibility="collapsed")
         password_input = st.text_input("Şifre", type="password", placeholder="Şifrenizi yazın", label_visibility="collapsed")
         
-        st.markdown("<div style='margin-top: 5px;'></div>", unsafe_allow_html=True)
+        st.markdown("<div style='margin-top: 5px;'></div>", unsafe_allow_html=True) 
         
         submit_button = st.form_submit_button("Sisteme Giriş Yap")
         
@@ -181,16 +178,13 @@ if not st.session_state.logged_in:
                 st.error("Hatalı kullanıcı adı veya şifre!")
 
 # ==========================================
-# 4. ANA PANEL (GİRİŞ SONRASI - ASLA ZIPLAMAZ)
+# 4. ANA PANEL (BAŞARILI GİRİŞ SONRASI)
 # ==========================================
 else:
     st.markdown("""
     <style>
-        html, body, [data-testid="stAppViewContainer"] { 
-            overflow: auto !important; 
-            height: auto !important;
-            background-color: #ffffff !important;
-        }
+        html, body, [data-testid="stAppViewContainer"] { overflow: auto !important; }
+        
         .block-container { 
             display: block !important;
             padding-top: 1.5rem !important; 
@@ -214,10 +208,10 @@ else:
         .custom-logo { height: 60px; object-fit: contain; }
         .custom-title-block { display: flex; flex-direction: column; justify-content: center; }
         
-        /* Ana panel filtresi dikey esneme ayarları */
+        /* Ana panel filtre alanının dikey hizalaması (Zıplama yapmaz) */
         div[data-testid="stHorizontalBlock"] {
             align-items: flex-start !important;
-        }
+        } 
 
         /* Checkbox'ı dikey çizgide tutan kural */
         div[data-testid="stHorizontalBlock"] div[data-testid="stCheckbox"] {
@@ -226,7 +220,6 @@ else:
             padding-bottom: 0px !important;
         }
 
-        /* Ana panel temizle butonu */
         .stButton button { 
             margin-top: 24px !important;
             height: 40px !important; 
@@ -237,7 +230,7 @@ else:
             border-radius: 4px !important;
         }
     </style>
-""", unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
 
     try:
         df = load_data()
