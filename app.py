@@ -70,7 +70,7 @@ VALID_PASSWORD = "f2"
 logo_data = logo_to_base64("logo.png") or logo_to_base64("logo.jpg")
 
 # ==========================================
-# 3. KUSURSUZ GİRİŞ EKRANI (ORİJİNAL BOYUTTA ORTALANMIŞ BUTON)
+# 3. KUSURSUZ GİRİŞ EKRANI (KAYMAZ VE SÜTUNLARLA ORTALANMIŞ)
 # ==========================================
 if not st.session_state.logged_in:
     st.markdown("""
@@ -121,21 +121,7 @@ if not st.session_state.logged_in:
             height: auto !important;
         }
         
-        /* --- GENİŞLİĞİ BOZMADAN ORTALAMA CSS KURALLARI --- */
-        [data-testid="stForm"] div[data-testid="stFormSubmitButton"] {
-            display: flex !important;
-            justify-content: center !important; /* Buton sarmalayıcısını yatayda tam ortalar */
-            align-items: center !important;
-            width: 100% !important;
-            margin-top: 15px !important;
-        }
-
-        [data-testid="stForm"] div[data-testid="stFormSubmitButton"] > div {
-            display: flex !important;
-            justify-content: center !important; /* Streamlit'in iç div hizalamasını ortalar */
-            width: 100% !important;
-        }
-        
+        /* Butonun şık ve kurumsal durması için temel renk ayarı */
         [data-testid="stForm"] div[data-testid="stFormSubmitButton"] button {
             background-color: #1e293b !important;
             color: white !important;
@@ -143,9 +129,9 @@ if not st.session_state.logged_in:
             border-radius: 6px !important;
             font-weight: 600 !important;
             height: 45px !important;
-            /* width: 100% satırını sildik, böylece orijinal genişliği bozulmaz */
-            padding-left: 30px !important; /* Butonun şık durması için iç boşluklar */
-            padding-right: 30px !important;
+            padding-left: 20px !important;
+            padding-right: 20px !important;
+            white-space: nowrap !important;
             transition: background-color 0.3s;
         }
         
@@ -168,7 +154,12 @@ if not st.session_state.logged_in:
         
         st.markdown("<div style='margin-top: 5px;'></div>", unsafe_allow_html=True)
         
-        submit_button = st.form_submit_button("Sisteme Giriş Yap")
+        # --- BUTONU SÜTUNLARLA DOĞAL VE TAM GEOMETRİK OLARAK ORTALAMA ---
+        # Sol ve sağ sütunlar (1.15 boyutu) boşluk görevi görür, ortadaki (2.0 boyutu) butonu tam merkeze oturtur.
+        btn_col_left, btn_col_center, btn_col_right = st.columns([1.15, 2.0, 1.15])
+        
+        with btn_col_center:
+            submit_button = st.form_submit_button("Sisteme Giriş Yap")
         
         if submit_button:
             if username_input == VALID_USERNAME and password_input == VALID_PASSWORD:
