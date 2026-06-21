@@ -37,7 +37,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# Genel arayüz temizliği için temel CSS kuralları
+# Genel arayüz temizliği için temel CSS kurallarını yüklüyoruz
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -46,6 +46,10 @@ st.markdown("""
         .stDeployButton {display: none !important;}
         header {visibility: hidden !important; display: none !important;}
         hr { display: none !important; visibility: hidden !important; }
+        
+        div[data-testid="stHorizontalBlock"] {
+            align-items: flex-start !important;
+        } 
         
         div[data-testid="stFragment"] div[data-testid="column"] {
             min-height: 75px !important;
@@ -83,8 +87,8 @@ if not st.session_state.logged_in:
             padding: 0 !important;
             max-width: 100% !important;
         }
-        /* Beyaz çerçeveyi ekrana tam ortalayan mutlak konumlandırma */
-        div[data-testid="stAppViewContainer"] [data-testid="stForm"] {
+        /* Beyaz çerçeveyi ekrana tam ortalayan ve gereksiz uzamayı bitiren mutlak konumlandırma */
+        [data-testid="stForm"] {
             position: fixed !important;
             top: 50% !important;
             left: 50% !important;
@@ -102,61 +106,35 @@ if not st.session_state.logged_in:
             z-index: 99999 !important;
         }
         /* Şifre göz butonunu bozmayan girdi gövdesi */
-        div[data-testid="stAppViewContainer"] [data-baseweb="input"] {
+        [data-baseweb="input"] {
             background-color: #f1f5f9 !important;
             border: 1px solid #cbd5e1 !important;
             border-radius: 6px !important;
         }
         /* Göz ikonu düzeltmesi */
-        div[data-testid="stAppViewContainer"] [data-baseweb="input"] button {
+        [data-baseweb="input"] button {
             background-color: transparent !important;
             border: none !important;
             width: auto !important;
             height: auto !important;
         }
-        
-        /* STREAMLIT'IN INLINE SOLA YASLAMA STİLİNİ EZEN ORTALAMA SİHİRBAZI */
-        div[data-testid="stAppViewContainer"] [data-testid="stForm"] div[data-testid="stFormSubmitButton"] {
-            text-align: center !important; /* Blok seviyesinde hizalama */
-            display: flex !important;
-            justify-content: center !important;
-            align-items: center !important;
+        /* Butonun %100 genişliğe yayılmasını sağlayan kapsayıcı düzeltmesi */
+        [data-testid="stFormSubmitButton"], 
+        [data-testid="stFormSubmitButton"] > div {
             width: 100% !important;
-            margin-top: 25px !important;
         }
-
-        /* Streamlit'in butonun tam dışına koyduğu esnek kapsayıcıyı ortalıyoruz */
-        div[data-testid="stAppViewContainer"] [data-testid="stForm"] div[data-testid="stFormSubmitButton"] > div {
-            display: flex !important;
-            justify-content: center !important;
-            align-items: center !important;
-            width: auto !important;
-        }
-        
-        /* Butonun kendi iç yerleşimi */
-        div[data-testid="stAppViewContainer"] [data-testid="stForm"] [data-testid="stFormSubmitButton"] button {
+        /* Giriş butonunu tam sığdıran ayar */
+        [data-testid="stFormSubmitButton"] button {
             background-color: #1e293b !important;
             color: white !important;
             border: none !important;
             border-radius: 6px !important;
             font-weight: 600 !important;
             height: 45px !important;
-            
-            /* Görsellerdeki ideal buton genişliğini koruyoruz */
-            padding-left: 40px !important;
-            padding-right: 40px !important;
-            width: auto !important;
-            
-            /* Yazıyı dikey/yatay kusursuz ortalar */
-            display: inline-flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            text-align: center !important;
-            
-            white-space: nowrap !important;
+            width: 100% !important;
             transition: background-color 0.3s;
         }
-        div[data-testid="stAppViewContainer"] [data-testid="stForm"] [data-testid="stFormSubmitButton"] button:hover {
+        [data-testid="stFormSubmitButton"] button:hover {
             background-color: #0f172a !important;
         }        
     </style>
@@ -175,7 +153,8 @@ if not st.session_state.logged_in:
         
         st.markdown("<div style='margin-top: 5px;'></div>", unsafe_allow_html=True) 
         
-        submit_button = st.form_submit_button("Sisteme Giriş Yap")
+        # STREAMLIT NATIVE GENİŞLİK PARAMETRESİ EKLENDİ
+        submit_button = st.form_submit_button("Sisteme Giriş Yap", use_container_width=True)
         
         if submit_button:
             if username_input == VALID_USERNAME and password_input == VALID_PASSWORD:
@@ -191,7 +170,17 @@ else:
     st.markdown("""
     <style>
         html, body, [data-testid="stAppViewContainer"] { overflow: auto !important; }
-        
+        [data-testid="stForm"] {
+            position: relative !important;
+            top: auto !important;
+            left: auto !important;
+            transform: none !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            padding: 20px !important;
+            box-shadow: none !important;
+            border: 1px solid #e2e8f0 !important;
+        }
         .block-container { 
             display: block !important;
             padding-top: 1.5rem !important; 
@@ -215,16 +204,8 @@ else:
         .custom-logo { height: 60px; object-fit: contain; }
         .custom-title-block { display: flex; flex-direction: column; justify-content: center; }
         
-        /* Ana panel filtre alanı dikey hizalama kuralları */
-        div[data-testid="stHorizontalBlock"] {
-            align-items: flex-start !important;
-        } 
-
-        /* Onay kutusunu seçicilerle dikeyde mükemmel hizalama kuralı */
-        div[data-testid="stHorizontalBlock"] div[data-testid="stCheckbox"] {
-            margin-top: 32px !important;
-            padding-top: 0px !important;
-            padding-bottom: 0px !important;
+        div[data-testid="stHorizontalBlock"] div[data-testid="column"]:nth-child(4) .stCheckbox {
+            margin-top: 24px !important;
         }
 
         .stButton button { 
