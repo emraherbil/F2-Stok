@@ -70,7 +70,7 @@ VALID_PASSWORD = "f2"
 logo_data = logo_to_base64("logo.png") or logo_to_base64("logo.jpg")
 
 # ==========================================
-# 3. KUSURSUZ GİRİŞ EKRANI (KESİN ORTALANMIŞ BUTON)
+# 3. KUSURSUZ GİRİŞ EKRANI (KESİN ORTALANMIŞ VE STABİL)
 # ==========================================
 if not st.session_state.logged_in:
     st.markdown("""
@@ -121,30 +121,38 @@ if not st.session_state.logged_in:
             height: auto !important;
         }
         
-        /* --- BUTONU VE KAPSAYICISINI TAM ORTALAMA CSS KURALLARI --- */
-        [data-testid="stForm"] [data-testid="stFormSubmitButton"] {
+        /* --- GİZLİ EN İÇ HİZALAMA KATMANINI VE BUTONU ORTALAMA --- */
+        [data-testid="stForm"] div[data-testid="stFormSubmitButton"] {
             display: flex !important;
-            justify-content: center !important; /* Esnek kutu içinde yatayda ortala */
+            justify-content: center !important;
             align-items: center !important;
             width: 100% !important;
-            margin-top: 10px !important;
+            text-align: center !important;
+            margin-top: 15px !important;
+        }
+
+        /* Streamlit'in butonu sola yaslayan gizli ara katmanı */
+        [data-testid="stForm"] div[data-testid="stFormSubmitButton"] > div {
+            width: 100% !important;
+            display: flex !important;
+            justify-content: center !important;
         }
         
-        [data-testid="stForm"] [data-testid="stFormSubmitButton"] button {
+        [data-testid="stForm"] div[data-testid="stFormSubmitButton"] button {
             background-color: #1e293b !important;
             color: white !important;
             border: none !important;
             border-radius: 6px !important;
             font-weight: 600 !important;
             height: 45px !important;
-            width: 100% !important; /* Butonun genişliğini forma yayar */
+            width: 100% !important; /* Butonu kutunun tamamına yayar */
             max-width: 100% !important;
             margin: 0 auto !important;
             display: block !important;
             transition: background-color 0.3s;
         }
         
-        [data-testid="stForm"] [data-testid="stFormSubmitButton"] button:hover {
+        [data-testid="stForm"] div[data-testid="stFormSubmitButton"] button:hover {
             background-color: #0f172a !important;
         }        
     </style>
