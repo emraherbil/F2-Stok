@@ -66,7 +66,7 @@ VALID_PASSWORD = "f2"
 logo_data = logo_to_base64("logo.png") or logo_to_base64("logo.jpg")
 
 # ==========================================
-# 3. KUSURSUZ GİRİŞ EKRANI (TAM ORTALANMIŞ)
+# 3. KUSURSUZ GİRİŞ EKRANI (MUTLAK KONUM KİLİTLİ)
 # ==========================================
 if not st.session_state.logged_in:
     st.markdown("""
@@ -83,18 +83,18 @@ if not st.session_state.logged_in:
             padding: 0 !important;
             max-width: 100% !important;
         }
-        /* Beyaz çerçeveyi ekrana tam ortalayan mutlak konumlandırma */
+        
+        /* Form çerçevesi ve butona alan açmak için eklenen alt padding */
         div[data-testid="stAppViewContainer"] [data-testid="stForm"] {
             position: fixed !important;
             top: 50% !important;
             left: 50% !important;
             transform: translate(-50%, -50%) !important;
-            /* Genişliği 340px yaparak girdileri ve butonu daha kompakt topluyoruz */
-            width: 340px !important;
+            width: 360px !important;
             max-width: 90vw !important;
             height: auto !important;
             min-height: auto !important;
-            padding: 35px 25px !important;
+            padding: 35px 30px 90px 30px !important; /* Alt tarafa buton için boşluk bırakıldı */
             background-color: #ffffff !important;
             border-radius: 12px !important;
             box-shadow: 0px 10px 40px rgba(0, 0, 0, 0.08) !important;
@@ -102,13 +102,13 @@ if not st.session_state.logged_in:
             margin: 0 !important;
             z-index: 99999 !important;
         }
-        /* Şifre göz butonunu bozmayan girdi gövdesi */
+        
+        /* Şifre ve kullanıcı adı girdileri */
         [data-testid="stAppViewContainer"] [data-baseweb="input"] {
             background-color: #f1f5f9 !important;
             border: 1px solid #cbd5e1 !important;
             border-radius: 6px !important;
         }
-        /* Göz ikonu düzeltmesi */
         [data-testid="stAppViewContainer"] [data-baseweb="input"] button {
             background-color: transparent !important;
             border: none !important;
@@ -116,11 +116,16 @@ if not st.session_state.logged_in:
             height: auto !important;
         }
         
-        /* BUTONUN SOLA YASLANMASINI BLOKE EDEN %100 YAYILMA KURALI */
+        /* STREAMLIT FORM DÜZENİNİ BYPASS EDEN MUTLAK ORTALAMA CSS KURALLARI */
         div[data-testid="stAppViewContainer"] [data-testid="stForm"] div[data-testid="stFormSubmitButton"] {
+            position: absolute !important;
+            bottom: 30px !important; /* Formun tam altından 30px yukarıya sabitler */
+            left: 30px !important;   /* Sol padding ile hizalar */
+            right: 30px !important;  /* Sağ padding ile hizalar */
+            width: calc(100% - 60px) !important; /* Form genişliğine göre tam oturur, sola yaslanamaz */
+            margin: 0 !important;
+            padding: 0 !important;
             display: block !important;
-            width: 100% !important;
-            margin-top: 20px !important;
         }
 
         div[data-testid="stAppViewContainer"] [data-testid="stForm"] div[data-testid="stFormSubmitButton"] > div {
@@ -135,11 +140,9 @@ if not st.session_state.logged_in:
             border-radius: 6px !important;
             font-weight: 600 !important;
             height: 45px !important;
+            width: 100% !important; /* Buton tüm alanı kaplar */
             
-            /* Genişliği %100 yaparak sola yaslanma boşluğunu tamamen yok ediyoruz */
-            width: 100% !important;
-            
-            /* Metni buton içine kusursuz ortalar */
+            /* Metni buton gövdesinde milimetrik ortalar */
             display: inline-flex !important;
             align-items: center !important;
             justify-content: center !important;
@@ -164,8 +167,6 @@ if not st.session_state.logged_in:
         
         username_input = st.text_input("Kullanıcı Adı", placeholder="Kullanıcı adınızı yazın", label_visibility="collapsed")
         password_input = st.text_input("Şifre", type="password", placeholder="Şifrenizi yazın", label_visibility="collapsed")
-        
-        st.markdown("<div style='margin-top: 5px;'></div>", unsafe_allow_html=True) 
         
         submit_button = st.form_submit_button("Sisteme Giriş Yap")
         
