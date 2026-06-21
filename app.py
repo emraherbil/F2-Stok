@@ -37,7 +37,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# Genel arayüz temizliği için temel CSS kurallarını yüklüyoruz
+# Genel arayüz temizliği için temel CSS kuralları
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -46,10 +46,6 @@ st.markdown("""
         .stDeployButton {display: none !important;}
         header {visibility: hidden !important; display: none !important;}
         hr { display: none !important; visibility: hidden !important; }
-        
-        div[data-testid="stHorizontalBlock"] {
-            align-items: flex-start !important;
-        } 
         
         div[data-testid="stFragment"] div[data-testid="column"] {
             min-height: 75px !important;
@@ -70,7 +66,7 @@ VALID_PASSWORD = "f2"
 logo_data = logo_to_base64("logo.png") or logo_to_base64("logo.jpg")
 
 # ==========================================
-# 3. KUSURSUZ GİRİŞ EKRANI (TAM ORTALANMIŞ)
+# 3. KUSURSUZ GİRİŞ EKRANI (İÇERİK KADAR GENİŞ, TAM ORTALI)
 # ==========================================
 if not st.session_state.logged_in:
     st.markdown("""
@@ -87,17 +83,18 @@ if not st.session_state.logged_in:
             padding: 0 !important;
             max-width: 100% !important;
         }
-        /* Beyaz çerçeveyi ekrana tam ortalayan ve gereksiz uzamayı bitiren mutlak konumlandırma */
-        [data-testid="stForm"] {
+        
+        /* Form çerçevesi ve butona alan açmak için eklenen alt padding */
+        div[data-testid="stAppViewContainer"] [data-testid="stForm"] {
             position: fixed !important;
             top: 50% !important;
             left: 50% !important;
             transform: translate(-50%, -50%) !important;
-            width: 380px !important;
+            width: 360px !important;
             max-width: 90vw !important;
             height: auto !important;
             min-height: auto !important;
-            padding: 35px 30px !important;
+            padding: 35px 30px 90px 30px !important; /* Alt tarafa buton için boşluk bırakıldı */
             background-color: #ffffff !important;
             border-radius: 12px !important;
             box-shadow: 0px 10px 40px rgba(0, 0, 0, 0.08) !important;
@@ -105,36 +102,58 @@ if not st.session_state.logged_in:
             margin: 0 !important;
             z-index: 99999 !important;
         }
-        /* Şifre göz butonunu bozmayan girdi gövdesi */
-        [data-baseweb="input"] {
+        
+        /* Şifre ve kullanıcı adı girdileri */
+        [data-testid="stAppViewContainer"] [data-baseweb="input"] {
             background-color: #f1f5f9 !important;
             border: 1px solid #cbd5e1 !important;
             border-radius: 6px !important;
         }
-        /* Göz ikonu düzeltmesi */
-        [data-baseweb="input"] button {
+        [data-testid="stAppViewContainer"] [data-baseweb="input"] button {
             background-color: transparent !important;
             border: none !important;
             width: auto !important;
             height: auto !important;
         }
-        /* Butonun %100 genişliğe yayılmasını sağlayan kapsayıcı düzeltmesi */
-        [data-testid="stFormSubmitButton"], 
-        [data-testid="stFormSubmitButton"] > div {
-            width: 100% !important;
+        
+        /* BUTONU YAZI GENİŞLİĞİNDE TUTUP MERKEZE KİLİTLEYEN CSS */
+        div[data-testid="stAppViewContainer"] [data-testid="stForm"] div[data-testid="stFormSubmitButton"] {
+            position: absolute !important;
+            bottom: 30px !important; /* Formun altından 30px boşluk */
+            left: 50% !important;    /* Yüzde 50 sola it */
+            transform: translateX(-50%) !important; /* Kendi genişliğinin yarısı kadar geri çek = KUSURSUZ MERKEZ */
+            width: max-content !important; /* Sadece içindeki metin kadar genişle */
+            margin: 0 !important;
+            padding: 0 !important;
+            display: flex !important;
+            justify-content: center !important;
         }
-        /* Giriş butonunu tam sığdıran ayar */
-        [data-testid="stFormSubmitButton"] button {
+
+        div[data-testid="stAppViewContainer"] [data-testid="stForm"] div[data-testid="stFormSubmitButton"] > div {
+            display: flex !important;
+            width: auto !important;
+        }
+        
+        div[data-testid="stAppViewContainer"] [data-testid="stForm"] [data-testid="stFormSubmitButton"] button {
             background-color: #1e293b !important;
             color: white !important;
             border: none !important;
             border-radius: 6px !important;
             font-weight: 600 !important;
             height: 45px !important;
-            width: 100% !important;
+            width: max-content !important; /* Genişlik sadece metin kadar */
+            padding: 0 25px !important; /* Yazının sağına ve soluna estetik boşluk */
+            
+            /* Metni buton gövdesinde milimetrik ortalar */
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            text-align: center !important;
+            
+            white-space: nowrap !important;
             transition: background-color 0.3s;
         }
-        [data-testid="stFormSubmitButton"] button:hover {
+        div[data-testid="stAppViewContainer"] [data-testid="stForm"] [data-testid="stFormSubmitButton"] button:hover {
             background-color: #0f172a !important;
         }        
     </style>
@@ -151,10 +170,7 @@ if not st.session_state.logged_in:
         username_input = st.text_input("Kullanıcı Adı", placeholder="Kullanıcı adınızı yazın", label_visibility="collapsed")
         password_input = st.text_input("Şifre", type="password", placeholder="Şifrenizi yazın", label_visibility="collapsed")
         
-        st.markdown("<div style='margin-top: 5px;'></div>", unsafe_allow_html=True) 
-        
-        # STREAMLIT NATIVE GENİŞLİK PARAMETRESİ EKLENDİ
-        submit_button = st.form_submit_button("Sisteme Giriş Yap", use_container_width=True)
+        submit_button = st.form_submit_button("Sisteme Giriş Yap")
         
         if submit_button:
             if username_input == VALID_USERNAME and password_input == VALID_PASSWORD:
@@ -170,17 +186,7 @@ else:
     st.markdown("""
     <style>
         html, body, [data-testid="stAppViewContainer"] { overflow: auto !important; }
-        [data-testid="stForm"] {
-            position: relative !important;
-            top: auto !important;
-            left: auto !important;
-            transform: none !important;
-            width: 100% !important;
-            max-width: 100% !important;
-            padding: 20px !important;
-            box-shadow: none !important;
-            border: 1px solid #e2e8f0 !important;
-        }
+        
         .block-container { 
             display: block !important;
             padding-top: 1.5rem !important; 
@@ -204,8 +210,16 @@ else:
         .custom-logo { height: 60px; object-fit: contain; }
         .custom-title-block { display: flex; flex-direction: column; justify-content: center; }
         
-        div[data-testid="stHorizontalBlock"] div[data-testid="column"]:nth-child(4) .stCheckbox {
-            margin-top: 24px !important;
+        /* Ana panel filtre alanının dikey hizalaması */
+        div[data-testid="stHorizontalBlock"] {
+            align-items: flex-start !important;
+        } 
+
+        /* Checkbox'ı dikey çizgide tutan kural */
+        div[data-testid="stHorizontalBlock"] div[data-testid="stCheckbox"] {
+            margin-top: 32px !important;
+            padding-top: 0px !important;
+            padding-bottom: 0px !important;
         }
 
         .stButton button { 
