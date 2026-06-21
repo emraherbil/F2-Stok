@@ -47,10 +47,6 @@ st.markdown("""
         header {visibility: hidden !important; display: none !important;}
         hr { display: none !important; visibility: hidden !important; }
         
-        div[data-testid="stHorizontalBlock"] {
-            align-items: flex-start !important;
-        } 
-        
         div[data-testid="stFragment"] div[data-testid="column"] {
             min-height: 75px !important;
         }
@@ -121,7 +117,11 @@ if not st.session_state.logged_in:
             height: auto !important;
         }
         
-        /* --- GENİŞLİĞİ BOZMADAN ORTALAMA CSS KURALLARI --- */
+        /* GİRİŞ BUTONUNU KESİN VE MUTLAK ORTALAMA KURALLARI */
+        [data-testid="stForm"] div[data-testid="element-container"] has-content {
+            justify-content: center !important;
+        }
+        
         [data-testid="stForm"] div[data-testid="stFormSubmitButton"] {
             display: flex !important;
             justify-content: center !important;
@@ -143,8 +143,11 @@ if not st.session_state.logged_in:
             border-radius: 6px !important;
             font-weight: 600 !important;
             height: 45px !important;
-            padding-left: 30px !important;
-            padding-right: 30px !important;
+            padding-left: 35px !important;
+            padding-right: 35px !important;
+            white-space: nowrap !important;
+            margin: 0 auto !important; /* Butonu tarayıcıda merkeze kilitler */
+            display: block !important;
             transition: background-color 0.3s;
         }
         
@@ -167,7 +170,10 @@ if not st.session_state.logged_in:
         
         st.markdown("<div style='margin-top: 5px;'></div>", unsafe_allow_html=True)
         
-        submit_button = st.form_submit_button("Sisteme Giriş Yap")
+        # Sütunlarla geometrik ortalama
+        btn_col_left, btn_col_center, btn_col_right = st.columns([1, 2, 1])
+        with btn_col_center:
+            submit_button = st.form_submit_button("Sisteme Giriş Yap")
         
         if submit_button:
             if username_input == VALID_USERNAME and password_input == VALID_PASSWORD:
@@ -210,15 +216,19 @@ else:
         .custom-logo { height: 60px; object-fit: contain; }
         .custom-title-block { display: flex; flex-direction: column; justify-content: center; }
         
-        /* --- FILTRE ALANI KUSURSUZ HİZALAMA CSS KURALLARI --- */
-        /* Onay kutusunu (Checkbox) Ürün grubu ve temizle butonuyla tam dikey ortalar */
+        /* Ana sayfadaki filtre hizalama kuralları */
+        div[data-testid="stHorizontalBlock"] {
+            align-items: flex-start !important;
+        }
+
+        /* Checkbox'ı (Onay kutusunu) diğer girdilerle tam satır çizgisine getiren kural */
         div[data-testid="stHorizontalBlock"] div[data-testid="stCheckbox"] {
             margin-top: 32px !important;
             padding-top: 0px !important;
             padding-bottom: 0px !important;
         }
 
-        /* Temizle butonunun üst boşluk ayarı */
+        /* Temizle butonu üst boşluğu */
         .stButton button { 
             margin-top: 24px !important;
             height: 40px !important; 
@@ -280,7 +290,6 @@ else:
                 st.session_state.q_marka = "Tümü"
                 st.session_state.q_stok = False
 
-            # Sütun yapısı dikey kaymaları önlemek için sabitlendi
             col1, col2, col3, col4, col5 = st.columns([3.2, 2.4, 2.4, 2.2, 1.2])
             
             current_marka = st.session_state.q_marka
