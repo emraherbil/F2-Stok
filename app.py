@@ -89,11 +89,12 @@ if not st.session_state.logged_in:
             top: 50% !important;
             left: 50% !important;
             transform: translate(-50%, -50%) !important;
-            width: 380px !important;
+            /* Genişliği 340px yaparak girdileri ve butonu daha kompakt topluyoruz */
+            width: 340px !important;
             max-width: 90vw !important;
             height: auto !important;
             min-height: auto !important;
-            padding: 35px 30px !important;
+            padding: 35px 25px !important;
             background-color: #ffffff !important;
             border-radius: 12px !important;
             box-shadow: 0px 10px 40px rgba(0, 0, 0, 0.08) !important;
@@ -115,19 +116,16 @@ if not st.session_state.logged_in:
             height: auto !important;
         }
         
-        /* BUTON KAPSAYICISINI VE BUTONU FORMUN ORTASINA KİLİTLEYEN CSS */
+        /* BUTONUN SOLA YASLANMASINI BLOKE EDEN %100 YAYILMA KURALI */
         div[data-testid="stAppViewContainer"] [data-testid="stForm"] div[data-testid="stFormSubmitButton"] {
-            display: flex !important;
-            justify-content: center !important;
-            align-items: center !important;
+            display: block !important;
             width: 100% !important;
             margin-top: 20px !important;
         }
 
         div[data-testid="stAppViewContainer"] [data-testid="stForm"] div[data-testid="stFormSubmitButton"] > div {
-            display: flex !important;
-            justify-content: center !important;
-            width: auto !important;
+            display: block !important;
+            width: 100% !important;
         }
         
         div[data-testid="stAppViewContainer"] [data-testid="stForm"] [data-testid="stFormSubmitButton"] button {
@@ -137,10 +135,11 @@ if not st.session_state.logged_in:
             border-radius: 6px !important;
             font-weight: 600 !important;
             height: 45px !important;
-            padding-left: 35px !important;
-            padding-right: 35px !important;
             
-            /* Yazıyı buton içine kusursuz ortalar */
+            /* Genişliği %100 yaparak sola yaslanma boşluğunu tamamen yok ediyoruz */
+            width: 100% !important;
+            
+            /* Metni buton içine kusursuz ortalar */
             display: inline-flex !important;
             align-items: center !important;
             justify-content: center !important;
@@ -208,7 +207,7 @@ else:
         .custom-logo { height: 60px; object-fit: contain; }
         .custom-title-block { display: flex; flex-direction: column; justify-content: center; }
         
-        /* Ana panel filtre alanının dikey hizalaması (Zıplama yapmaz) */
+        /* Ana panel filtre alanının dikey hizalaması */
         div[data-testid="stHorizontalBlock"] {
             align-items: flex-start !important;
         } 
