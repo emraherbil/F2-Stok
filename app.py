@@ -87,7 +87,7 @@ if not st.session_state.logged_in:
             padding: 0 !important;
             max-width: 100% !important;
         }
-        /* Beyaz çerçeveyi ekrana tam ortalayan ve gereksiz uzamayı bitiren mutlak konumlandırma */
+        /* Beyaz çerçeveyi ekrana tam ortalayan mutlak konumlandırma */
         [data-testid="stForm"] {
             position: fixed !important;
             top: 50% !important;
@@ -118,7 +118,13 @@ if not st.session_state.logged_in:
             width: auto !important;
             height: auto !important;
         }
-        /* Giriş butonunu tam sığdıran ayar */
+        
+        /* --- GİRİŞ BUTONU ORTALAMA DÜZELTMELERİ --- */
+        [data-testid="stFormSubmitButton"] {
+            display: flex !important;
+            justify-content: center !important;
+            width: 100% !important;
+        }
         [data-testid="stFormSubmitButton"] button {
             background-color: #1e293b !important;
             color: white !important;
@@ -126,7 +132,8 @@ if not st.session_state.logged_in:
             border-radius: 6px !important;
             font-weight: 600 !important;
             height: 45px !important;
-            width: 100% !important;
+            width: 100% !important; /* Butonun kutu genişliğine tam yayılması için */
+            max-width: 100% !important;
             transition: background-color 0.3s;
         }
         [data-testid="stFormSubmitButton"] button:hover {
@@ -161,7 +168,7 @@ if not st.session_state.logged_in:
 # 4. ANA PANEL (BAŞARILI GİRİŞ SONRASI)
 # ==========================================
 else:
-    st.markdown("""
+    main_panel_css = """
     <style>
         html, body, [data-testid="stAppViewContainer"] { overflow: auto !important; }
         [data-testid="stForm"] {
@@ -212,7 +219,8 @@ else:
             border-radius: 4px !important;
         }
     </style>
-    """, unsafe_allow_html=True)
+    """
+    st.markdown(main_panel_css, unsafe_allow_html=True)
 
     try:
         df = load_data()
@@ -249,19 +257,20 @@ else:
         """, unsafe_allow_html=True)
 
         # =================================================================
-        # 5. FRAGMENT ALANI
+        # 5. FRAGMENT ALANI 
         # =================================================================
         @st.fragment
         def stok_paneli_icerik(data_frame):
             if "q_grup" not in st.session_state: st.session_state.q_grup = "Tümü"
             if "q_marka" not in st.session_state: st.session_state.q_marka = "Tümü"
             if "q_stok" not in st.session_state: st.session_state.q_stok = False
+            if "search_reset_key" not in st.session_state: st.session_state.search_reset_key = 0
             
             def filtreleri_temizle():
-                st.session_state.q_search = ""
                 st.session_state.q_grup = "Tümü"
                 st.session_state.q_marka = "Tümü"
                 st.session_state.q_stok = False
+                st.session_state.search_reset_key += 1 
 
             col1, col2, col3, col4, col5 = st.columns([3.2, 2.4, 2.4, 2.2, 1.2])
             
@@ -287,12 +296,9 @@ else:
                 st.session_state.q_grup = "Tümü"
 
             with col1:
-                if "q_search" not in st.session_state:
-                    st.session_state.q_search = ""
-
                 v_search = st_keyup(
                     label="📝 Ürün Ara",
-                    key="q_search",
+                    key=f"q_search_{st.session_state.search_reset_key}",
                     placeholder="Kod veya açıklama ara...",
                     debounce=500
                 )
