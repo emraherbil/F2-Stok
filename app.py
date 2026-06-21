@@ -70,7 +70,7 @@ VALID_PASSWORD = "f2"
 logo_data = logo_to_base64("logo.png") or logo_to_base64("logo.jpg")
 
 # ==========================================
-# 3. KUSURSUZ GİRİŞ EKRANI (SAHTE HTML BUTON MANTIĞI)
+# 3. KUSURSUZ GİRİŞ EKRANI (DOĞAL GENİŞLEYEN YEREL BUTON)
 # ==========================================
 if not st.session_state.logged_in:
     st.markdown("""
@@ -121,31 +121,33 @@ if not st.session_state.logged_in:
             height: auto !important;
         }
         
-        /* Orijinal, hizalamayı bozan Streamlit butonunu tamamen görünmez yapıyoruz */
+        /* --- STREAMLIT ORİJİNAL BUTONUNU DOĞAL OLARAK %100 GENİŞLETME --- */
         [data-testid="stForm"] div[data-testid="stFormSubmitButton"] {
-            display: none !important;
-            visibility: hidden !important;
+            width: 100% !important;
+            display: block !important;
+            margin-top: 15px !important;
+        }
+
+        [data-testid="stForm"] div[data-testid="stFormSubmitButton"] > div {
+            width: 100% !important;
+            display: block !important;
         }
         
-        /* Bizim eklediğimiz özel HTML butonun kusursuz tasarımı */
-        .custom-login-btn {
+        [data-testid="stForm"] div[data-testid="stFormSubmitButton"] button {
             background-color: #1e293b !important;
             color: white !important;
             border: none !important;
             border-radius: 6px !important;
             font-weight: 600 !important;
-            font-size: 14px !important;
             height: 45px !important;
-            width: 100% !important;
+            width: 100% !important; /* Butonu zorla %100 genişliğe çeker */
             display: block !important;
-            cursor: pointer !important;
-            text-align: center !important;
             transition: background-color 0.3s;
-            margin-top: 15px !important;
         }
-        .custom-login-btn:hover {
+        
+        [data-testid="stForm"] div[data-testid="stFormSubmitButton"] button:hover {
             background-color: #0f172a !important;
-        }
+        }        
     </style>
     """, unsafe_allow_html=True)
     
@@ -160,17 +162,10 @@ if not st.session_state.logged_in:
         username_input = st.text_input("Kullanıcı Adı", placeholder="Kullanıcı adınızı yazın", label_visibility="collapsed")
         password_input = st.text_input("Şifre", type="password", placeholder="Şifrenizi yazın", label_visibility="collapsed")
         
-        # Formun çalışması için arka planda gizli duran zorunlu buton
-        submit_button = st.form_submit_button("Gizli")
+        st.markdown("<div style='margin-top: 5px;'></div>", unsafe_allow_html=True)
         
-        # Kullanıcının göreceği, formu tam kaplayan ve ortalı HTML butonu.
-        # Tıklandığında üstteki gerçek gizli butona JavaScript ile tıklama gönderir.
-        st.markdown("""
-            <button type="button" class="custom-login-btn" onclick="
-                const realBtn = window.parent.document.querySelector('div[data-testid=\\'stForm\\'] button[kind=\\'formSubmit\\']');
-                if(realBtn) { realBtn.click(); }
-            ">Sisteme Giriş Yap</button>
-        """, unsafe_allow_html=True)
+        # Tamamen yerel, %100 çalışan Streamlit butonu
+        submit_button = st.form_submit_button("Sisteme Giriş Yap")
         
         if submit_button:
             if username_input == VALID_USERNAME and password_input == VALID_PASSWORD:
