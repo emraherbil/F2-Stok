@@ -119,12 +119,7 @@ if not st.session_state.logged_in:
             height: auto !important;
         }
         
-        /* --- KESİN BUTON ORTALAMA CSS KURALLARI --- */
-        div.stFormSubmitButton {
-            text-align: center !important;
-            width: 100% !important;
-            display: block !important;
-        }
+        /* Buton Tasarımı (Ortalamayı artık sütunlar yapacağı için sadece stil veriyoruz) */
         div.stFormSubmitButton > button {
             background-color: #1e293b !important;
             color: white !important;
@@ -132,9 +127,7 @@ if not st.session_state.logged_in:
             border-radius: 6px !important;
             font-weight: 600 !important;
             height: 45px !important;
-            width: 100% !important; /* Form genişliğini tam kaplasın */
-            margin: 0 auto !important; /* Dış boşlukları sıfırlayıp ortala */
-            display: block !important;
+            width: 100% !important;
             transition: background-color 0.3s;
         }
         div.stFormSubmitButton > button:hover {
@@ -156,7 +149,12 @@ if not st.session_state.logged_in:
         
         st.markdown("<div style='margin-top: 5px;'></div>", unsafe_allow_html=True) 
         
-        submit_button = st.form_submit_button("Sisteme Giriş Yap")
+        # --- SÜTUNLAR İLE KESİN ORTALAMA MANTIĞI ---
+        # Sol boşluk (1 birim), Orta buton alanı (2 birim), Sağ boşluk (1 birim)
+        btn_col_left, btn_col_main, btn_col_right = st.columns([1, 2, 1])
+        
+        with btn_col_main:
+            submit_button = st.form_submit_button("Sisteme Giriş Yap")
         
         if submit_button:
             if username_input == VALID_USERNAME and password_input == VALID_PASSWORD:
