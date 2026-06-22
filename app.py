@@ -4,6 +4,14 @@ import os
 import base64
 from pathlib import Path
 
+# --- RESMİ CANLI ARAMA EKLENTİSİ ---
+try:
+    from st_keyup import st_keyup
+except ImportError:
+    st.error("Lütfen terminalde 'pip install streamlit-keyup' çalıştırın veya requirements.txt dosyanıza 'streamlit-keyup' ekleyin.")
+    st.stop()
+# -----------------------------------
+
 # ==========================================
 # 1. SAYFA YAPILANDIRMASI VE KÜRESEL STİLLER
 # ==========================================
@@ -13,7 +21,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# Görsel stabilite, hizalama ve buton renkleri için optimize edilmiş CSS
+# Görsel stabilite, hizalama ve zıplama engelleyici kurumsal CSS
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -50,18 +58,23 @@ st.markdown("""
         .custom-logo { height: 60px; object-fit: contain; }
         .custom-title-block { display: flex; flex-direction: column; justify-content: center; }
         
-        /* Tüm form elemanlarının (input, selectbox) üst hizalamasını eşitler */
-        div[data-testid="column"] .stFormSubmitButton, 
-        div[data-testid="column"] .stButton {
-            margin-top: 0px !important;
+        /* --- CANLI ARAMA SÜTUN KİLİDİ (ZIPLAMAYI %100 ENGELLER) --- */
+        /* Keyup bileşenini barındıran sütunun yüksekliğini temizleme anında dahi 84px'e sabitler */
+        div[data-testid="column"]:has([data-testid="stCustomComponentV1"]),
+        div[data-testid="column"]:has(iframe) {
+            min-height: 84px !important;
+            max-height: 84px !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: flex-end !important;
         }
 
-        /* Checkbox dikey hizalama sabitlemesi */
+        /* Checkbox dikey hizalama sabitlemesi (Seçim kutularıyla milimetrik eşitler) */
         div[data-testid="stCheckbox"] { 
-            padding-top: 32px !important; 
+            padding-top: 36px !important; 
         }
 
-        /* Temizle Butonunun Görsel Tasarımı (Görselinizdeki Lacivert Tonu) */
+        /* Temizle Butonunun Görsel Tasarımı (Kurumsal Lacivert) */
         .stButton > button { 
             background-color: #1C355E !important; 
             color: white !important; 
@@ -70,6 +83,7 @@ st.markdown("""
             height: 42px !important; 
             width: 100% !important; 
             font-weight: 500 !important;
+            margin-top: 30px !important;
             transition: all 0.2s !important;
         }
         
@@ -79,7 +93,6 @@ st.markdown("""
             color: white !important; 
         }
         
-        /* Input focus alt çizgi rengini F2 kurumsal mavisine yaklaştırır */
         div[data-baseweb="input"] {
             border-radius: 6px !important;
         }
@@ -143,24 +156,24 @@ try:
     """, unsafe_allow_html=True)
 
     # ==========================================
-    # 4. FRAGMENT ALANI (SABİT FORM MİMARİSİ)
+    # 4. FRAGMENT ALANI (CANLI ARAMA ALANI)
     # ==========================================
     @st.fragment
     def stok_paneli_icerik(data_frame):
         # Session State Kontrolleri
-        if "q_search" not in st.session_state: st.session_state.q_search = ""
+        if "reset_counter" not in st.session_state: st.session_state.reset_counter = 0
         if "q_grup" not in st.session_state: st.session_state.q_grup = "Tümü"
         if "q_marka" not in st.session_state: st.session_state.q_marka = "Tümü"
         if "q_stok" not in st.session_state: st.session_state.q_stok = False
         
         def filtreleri_temizle():
-            st.session_state.q_search = ""
+            st.session_state.reset_counter += 1 # Arama kutusunu canlandırmak ve sıfırlamak için tetikleyici
             st.session_state.q_grup = "Tümü"
             st.session_state.q_marka = "Tümü"
             st.session_state.q_stok = False
 
         # Form elemanlarının yerleşimi için sütun genişlikleri ayarı
-        col1, col2, col3, col4, col5 = st.columns([3.2, 2.4, 2.4, 2.2, 1.2], vertical_alignment="bottom")
+        col1, col2, col3, col4, col5 = st.columns([3.2, 2.4, 2.4, 2.2, 1.2])
         
         current_marka = st.session_state.q_marka
         current_grup = st.session_state.q_grup
@@ -184,10 +197,12 @@ try:
 
         # Form Elemanlarının Dağılımı
         with col1:
-            v_search = st.text_input(
-                "📝 Ürün Ara", 
-                key="q_search",
-                placeholder="Kod veya açıklama yazıp Enter'a basın..."
+            # CANLI ARAMA: Her tuşa basıldığında anında tetiklenir
+            v_search = st_keyup(
+                label="📝 Ürün Ara", 
+                key=f"q_search_{st.session_state.reset_counter}",
+                placeholder="Kod veya açıklama ara...",
+                debounce=300 # Kullanıcı yazarken 300ms bekleyip filtreler (Performans optimizasyonu)
             )
 
         with col2:
