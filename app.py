@@ -57,10 +57,15 @@ st.markdown("""
             margin-top: 0px !important;
         }
 
-        /* Checkbox dikey hizalama sabitlemesi */
-        div[data-testid="stCheckbox"] { 
-            padding-top: 32px !important; 
-        }
+        /* Checkbox hizalama */
+div[data-testid="stCheckbox"] { 
+    padding-top: 24px !important; 
+}
+
+/* Filtre satırını hizala */
+div[data-testid="stHorizontalBlock"] {
+    align-items: flex-end !important;
+}
 
         /* Temizle Butonunun Görsel Tasarımı (Görselinizdeki Lacivert Tonu) */
         .stButton > button { 
