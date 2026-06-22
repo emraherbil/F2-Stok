@@ -253,7 +253,7 @@ else:
         """, unsafe_allow_html=True)
 
         # =================================================================
-        # 5. FRAGMENT ALANI
+        # 5. FRAGMENT ALANI (İLİŞKİLİ FİLTRELEME DÜZELTİLDİ)
         # =================================================================
         @st.fragment
         def stok_paneli_icerik(data_frame):
@@ -272,21 +272,24 @@ else:
             current_marka = st.session_state.q_marka
             current_grup = st.session_state.q_grup
 
+            # 1. Adım: Seçilen ÜRÜN GRUBU'na göre MARKA listesini daralt
             if current_grup != "Tümü":
                 df_for_marka = data_frame[data_frame[c_grup].astype(str) == current_grup]
             else:
                 df_for_marka = data_frame
             marka_ops = ["Tümü"] + sorted([str(x) for x in df_for_marka[c_marka].dropna().unique() if str(x).lower() != 'nan'])
 
+            # 2. Adım: Seçilen MARKA'ya göre ÜRÜN GRUBU listesini daralt (DÜZELTİLEN KISIM)
             if current_marka != "Tümü":
                 df_for_grup = data_frame[data_frame[c_marka].astype(str) == current_marka]
             else:
                 df_for_grup = data_frame
-            grup_ops = ["Tümü"] + sorted([str(x) for x in data_frame[c_grup].dropna().unique() if str(x).lower() != 'nan'])
+            # Burada 'data_frame' yerine 'df_for_grup' kullanarak ilişkiyi bağladık:
+            grup_ops = ["Tümü"] + sorted([str(x) for x in df_for_grup[c_grup].dropna().unique() if str(x).lower() != 'nan'])
 
+            # Güvenlik Kontrolleri: Seçili eleman daralan listede yoksa sıfırla
             if current_marka not in marka_ops:
                 st.session_state.q_marka = "Tümü"
-
             if current_grup not in grup_ops:
                 st.session_state.q_grup = "Tümü"
 
@@ -352,7 +355,7 @@ else:
                 """
 
             k1, k2, k3 = st.columns(3)
-            with k1: st.markdown(kpi_card("📋 Toplam Çeşit:", f"{t_prod:,}".replace(",", ".") + " Adet", "#1E88E5"), unsafe_allow_html=True)
+            with k1: st.markdown(kpi_card("📋 Toplam Çesist:", f"{t_prod:,}".replace(",", ".") + " Adet", "#1E88E5"), unsafe_allow_html=True)
             with k2: st.markdown(kpi_card("📦 Toplam Stok:", f"{t_stok:,}".replace(",", ".") + " Adet", "#4CAF50"), unsafe_allow_html=True)
             with k3: st.markdown(kpi_card("💰 Toplam Maliyet:", f"${t_cost:,.0f}".replace(",", "."), "#FFC107"), unsafe_allow_html=True)
 
