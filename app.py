@@ -27,60 +27,15 @@ if "logged_in" not in st.session_state:
 VALID_USERNAME = "admin"
 VALID_PASSWORD = "f2"
 
-# Giriş ekranı tasarımı ve geçiş zıplamasını önleyen tek parça temiz CSS
+# Ortak elementleri ve Streamlit araç çubuklarını gizleyen CSS
 st.markdown("""
     <style>
-        /* Gereksiz Streamlit araçlarını her zaman gizle */
         footer {visibility: hidden !important; display: none !important;}
         .viewerBadge_container {display: none !important;}
         [data-testid="stToolbar"] {display: none !important;}
         .stDeployButton {display: none !important;}
         header {visibility: hidden !important; display: none !important;}
         hr { display: none !important; visibility: hidden !important; }
-        
-        /* GİRİŞ EKRANI İÇİN KUSURSUZ KUTU TASARIMI */
-        .login-box-container {
-            max-width: 380px !important;
-            margin: 12vh auto 0 auto !important;
-            padding: 35px 30px !important;
-            background-color: #ffffff !important;
-            border-radius: 12px !important;
-            box-shadow: 0px 10px 40px rgba(0, 0, 0, 0.06) !important;
-            border: 1px solid #e2e8f0 !important;
-            text-align: center;
-        }
-        
-        /* Giriş alanındaki inputları gri ve yuvarlak yap */
-        .login-box-container [data-baseweb="input"] {
-            background-color: #f1f5f9 !important;
-            border: 1px solid #cbd5e1 !important;
-            border-radius: 6px !important;
-            text-align: left !important;
-        }
-
-        /* BUTONU TAM ORTALAYAN VE YAZI KADAR YAPAN YAPI */
-        .login-box-container div[data-testid="stFormSubmitButton"] {
-            display: flex !important;
-            justify-content: center !important;
-            width: 100% !important;
-            margin-top: 15px !important;
-        }
-        
-        .login-box-container div[data-testid="stFormSubmitButton"] button {
-            width: fit-content !important;
-            padding: 0 35px !important;
-            background-color: #1e293b !important;
-            color: white !important;
-            border: none !important;
-            border-radius: 6px !important;
-            font-weight: 600 !important;
-            height: 45px !important;
-            transition: background-color 0.2s;
-        }
-        
-        .login-box-container div[data-testid="stFormSubmitButton"] button:hover {
-            background-color: #0f172a !important;
-        }
     </style>
 """, unsafe_allow_html=True)
 
@@ -103,42 +58,106 @@ def load_data():
     return pd.read_excel('Stok Sayım Arşivi-v3.1-Web.xlsm', sheet_name='Stok', engine='openpyxl')
 
 # ==========================================
-# 3. GİRİŞ EKRANI GÖVDESI
+# 3. GİRİŞ EKRANI (ZIPLAMAYAN YENİ NESİL MİMARİ)
 # ==========================================
 if not st.session_state.logged_in:
-    # Arka plan rengini gri yapalım
-    st.markdown("<style>html, body, .stApp { background-color: #f8fafc !important; }</style>", unsafe_allow_html=True)
+    # Giriş ekranına özel arka plan rengi ve input kutusu yuvarlama CSS'i
+    st.markdown("""
+    <style>
+        html, body, .stApp { 
+            background-color: #f8fafc !important; 
+        }
+        /* Input alanlarını estetik ve modern gri yap */
+        [data-testid="stAppViewContainer"] [data-baseweb="input"] {
+            background-color: #f1f5f9 !important;
+            border: 1px solid #cbd5e1 !important;
+            border-radius: 8px !important;
+        }
+        /* Butonun altındaki gereksiz boşlukları temizle */
+        div[data-testid="element-container"] {
+            margin-bottom: 0px !important;
+        }
+    </style>
+    """, unsafe_allow_html=True)
     
-    # HTML Kapsayıcı ile formu tamamen izole ediyoruz (Böylece asla zıplayamaz veya genişleyemez)
-    st.markdown('<div class="login-box-container">', unsafe_allow_html=True)
+    # Ekranın dikeyde ortalanması için boşluk bırakıyoruz
+    st.markdown("<div style='margin-top: 12vh;'></div>", unsafe_allow_html=True)
     
-    with st.form("login_form", clear_on_submit=False):
+    # Sayfayı 3 sütuna bölüyoruz: [Sol Boşluk, Giriş Kartı Genişliği, Sağ Boşluk]
+    # Ortadaki sütunun oranı (2.2) geniş ekranlarda tam olarak ~380px bir kutu oluşturur.
+    col_left, col_center, col_right = st.columns([5, 2.2, 5])
+    
+    with col_center:
+        # Şık beyaz kartın başlangıcı (HTML div)
+        st.markdown("""
+            <div style="
+                background-color: #ffffff; 
+                padding: 40px 30px; 
+                border-radius: 14px; 
+                box-shadow: 0px 10px 40px rgba(0, 0, 0, 0.05); 
+                border: 1px solid #e2e8f0;
+                width: 100%;
+                box-sizing: border-box;
+            ">
+        """, unsafe_allow_html=True)
+        
+        # Logo Alanı
         if logo_data:
-            st.markdown(f'<div style="text-align: center; margin-bottom: 15px;"><img src="data:image/png;base64,{logo_data}" style="max-width: 210px; height: auto;"></div>', unsafe_allow_html=True)
+            st.markdown(f'<div style="text-align: center; margin-bottom: 20px;"><img src="data:image/png;base64,{logo_data}" style="max-width: 210px; height: auto;"></div>', unsafe_allow_html=True)
         else:
-            st.markdown('<div style="text-align: center; font-size: 2.5rem; margin-bottom: 15px;">📦</div>', unsafe_allow_html=True)
+            st.markdown('<div style="text-align: center; font-size: 2.5rem; margin-bottom: 20px;">📦</div>', unsafe_allow_html=True)
             
-        st.markdown('<div style="text-align: center; font-size: 17px; color: #64748b; margin-bottom: 20px; font-weight: 500;">Ofis Stok İzleme Paneli</div>', unsafe_allow_html=True)
+        # Başlık Bilgisi
+        st.markdown('<div style="text-align: center; font-size: 17px; color: #475569; margin-bottom: 25px; font-weight: 600; font-family: sans-serif;">Ofis Stok İzleme Paneli</div>', unsafe_allow_html=True)
         
-        username_input = st.text_input("Kullanıcı Adı", placeholder="Kullanıcı adınızı yazın", label_visibility="collapsed")
-        password_input = st.text_input("Şifre", type="password", placeholder="Şifrenizi yazın", label_visibility="collapsed")
+        # Kullanıcı Giriş Elemanları (Formsuz, doğrudan yerleşim)
+        username_input = st.text_input("Kullanıcı Adı", placeholder="Kullanıcı adınızı yazın", label_visibility="collapsed", key="login_user")
+        password_input = st.text_input("Şifre", type="password", placeholder="Şifrenizi yazın", label_visibility="collapsed", key="login_pass")
         
-        submit_button = st.form_submit_button("Sisteme Giriş Yap")
+        st.markdown("<div style='margin-top: 20px;'></div>", unsafe_allow_html=True)
         
+        # Butonu tam ortalamak ve yazı boyutu kadar daraltmak için kendi içinde 3 küçük sütuna bölüyoruz
+        b_l, b_c, b_r = st.columns([1, 4.5, 1])
+        with b_c:
+            # Butona basıldığında veya klavyeden tetiklendiğinde çalışacak yapı
+            submit_button = st.button("Sisteme Giriş Yap", use_container_width=True)
+            
+            # Tamamen bağımsız bir buton tasarımı (Zıplamayı engelleyen ana etken)
+            st.markdown("""
+                <style>
+                    div[data-testid="stButton"] button {
+                        background-color: #1e293b !important;
+                        color: white !important;
+                        border: none !important;
+                        border-radius: 6px !important;
+                        font-weight: 600 !important;
+                        height: 44px !important;
+                        font-size: 14px !important;
+                        transition: background-color 0.2s !important;
+                    }
+                    div[data-testid="stButton"] button:hover {
+                        background-color: #0f172a !important;
+                    }
+                </style>
+            """, unsafe_allow_html=True)
+
+        # Doğrulama Kontrolü
         if submit_button:
             if username_input == VALID_USERNAME and password_input == VALID_PASSWORD:
                 st.session_state.logged_in = True
                 st.rerun()
             else:
+                st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True)
                 st.error("Hatalı kullanıcı adı veya şifre!")
                 
-    st.markdown('</div>', unsafe_allow_html=True)
+        # Şık beyaz kartın kapanışı (HTML div)
+        st.markdown('</div>', unsafe_allow_html=True)
 
 # ==========================================
 # 4. ANA PANEL (BAŞARILI GİRİŞ SONRASI)
 # ==========================================
 else:
-    # Ana panel açıldığında arka planı beyaza çek ve yerleşimi serbest bırak
+    # Ana panel açıldığında arka planı temiz beyaz yap ve tam genişliğe izin ver
     st.markdown("""
     <style>
         html, body, .stApp { background-color: #ffffff !important; }
@@ -182,7 +201,7 @@ else:
     """, unsafe_allow_html=True)
 
     try:
-        # Excel okuma işlemi burada güvenle çalışır, giriş ekranını etkileyemez
+        # Excel verisi artık burada güvenle arka planda yüklenir
         df = load_data()
         df.columns = [str(c).strip() for c in df.columns]
         
