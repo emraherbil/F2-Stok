@@ -80,8 +80,7 @@ st.markdown("""
             color: white !important; 
         }
         
-        /* 🎯 ST_KEYUP KUTUSUNU EVCİLLEŞTİREN, NORMALLEŞTİREN VE ÇERÇEVEYİ YOK EDEN KESİN CSSLER 🎯 */
-        /* Üst etiket yazısının standart selectbox etiketleriyle birebir eşitlenmesi */
+        /* 🎯 ST_KEYUP KUTUSUNUN BÜYÜKLÜĞÜNÜ VE DIŞA TAŞMASINI EZEN KESİN CSS KURALLARI 🎯 */
         .custom-input-label {
             font-size: 14px !important;
             color: rgb(49, 51, 63) !important;
@@ -90,25 +89,40 @@ st.markdown("""
             font-weight: 400 !important;
         }
         
-        /* st_keyup iframe'inin dış kılıfını, yüksekliğini ve sınır taşmalarını tamamen selectbox boyutuna (42px) çeker */
+        /* Bileşenin yerleştiği ana kapsayıcıyı 42px yüksekliğe kilitler */
         div[data-testid="stCustomComponentV1"] {
             height: 42px !important;
             max-height: 42px !important;
+            min-height: 42px !important;
             overflow: hidden !important;
-            display: block !important;
+            display: flex !important;
+            align-items: center !important;
         }
 
+        /* Iframe içerisindeki elementlerin büyümesini engeller */
         div[data-testid="stCustomComponentV1"] iframe {
             height: 42px !important;
             max-height: 42px !important;
+            min-height: 42px !important;
+            margin: 0 !important;
+            padding: 0 !important;
             border: none !important;
-            outline: none !important;
         }
-        
-        /* Orijinal girdi alanındaki o kırmızı hatalı veya geniş çerçeveyi, Streamlit standart rengine zorlar */
+
+        /* Streamlit'in input tabanlı tüm alt div alanlarını 42px yüksekliğe senkronize eder */
         div[data-baseweb="input"] {
-            border-radius: 6px !important;
             height: 42px !important;
+            max-height: 42px !important;
+            min-height: 42px !important;
+            border-radius: 6px !important;
+        }
+
+        /* Input alanının içindeki yazı alanının yüksekliğini ve dikey ortalamasını ayarlar */
+        div[data-baseweb="input"] input {
+            height: 42px !important;
+            padding-top: 0px !important;
+            padding-bottom: 0px !important;
+            font-size: 14px !important;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -208,7 +222,6 @@ try:
 
         with col1:
             st.markdown('<span class="custom-input-label">📝 Ürün Ara</span>', unsafe_allow_html=True)
-            # Hem her harfte CANLI filtreleme yapar hem de dış kılıfını yukarıdaki CSS ile normal forma zorlar
             v_search = st_keyup(
                 "📝 Ürün Ara", 
                 value=st.session_state.q_search,
