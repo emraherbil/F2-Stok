@@ -166,13 +166,16 @@ try:
         if "q_stok" not in st.session_state: st.session_state.q_stok = False
         
         def filtreleri_temizle():
-            st.session_state.q_search = ""
-            st.session_state.q_grup = "Tümü"
-            st.session_state.q_marka = "Tümü"
-            st.session_state.q_stok = False
+    st.session_state["q_search"] = ""
+    st.session_state["q_grup"] = "Tümü"
+    st.session_state["q_marka"] = "Tümü"
+    st.session_state["q_stok"] = False
+    st.rerun()
 
         # Form elemanlarının yerleşimi için sütun genişlikleri ayarı
-        col1, col2, col3, col4, col5 = st.columns([3.2, 2.4, 2.4, 2.2, 1.2], vertical_alignment="bottom")
+        col1, col2, col3, col4, col5 = st.columns(
+    [3.2, 2.4, 2.4, 2.2, 1.2]
+)
         
         current_marka = st.session_state.q_marka
         current_grup = st.session_state.q_grup
@@ -222,8 +225,17 @@ try:
         # Filtreleme Algoritması
         f_df = data_frame.copy()
         if v_search:
-            m1 = f_df[c_kod].astype(str).str.contains(v_search, case=False)
-            m2 = f_df[c_tanim].astype(str).str.contains(v_search, case=False)
+            m1 = f_df[c_kod].astype(str).str.contains(
+    v_search,
+    case=False,
+    na=False
+)
+
+m2 = f_df[c_tanim].astype(str).str.contains(
+    v_search,
+    case=False,
+    na=False
+)
             f_df = f_df[m1 | m2]
         if v_marka != "Tümü": f_df = f_df[f_df[c_marka].astype(str) == v_marka]
         if v_grup != "Tümü": f_df = f_df[f_df[c_grup].astype(str) == v_grup]
