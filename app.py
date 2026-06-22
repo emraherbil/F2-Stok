@@ -3,7 +3,7 @@ import pandas as pd
 import os
 import base64
 from pathlib import Path
-from st_keyup import st_keyup  # Arka planda harf takibi yapacak gizli motorumuz
+from st_keyup import st_keyup  # Canlı arama için tek bileşen
 
 # ==========================================
 # 1. SAYFA YAPILANDIRMASI VE KÜRESEL STİLLER
@@ -14,7 +14,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# Görsel stabilite, hizalama ve hayalet tetikleyici için CSS
+# Görsel stabilite, hizalama ve st_keyup kutusunu milimetrik eşitleyen CSS
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -79,22 +79,26 @@ st.markdown("""
             border: 1px solid #12223c !important;
             color: white !important; 
         }
+
+        /* 🎯 ST_KEYUP KUTUSUNU SELECTBOX SEVİYESİNE ÇEKEN CSS AYARLARI 🎯 */
+        /* Üst etiket yazısının marka/grup etiketleriyle birebir eşitlenmesi */
+        .custom-input-label {
+            font-size: 14px !important;
+            color: rgb(49, 51, 63) !important;
+            margin-bottom: 4px !important;
+            display: inline-block;
+            font-weight: 400 !important;
+        }
         
-        /* Input focus alt çizgi rengini F2 kurumsal mavisine yaklaştırır */
+        /* st_keyup bileşeninin iframe dikey taşmasını ve büyümesini engeller */
+        div[data-testid="stCustomComponentV1"] {
+            margin-top: -10px !important; /* Büyük kutunun dikey hizasını selectbox çizgisine çeker */
+            display: block !important;
+        }
+        
+        /* Seçili/Odaklanmış input alanlarının alt çizgilerini ve sınırlarını yumuşatır */
         div[data-baseweb="input"] {
             border-radius: 6px !important;
-            height: 42px !important;
-        }
-
-        /* 👻 HAYALET TETİKLEYİCİ - ST_KEYUP KUTUSUNU EKRANDA GÖRÜNMEZ YAPAN SİHİRLİ SINIF 👻 */
-        .ghost-keyup-container {
-            position: absolute !important;
-            width: 1px !important;
-            height: 1px !important;
-            overflow: hidden !important;
-            opacity: 0 !important;
-            pointer-events: none !important;
-            z-index: -9999 !important;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -159,7 +163,6 @@ try:
     # ==========================================
     @st.fragment
     def stok_paneli_icerik(data_frame):
-        # Session State Kontrolleri
         if "q_search" not in st.session_state: st.session_state.q_search = ""
         if "q_grup" not in st.session_state: st.session_state.q_grup = "Tümü"
         if "q_marka" not in st.session_state: st.session_state.q_marka = "Tümü"
@@ -194,30 +197,16 @@ try:
             st.session_state.q_grup = "Tümü"
 
         with col1:
-            # 1. GÖRÜNEN KUTU: Orijinal, milimetrik hizalı, şık Streamlit kutusu
-            v_search = st.text_input(
+            # Sadece tek bir kontrollü canlı arama kutusu bırakıyoruz
+            st.markdown('<span class="custom-input-label">📝 Ürün Ara</span>', unsafe_allow_html=True)
+            v_search = st_keyup(
                 "📝 Ürün Ara", 
                 value=st.session_state.q_search,
-                placeholder="Kod veya açıklama yazın..."
+                placeholder="Kod veya açıklama araya...",
+                key="live_search_box",
+                label_visibility="collapsed"
             )
-            
-            # 2. GÖRÜNMEZ (HAYALET) MOTOR: Yazılan harfleri anlık yakalayıp sayfayı tetikler
-            st.markdown('<div class="ghost-keyup-container">', unsafe_allow_html=True)
-            v_keyup_trigger = st_keyup(
-                "Hidden Search",
-                value=st.session_state.q_search,
-                key="ghost_search_trigger",
-                debounce=100
-            )
-            st.markdown('</div>', unsafe_allow_html=True)
-
-            # İki kutunun verisini birbirine senkronize etme hilesi
-            if v_keyup_trigger != st.session_state.q_search:
-                st.session_state.q_search = v_keyup_trigger
-                st.rerun()
-            elif v_search != st.session_state.q_search:
-                st.session_state.q_search = v_search
-                st.rerun()
+            st.session_state.q_search = v_search
 
         with col2:
             v_marka = st.selectbox("🏷️ Marka", marka_ops, key="q_marka")
@@ -233,10 +222,9 @@ try:
 
         # Filtreleme Algoritması
         f_df = data_frame.copy()
-        current_search_val = st.session_state.q_search
-        if current_search_val:
-            m1 = f_df[c_kod].astype(str).str.contains(current_search_val, case=False)
-            m2 = f_df[c_tanim].astype(str).str.contains(current_search_val, case=False)
+        if v_search:
+            m1 = f_df[c_kod].astype(str).str.contains(v_search, case=False)
+            m2 = f_df[c_tanim].astype(str).str.contains(v_search, case=False)
             f_df = f_df[m1 | m2]
         if v_marka != "Tümü": f_df = f_df[f_df[c_marka].astype(str) == v_marka]
         if v_grup != "Tümü": f_df = f_df[f_df[c_grup].astype(str) == v_grup]
@@ -256,7 +244,7 @@ try:
             """
 
         k1, k2, k3 = st.columns(3)
-        with k1: st.markdown(kpi_card("📋 Toplam Çeşit:", f"{t_prod:,}".replace(",", ".") + " Adet", "#1E88E5"), unsafe_allow_html=True)
+        with k1: st.markdown(kpi_card("📋 Toplam Çesist:", f"{t_prod:,}".replace(",", ".") + " Adet", "#1E88E5"), unsafe_allow_html=True)
         with k2: st.markdown(kpi_card("📦 Toplam Stok:", f"{t_stok:,}".replace(",", ".") + " Adet", "#4CAF50"), unsafe_allow_html=True)
         with k3: st.markdown(kpi_card("💰 Toplam Maliyet:", f"${t_cost:,.0f}".replace(",", "."), "#FFC107"), unsafe_allow_html=True)
 
