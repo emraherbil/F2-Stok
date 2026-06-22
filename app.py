@@ -24,7 +24,7 @@ def logo_to_base64(img_path):
         pass
     return None
 
-@st.cache_data
+@st.cache_data(ttl=600)
 def load_data():
     return pd.read_excel('Stok Sayım Arşivi-v3.1-Web.xlsm', sheet_name='Stok', engine='openpyxl')
 
