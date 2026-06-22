@@ -187,17 +187,36 @@ try:
             st.session_state.q_grup = "Tümü"
 
         with col1:
-            # 🎯 %100 Orijinal Yerel Arama Kutusu: Sıfır zıplama, kusursuz selectbox hizası!
+            # Orijinal Yerel Arama Kutusu
             v_search = st.text_input(
                 "📝 Ürün Ara", 
                 value=st.session_state.search_text,
-                placeholder="Kod veya açıklama yazıp Enter'a basın...",
+                placeholder="Yazmaya başlayın...",
                 key="real_search_box",
                 on_change=arama_degisti
             )
-            # Eğer on_change dışında anlık el yardımı gerekiyorsa state'e eşitle
             if v_search != st.session_state.search_text:
                 st.session_state.search_text = v_search
+
+            # 🎯 HARF HARF ANLIK TETİKLEME SAĞLAYAN HAFİF JAVASCRIPT
+            # Orijinal kutuya her input girildiğinde (harf yazıldığında veya silindiğinde) arka planda otomatik tetikler.
+            st.components.v1.html(
+                """
+                <script>
+                var parentDoc = window.parent.document;
+                var inputEl = parentDoc.querySelector('input[aria-label="📝 Ürün Ara"]');
+                if (inputEl && !inputEl.dataset.keyupBound) {
+                    inputEl.dataset.keyupBound = "true";
+                    inputEl.addEventListener('input', function() {
+                        // Streamlit'e veriyi göndermek için native değişim eventini tetikler
+                        var event = new Event('change', { bubbles: true });
+                        inputEl.dispatchEvent(event);
+                    });
+                }
+                </script>
+                """,
+                height=0, # Görünmez, sıfır alan kaplar, hizalamayı asla bozmaz!
+            )
 
         with col2:
             v_marka = st.selectbox("🏷️ Marka", marka_ops, key="q_marka")
