@@ -58,12 +58,18 @@ st.markdown("""
         .custom-logo { height: 60px; object-fit: contain; }
         .custom-title-block { display: flex; flex-direction: column; justify-content: center; }
         
+        /* --- ZIPLAMAYI ENGELLEYEN KRİTİK CSS --- */
+        /* Arama kutusu sıfırlanırken altındaki bileşenlerin yukarı/aşağı zıplamasını (Layout Shift) engeller */
+        div[data-testid="column"]:has(.search-box-anchor) {
+            min-height: 95px !important;
+        }
+        
         /* Tükenenleri Gizle Checkbox Hizalaması */
         div[data-testid="stCheckbox"] { 
             margin-top: 36px !important; 
         }
 
-        /* Temizle Butonu Rengi (#1C355E) ve Hizalaması */
+        /* Temizle Butonu Rengi ve Hizalaması */
         .stButton > button { 
             background-color: #1C355E !important; 
             color: white !important; 
@@ -145,15 +151,15 @@ try:
     # ==========================================
     @st.fragment
     def stok_paneli_icerik(data_frame):
-        # Tüm filtre state'lerini güvenli şekilde başlatıyoruz
-        if "q_search" not in st.session_state: st.session_state.q_search = ""
+        # Durum takipleri ve güvenli sıfırlama sayacı
+        if "reset_counter" not in st.session_state: st.session_state.reset_counter = 0
         if "q_grup" not in st.session_state: st.session_state.q_grup = "Tümü"
         if "q_marka" not in st.session_state: st.session_state.q_marka = "Tümü"
         if "q_stok" not in st.session_state: st.session_state.q_stok = False
         
         def filtreleri_temizle():
-            # KEY DEĞİŞTİRMEDEN, doğrudan state temizliği (Zıplamayı önleyen kesin çözüm)
-            st.session_state.q_search = ""
+            # Sayacı artırarak st_keyup kutusunu zıplama olmadan sıfırlıyoruz
+            st.session_state.reset_counter += 1
             st.session_state.q_grup = "Tümü"
             st.session_state.q_marka = "Tümü"
             st.session_state.q_stok = False
@@ -181,10 +187,11 @@ try:
             st.session_state.q_grup = "Tümü"
 
         with col1:
-            # Key artık sabit, zıplama yapmaz
+            # CSS'in algılayabilmesi için görünmez bir çapa sınıfı bırakıyoruz
+            st.markdown('<div class="search-box-anchor"></div>', unsafe_allow_html=True)
             v_search = st_keyup(
                 label="📝 Ürün Ara",
-                key="q_search",
+                key=f"q_search_{st.session_state.reset_counter}",
                 placeholder="Kod veya açıklama ara...",
                 debounce=500
             )
