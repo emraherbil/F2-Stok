@@ -58,39 +58,43 @@ def load_data():
     return pd.read_excel('Stok Sayım Arşivi-v3.1-Web.xlsm', sheet_name='Stok', engine='openpyxl')
 
 # ==========================================
-# 3. GİRİŞ EKRANI (TAM KAPSAYICI BEYAZ KARTLI SİSTEM)
+# 3. GİRİŞ EKRANI (KESİN VE KALICI MİMARİ)
 # ==========================================
 if not st.session_state.logged_in:
-    # Sayfa arka planını hafif gri yapıyoruz
+    # Sayfa genel tasarımını ve form kutusunu milimetrik eşitleyen CSS
     st.markdown("""
     <style>
+        /* Arka plan hafif gri */
         html, body, .stApp { 
             background-color: #f8fafc !important; 
         }
         
-        /* Input alanlarını estetik gri ve yuvarlak yap */
+        /* GİRİŞ KUTUSUNUN KENDİSİ: Tüm elemanları saran tek çerçeve */
+        div[data-testid="stVerticalBlockBorderWrapper"] {
+            background-color: #ffffff !important;
+            padding: 45px 35px !important;
+            border-radius: 16px !important;
+            box-shadow: 0px 10px 40px rgba(0, 0, 0, 0.04) !important;
+            border: 1px solid #e2e8f0 !important;
+            max-width: 400px !important;
+            margin: 0 auto !important;
+        }
+        
+        /* Input alanları modern gri ve oval */
         [data-testid="stAppViewContainer"] [data-baseweb="input"] {
             background-color: #f1f5f9 !important;
             border: 1px solid #cbd5e1 !important;
             border-radius: 8px !important;
         }
         
-        /* Streamlit'in buton etrafına koyduğu varsayılan görünmez boşluk kutusunu kır */
+        /* Elemanlar arası boşlukları dengele */
         div[data-testid="element-container"] {
-            margin-bottom: 0px !important;
+            margin-bottom: 12px !important;
         }
 
-        /* BUTONUNU KOYU LACİVERT VE TAM ORTALI YAPAN CSS */
-        div[data-testid="stButton"] {
-            display: flex !important;
-            justify-content: center !important;
-            margin-top: 25px !important;
-            width: 100% !important;
-        }
-        
+        /* KOYU LACİVERT GENİŞ BUTON TASARIMI (image_246e21.png'deki gibi) */
         div[data-testid="stButton"] button {
-            width: fit-content !important;
-            padding: 0 45px !important;
+            width: 100% !important;
             background-color: #1e293b !important;
             color: white !important;
             border: none !important;
@@ -98,6 +102,7 @@ if not st.session_state.logged_in:
             font-weight: 600 !important;
             height: 46px !important;
             font-size: 14px !important;
+            margin-top: 15px !important;
             transition: background-color 0.2s !important;
         }
         
@@ -108,25 +113,11 @@ if not st.session_state.logged_in:
     </style>
     """, unsafe_allow_html=True)
     
-    # Üstten dikey hizalama boşluğu
+    # Üstten dikey boşluk (Kartı dikeyde ortalamak için)
     st.markdown("<div style='margin-top: 12vh;'></div>", unsafe_allow_html=True)
     
-    # Ekranı 3 sütuna bölüyoruz (Ortadaki alan kartımızın yerleşeceği kılavuz)
-    col_left, col_center, col_right = st.columns([4.8, 2.4, 4.8])
-    
-    with col_center:
-        # TEK BİR HTML DIV: Logoyu, kutuları ve butonu tek bir pürüzsüz beyaz çerçeve içine alır
-        st.markdown("""
-            <div style="
-                background-color: #ffffff; 
-                padding: 45px 35px; 
-                border-radius: 16px; 
-                box-shadow: 0px 10px 40px rgba(0, 0, 0, 0.04); 
-                border: 1px solid #e2e8f0;
-                width: 100%;
-                box-sizing: border-box;
-            ">
-        """, unsafe_allow_html=True)
+    # Resmi Streamlit border'lı konteyner yapısı (Zıplamayı imkansız kılar)
+    with st.container(border=True):
         
         # Logo Alanı
         if logo_data:
@@ -137,7 +128,7 @@ if not st.session_state.logged_in:
         # Başlık Bilgisi
         st.markdown('<div style="text-align: center; font-size: 17px; color: #475569; margin-bottom: 25px; font-weight: 600; font-family: sans-serif;">Ofis Stok İzleme Paneli</div>', unsafe_allow_html=True)
         
-        # Kullanıcı Giriş Alanları
+        # Giriş Elemanları
         username_input = st.text_input("Kullanıcı Adı", placeholder="Kullanıcı adınızı yazın", label_visibility="collapsed", key="login_user")
         password_input = st.text_input("Şifre", type="password", placeholder="Şifrenizi yazın", label_visibility="collapsed", key="login_pass")
         
@@ -150,11 +141,8 @@ if not st.session_state.logged_in:
                 st.session_state.logged_in = True
                 st.rerun()
             else:
-                st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True)
+                st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
                 st.error("Hatalı kullanıcı adı veya şifre!")
-                
-        # Kapsayıcı beyaz çerçevenin kapanışı
-        st.markdown('</div>', unsafe_allow_html=True)
 
 # ==========================================
 # 4. ANA PANEL (BAŞARILI GİRİŞ SONRASI)
@@ -168,6 +156,15 @@ else:
             display: block !important;
             padding-top: 1.5rem !important; 
             padding-bottom: 1.5rem !important; 
+            max-width: 100% !important;
+        }
+        /* Giriş ekranındaki kart kısıtlamasını ana sayfada kaldır */
+        div[data-testid="stVerticalBlockBorderWrapper"] {
+            background-color: transparent !important;
+            padding: 0px !important;
+            border-radius: 0px !important;
+            box-shadow: none !important;
+            border: none !important;
             max-width: 100% !important;
         }
         div[data-testid="stVerticalBlock"] > div:first-child {
