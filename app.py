@@ -3,7 +3,7 @@ import pandas as pd
 import os
 import base64
 from pathlib import Path
-from st_keyup import st_keyup  # Canlı arama için harici kararlı kütüphane
+from st_keyup import st_keyup  # Harf harf canlı arama sağlayan kararlı kütüphane
 
 # ==========================================
 # 1. SAYFA YAPILANDIRMASI VE KÜRESEL STİLLER
@@ -14,7 +14,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# Görsel stabilite, hizalama ve buton renkleri için optimize edilmiş CSS
+# Görsel stabilite, hizalama, buton renkleri ve st_keyup sabitlemeleri için CSS
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -51,7 +51,7 @@ st.markdown("""
         .custom-logo { height: 60px; object-fit: contain; }
         .custom-title-block { display: flex; flex-direction: column; justify-content: center; }
         
-        /* Tüm form elemanlarının üst hizalamasını eşitler */
+        /* Tüm form elemanlarının (input, selectbox) üst hizalamasını eşitler */
         div[data-testid="column"] .stFormSubmitButton, 
         div[data-testid="column"] .stButton {
             margin-top: 0px !important;
@@ -85,19 +85,29 @@ st.markdown("""
             border-radius: 6px !important;
         }
 
-        /* st_keyup bileşeninin iframe dikey kaymasını ve taşmasını kesin olarak sıfırlayan kurallar */
-        div[data-testid="stCustomComponentV1"] iframe {
-            height: 42px !important;
-            margin-bottom: 0px !important;
-        }
-        
-        /* Custom etiket yapısı */
-        .custom-label-text {
+        /* 🔴 ST_KEYUP GENİŞLEME VE YUKARI KAYMA ENGELLEYİCİ CSS KURALLARI 🔴 */
+        /* Custom etiket (label) yerleşimi */
+        .custom-input-label {
             font-size: 14px !important;
             color: rgb(49, 51, 63) !important;
             margin-bottom: 4px !important;
-            font-weight: 400 !important;
             display: inline-block;
+            line-height: 1.4 !important;
+        }
+        
+        /* st_keyup bileşeninin iframe kutusunu selectbox'lar ile milimetrik eşitler */
+        div[data-testid="stCustomComponentV1"] iframe {
+            height: 42px !important;
+            max-height: 42px !important;
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            display: block !important;
+        }
+        
+        /* İçerideki elementin dışarı taşmasını keser */
+        div[data-testid="element-container"]:has(div[data-testid="stCustomComponentV1"]) {
+            margin-bottom: 0px !important;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -175,7 +185,7 @@ try:
             st.session_state.q_marka = "Tümü"
             st.session_state.q_stok = False
 
-        # Sütun Genişliklerini Grid Yapısına Göre Kesin Olarak Sabitliyoruz
+        # Form elemanlarının yerleşimi için sütun genişlikleri ayarı
         col1, col2, col3, col4, col5 = st.columns([3.2, 2.4, 2.4, 2.2, 1.2], vertical_alignment="bottom")
         
         current_marka = st.session_state.q_marka
@@ -184,7 +194,6 @@ try:
         if current_grup != "Tümü":
             df_for_marka = data_frame[data_frame[c_grup].astype(str) == current_grup]
         else:
-            df_for_break = data_frame
             df_for_marka = data_frame
         marka_ops = ["Tümü"] + sorted([str(x) for x in df_for_marka[c_marka].dropna().unique() if str(x).lower() != 'nan'])
 
@@ -201,15 +210,13 @@ try:
 
         # Form Elemanlarının Dağılımı
         with col1:
-            st.markdown('<span class="custom-label-text">📝 Ürün Ara</span>', unsafe_allow_html=True)
-            # st_keyup bileşenini yerleşim sınırlarına hapsetmek ve genişlemesini önlemek için 
-            # label_visibility="collapsed" kullanarak iç boşluğunu sıfırlıyoruz.
+            st.markdown('<span class="custom-input-label">📝 Ürün Ara</span>', unsafe_allow_html=True)
+            # Etiketi gizleyerek st_keyup'ın dikey taşmasını engelliyoruz, hizayı CSS ile sabitliyoruz
             v_search = st_keyup(
-                "📝 Ürün Ara",
-                key="live_search_box",
+                "📝 Ürün Ara", 
                 value=st.session_state.q_search,
-                placeholder="Kod veya açıklama ara...",
-                debounce=100,
+                placeholder="Kod veya açıklama yazın...",
+                key="live_search_box",
                 label_visibility="collapsed"
             )
             st.session_state.q_search = v_search
