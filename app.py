@@ -3,7 +3,7 @@ import pandas as pd
 import os
 import base64
 from pathlib import Path
-from st_keyup import st_keyup  # Canlı arama için harf duyarlı kararlı kütüphane
+from st_keyup import st_keyup  # Arka planda harf takibi yapacak gizli motorumuz
 
 # ==========================================
 # 1. SAYFA YAPILANDIRMASI VE KÜRESEL STİLLER
@@ -14,7 +14,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# Görsel stabilite, hizalama ve st_keyup iframe'ini tamamen evcilleştiren CSS
+# Görsel stabilite, hizalama ve hayalet tetikleyici için CSS
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -80,49 +80,21 @@ st.markdown("""
             color: white !important; 
         }
         
-        /* 🎯 ST_KEYUP KUTUSUNUN BÜYÜKLÜĞÜNÜ VE DIŞA TAŞMASINI EZEN KESİN CSS KURALLARI 🎯 */
-        .custom-input-label {
-            font-size: 14px !important;
-            color: rgb(49, 51, 63) !important;
-            margin-bottom: 4px !important;
-            display: inline-block;
-            font-weight: 400 !important;
-        }
-        
-        /* Bileşenin yerleştiği ana kapsayıcıyı 42px yüksekliğe kilitler */
-        div[data-testid="stCustomComponentV1"] {
-            height: 42px !important;
-            max-height: 42px !important;
-            min-height: 42px !important;
-            overflow: hidden !important;
-            display: flex !important;
-            align-items: center !important;
-        }
-
-        /* Iframe içerisindeki elementlerin büyümesini engeller */
-        div[data-testid="stCustomComponentV1"] iframe {
-            height: 42px !important;
-            max-height: 42px !important;
-            min-height: 42px !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            border: none !important;
-        }
-
-        /* Streamlit'in input tabanlı tüm alt div alanlarını 42px yüksekliğe senkronize eder */
+        /* Input focus alt çizgi rengini F2 kurumsal mavisine yaklaştırır */
         div[data-baseweb="input"] {
-            height: 42px !important;
-            max-height: 42px !important;
-            min-height: 42px !important;
             border-radius: 6px !important;
+            height: 42px !important;
         }
 
-        /* Input alanının içindeki yazı alanının yüksekliğini ve dikey ortalamasını ayarlar */
-        div[data-baseweb="input"] input {
-            height: 42px !important;
-            padding-top: 0px !important;
-            padding-bottom: 0px !important;
-            font-size: 14px !important;
+        /* 👻 HAYALET TETİKLEYİCİ - ST_KEYUP KUTUSUNU EKRANDA GÖRÜNMEZ YAPAN SİHİRLİ SINIF 👻 */
+        .ghost-keyup-container {
+            position: absolute !important;
+            width: 1px !important;
+            height: 1px !important;
+            overflow: hidden !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+            z-index: -9999 !important;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -187,6 +159,7 @@ try:
     # ==========================================
     @st.fragment
     def stok_paneli_icerik(data_frame):
+        # Session State Kontrolleri
         if "q_search" not in st.session_state: st.session_state.q_search = ""
         if "q_grup" not in st.session_state: st.session_state.q_grup = "Tümü"
         if "q_marka" not in st.session_state: st.session_state.q_marka = "Tümü"
@@ -221,15 +194,30 @@ try:
             st.session_state.q_grup = "Tümü"
 
         with col1:
-            st.markdown('<span class="custom-input-label">📝 Ürün Ara</span>', unsafe_allow_html=True)
-            v_search = st_keyup(
+            # 1. GÖRÜNEN KUTU: Orijinal, milimetrik hizalı, şık Streamlit kutusu
+            v_search = st.text_input(
                 "📝 Ürün Ara", 
                 value=st.session_state.q_search,
-                placeholder="Kod veya açıklama yazın...",
-                key="live_search_box",
-                label_visibility="collapsed"
+                placeholder="Kod veya açıklama yazın..."
             )
-            st.session_state.q_search = v_search
+            
+            # 2. GÖRÜNMEZ (HAYALET) MOTOR: Yazılan harfleri anlık yakalayıp sayfayı tetikler
+            st.markdown('<div class="ghost-keyup-container">', unsafe_allow_html=True)
+            v_keyup_trigger = st_keyup(
+                "Hidden Search",
+                value=st.session_state.q_search,
+                key="ghost_search_trigger",
+                debounce=100
+            )
+            st.markdown('</div>', unsafe_allow_html=True)
+
+            # İki kutunun verisini birbirine senkronize etme hilesi
+            if v_keyup_trigger != st.session_state.q_search:
+                st.session_state.q_search = v_keyup_trigger
+                st.rerun()
+            elif v_search != st.session_state.q_search:
+                st.session_state.q_search = v_search
+                st.rerun()
 
         with col2:
             v_marka = st.selectbox("🏷️ Marka", marka_ops, key="q_marka")
@@ -245,9 +233,10 @@ try:
 
         # Filtreleme Algoritması
         f_df = data_frame.copy()
-        if v_search:
-            m1 = f_df[c_kod].astype(str).str.contains(v_search, case=False)
-            m2 = f_df[c_tanim].astype(str).str.contains(v_search, case=False)
+        current_search_val = st.session_state.q_search
+        if current_search_val:
+            m1 = f_df[c_kod].astype(str).str.contains(current_search_val, case=False)
+            m2 = f_df[c_tanim].astype(str).str.contains(current_search_val, case=False)
             f_df = f_df[m1 | m2]
         if v_marka != "Tümü": f_df = f_df[f_df[c_marka].astype(str) == v_marka]
         if v_grup != "Tümü": f_df = f_df[f_df[c_grup].astype(str) == v_grup]
