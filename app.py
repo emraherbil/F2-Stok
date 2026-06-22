@@ -3,7 +3,7 @@ import pandas as pd
 import os
 import base64
 from pathlib import Path
-from st_keyup import st_keyup  # Canlı arama için tek bileşen
+import streamlit.components.v1 as components
 
 # ==========================================
 # 1. SAYFA YAPILANDIRMASI VE KÜRESEL STİLLER
@@ -14,7 +14,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# Görsel stabilite, hizalama ve st_keyup kutusunu milimetrik eşitleyen CSS
+# Görsel stabilite, hizalama ve temiz buton renkleri için CSS
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -79,24 +79,8 @@ st.markdown("""
             border: 1px solid #12223c !important;
             color: white !important; 
         }
-
-        /* 🎯 ST_KEYUP KUTUSUNU SELECTBOX SEVİYESİNE ÇEKEN CSS AYARLARI 🎯 */
-        /* Üst etiket yazısının marka/grup etiketleriyle birebir eşitlenmesi */
-        .custom-input-label {
-            font-size: 14px !important;
-            color: rgb(49, 51, 63) !important;
-            margin-bottom: 4px !important;
-            display: inline-block;
-            font-weight: 400 !important;
-        }
         
-        /* st_keyup bileşeninin iframe dikey taşmasını ve büyümesini engeller */
-        div[data-testid="stCustomComponentV1"] {
-            margin-top: -10px !important; /* Büyük kutunun dikey hizasını selectbox çizgisine çeker */
-            display: block !important;
-        }
-        
-        /* Seçili/Odaklanmış input alanlarının alt çizgilerini ve sınırlarını yumuşatır */
+        /* Girdi kutularının yuvarlaklık sınırları */
         div[data-baseweb="input"] {
             border-radius: 6px !important;
         }
@@ -163,13 +147,17 @@ try:
     # ==========================================
     @st.fragment
     def stok_paneli_icerik(data_frame):
-        if "q_search" not in st.session_state: st.session_state.q_search = ""
+        # URL Parametresi veya state kontrolü ile canlı arama verisini çekme
+        if "live_search" not in st.session_state:
+            st.session_state.live_search = st.query_params.get("search", "")
+
         if "q_grup" not in st.session_state: st.session_state.q_grup = "Tümü"
         if "q_marka" not in st.session_state: st.session_state.q_marka = "Tümü"
         if "q_stok" not in st.session_state: st.session_state.q_stok = False
         
         def filtreleri_temizle():
-            st.session_state.q_search = ""
+            st.query_params.clear()
+            st.session_state.live_search = ""
             st.session_state.q_grup = "Tümü"
             st.session_state.q_marka = "Tümü"
             st.session_state.q_stok = False
@@ -197,16 +185,41 @@ try:
             st.session_state.q_grup = "Tümü"
 
         with col1:
-            # Sadece tek bir kontrollü canlı arama kutusu bırakıyoruz
-            st.markdown('<span class="custom-input-label">📝 Ürün Ara</span>', unsafe_allow_html=True)
-            v_search = st_keyup(
+            # 🎯 1. Orijinal ve Kusursuz Hizalanan Girdi Kutusu
+            v_search = st.text_input(
                 "📝 Ürün Ara", 
-                value=st.session_state.q_search,
-                placeholder="Kod veya açıklama araya...",
-                key="live_search_box",
-                label_visibility="collapsed"
+                value=st.session_state.live_search,
+                placeholder="Kod veya açıklama arayın...",
+                key="search_input_box"
             )
-            st.session_state.q_search = v_search
+            
+            # 🎯 2. Her tuş vuruşunda Enter gerektirmeden çalışan Canlı JS Enjeksiyonu
+            components.html(
+                """
+                <script>
+                var input = window.parent.document.querySelector('input[aria-label="📝 Ürün Ara"]');
+                if (input && !input.dataset.keyupBound) {
+                    input.dataset.keyupBound = true;
+                    input.addEventListener('input', function(e) {
+                        const url = new URL(window.parent.location.href);
+                        url.searchParams.set('search', e.target.value);
+                        window.parent.history.replaceState({}, '', url.href);
+                        
+                        // Streamlit'in değişimi fark etmesi için küçük bir görünmez buton tetikleme mekanizması
+                        const r = window.parent.document.querySelector('.stButton button');
+                        if (r) { r.focus(); r.blur(); }
+                    });
+                }
+                </script>
+                """,
+                height=0
+            )
+            
+            # Değişimi yakala
+            current_url_search = st.query_params.get("search", "")
+            if current_url_search != st.session_state.live_search:
+                st.session_state.live_search = current_url_search
+                st.rerun()
 
         with col2:
             v_marka = st.selectbox("🏷️ Marka", marka_ops, key="q_marka")
@@ -222,9 +235,9 @@ try:
 
         # Filtreleme Algoritması
         f_df = data_frame.copy()
-        if v_search:
-            m1 = f_df[c_kod].astype(str).str.contains(v_search, case=False)
-            m2 = f_df[c_tanim].astype(str).str.contains(v_search, case=False)
+        if st.session_state.live_search:
+            m1 = f_df[c_kod].astype(str).str.contains(st.session_state.live_search, case=False)
+            m2 = f_df[c_tanim].astype(str).str.contains(st.session_state.live_search, case=False)
             f_df = f_df[m1 | m2]
         if v_marka != "Tümü": f_df = f_df[f_df[c_marka].astype(str) == v_marka]
         if v_grup != "Tümü": f_df = f_df[f_df[c_grup].astype(str) == v_grup]
@@ -244,7 +257,7 @@ try:
             """
 
         k1, k2, k3 = st.columns(3)
-        with k1: st.markdown(kpi_card("📋 Toplam Çesist:", f"{t_prod:,}".replace(",", ".") + " Adet", "#1E88E5"), unsafe_allow_html=True)
+        with k1: st.markdown(kpi_card("📋 Toplam Çeşit:", f"{t_prod:,}".replace(",", ".") + " Adet", "#1E88E5"), unsafe_allow_html=True)
         with k2: st.markdown(kpi_card("📦 Toplam Stok:", f"{t_stok:,}".replace(",", ".") + " Adet", "#4CAF50"), unsafe_allow_html=True)
         with k3: st.markdown(kpi_card("💰 Toplam Maliyet:", f"${t_cost:,.0f}".replace(",", "."), "#FFC107"), unsafe_allow_html=True)
 
@@ -255,25 +268,3 @@ try:
         out_df.columns = ["Ürün Kodu", "Açıklama", "Marka", "Ürün Grubu", "Güncel Stok", "Birim Maliyet", "Toplam Maliyet"]
         
         out_df = out_df.reset_index(drop=True)
-        raw_stok = out_df["Güncel Stok"].copy()
-
-        out_df["Birim Maliyet"] = out_df["Birim Maliyet"].apply(lambda v: f"${v:,.0f}".replace(",", "."))
-        out_df["Toplam Maliyet"] = out_df["Toplam Maliyet"].apply(lambda v: f"${v:,.0f}".replace(",", "."))
-        out_df["Güncel Stok"] = out_df["Güncel Stok"].apply(lambda v: f"{int(v):,}".replace(",", "."))
-
-        def row_style(row):
-            if raw_stok.loc[row.name] == 0:
-                return ['background-color: rgba(255, 75, 75, 0.08)'] * len(row)
-            return [''] * len(row)
-
-        st.dataframe(
-            out_df.style.apply(row_style, axis=1), 
-            use_container_width=True, 
-            hide_index=True,
-            height=540
-        )
-
-    stok_paneli_icerik(df)
-
-except Exception as e:
-    st.error(f"Hata oluştu: {e}")
