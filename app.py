@@ -37,6 +37,26 @@ st.set_page_config(
     layout="wide"
 )
 
+# Her iki ekranda da ortak gizlenmesi gereken yapısal CSS'ler
+st.markdown("""
+    <style>
+        footer {visibility: hidden !important; display: none !important;}
+        .viewerBadge_container {display: none !important;}
+        [data-testid="stToolbar"] {display: none !important;}
+        .stDeployButton {display: none !important;}
+        header {visibility: hidden !important; display: none !important;}
+        hr { display: none !important; visibility: hidden !important; }
+        
+        div[data-testid="stFragment"] div[data-testid="column"] {
+            min-height: 75px !important;
+        }
+        div[data-testid="stHorizontalBlock"] div[data-testid="column"]:nth-child(1) iframe {
+            height: 76px !important;
+            width: 100% !important;
+        }
+    </style>
+""", unsafe_allow_html=True)
+
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 
@@ -45,102 +65,77 @@ VALID_PASSWORD = "f2"
 logo_data = logo_to_base64("logo.png") or logo_to_base64("logo.jpg")
 
 # ==========================================
-# 3. KUSURSUZ GİRİŞ EKRANI VE GEÇİŞ AYARLARI
+# 3. GİRİŞ EKRANI (KOLON YAPISI İLE SABİTLENMİŞ)
 # ==========================================
 if not st.session_state.logged_in:
-    # Giriş ekranı aktifken hem zıplamayı önleyen hem de kutuyu ortalayan CSS
+    # Giriş ekranı için arka planı sabitleyen ve butonu daraltıp ortalayan özel CSS
     st.markdown("""
     <style>
-        /* Ekranın kaymasını engelle ve arka planı sabitle */
         html, body, [data-testid="stAppViewContainer"], .stApp {
-            overflow: hidden !important; 
             background-color: #f8fafc !important;
-            margin: 0 !important; 
-            padding: 0 !important;
-            height: 100vh !important;
         }
         
-        .block-container {
-            padding: 0 !important;
-            max-width: 100% !important;
-        }
-        
-        /* Giriş Formunu Ekranın Tam Merkezine Kilitleyen Yapı */
-        div[data-testid="stAppViewContainer"] [data-testid="stForm"] {
-            position: fixed !important;
-            top: 50% !important;
-            left: 50% !important;
-            transform: translate(-50%, -50%) !important;
-            width: 360px !important;
-            max-width: 90vw !important;
-            height: auto !important;
-            padding: 35px 30px !important;
+        /* Giriş kutusunun genel çerçeve stili */
+        div.login-card {
             background-color: #ffffff !important;
+            padding: 40px 35px !important;
             border-radius: 12px !important;
-            box-shadow: 0px 10px 40px rgba(0, 0, 0, 0.08) !important;
+            box-shadow: 0px 10px 40px rgba(0, 0, 0, 0.06) !important;
             border: 1px solid #e2e8f0 !important;
-            margin: 0 !important;
-            z-index: 99999 !important;
+            margin-top: 15vh !important;
         }
         
-        /* Girdi Kutuları Stil Ayarları */
+        /* Input Alanları */
         [data-testid="stAppViewContainer"] [data-baseweb="input"] {
             background-color: #f1f5f9 !important;
             border: 1px solid #cbd5e1 !important;
             border-radius: 6px !important;
         }
-        [data-testid="stAppViewContainer"] [data-baseweb="input"] button {
-            background-color: transparent !important;
-            border: none !important;
-            width: auto !important;
-            height: auto !important;
-        }
         
-        /* Buton Kapsayıcısını ve Butonun Kendisini Sadece Yazı Kadar Yapma */
-        div[data-testid="stAppViewContainer"] [data-testid="stForm"] div[data-testid="stFormSubmitButton"] {
+        /* BUTONU SADECE YAZI KADAR YAPIP ORTALAYAN SİHİRLİ KISIM */
+        div.login-card div[data-testid="stButton"] {
             display: flex !important;
             justify-content: center !important;
-            margin-top: 25px !important;
-            width: 100% !important;
+            margin-top: 10px !important;
         }
         
-        div[data-testid="stAppViewContainer"] [data-testid="stForm"] [data-testid="stFormSubmitButton"] button {
+        div.login-card div[data-testid="stButton"] button {
+            width: fit-content !important;
+            padding: 0 35px !important;
             background-color: #1e293b !important;
             color: white !important;
             border: none !important;
             border-radius: 6px !important;
             font-weight: 600 !important;
             height: 45px !important;
-            width: fit-content !important; /* Sadece yazı kadar genişlik */
-            padding: 0 30px !important;    /* Sağdan soldan estetik boşluk */
-            transition: background-color 0.3s;
+            transition: background-color 0.2s;
         }
         
-        div[data-testid="stAppViewContainer"] [data-testid="stForm"] [data-testid="stFormSubmitButton"] button:hover {
+        div.login-card div[data-testid="stButton"] button:hover {
             background-color: #0f172a !important;
         }
-
-        /* Üst Menü ve Toolbar Öğelerini Kaldır */
-        footer {visibility: hidden !important; display: none !important;}
-        .viewerBadge_container {display: none !important;}
-        [data-testid="stToolbar"] {display: none !important;}
-        .stDeployButton {display: none !important;}
-        header {visibility: hidden !important; display: none !important;}
     </style>
     """, unsafe_allow_html=True)
     
-    with st.form("login_form"):
+    # 3 Kolon oluşturup ortadakini 380px genişliğe sabitleyerek zıplamayı imkansız hale getiriyoruz
+    empty_l, login_col, empty_r = st.columns([1, 3.8, 1])
+    
+    with login_col:
+        # Özel bir div konteyneri açıyoruz (CSS'deki login-card burayı şekillendirir)
+        st.markdown('<div class="login-card">', unsafe_allow_html=True)
+        
         if logo_data:
-            st.markdown(f'<div style="text-align: center; margin-bottom: 15px;"><img src="data:image/png;base64,{logo_data}" style="max-width: 200px; height: auto;"></div>', unsafe_allow_html=True)
+            st.markdown(f'<div style="text-align: center; margin-bottom: 20px;"><img src="data:image/png;base64,{logo_data}" style="max-width: 210px; height: auto;"></div>', unsafe_allow_html=True)
         else:
-            st.markdown('<div style="text-align: center; font-size: 2.5rem; margin-bottom: 15px;">📦</div>', unsafe_allow_html=True)
+            st.markdown('<div style="text-align: center; font-size: 2.5rem; margin-bottom: 20px;">📦</div>', unsafe_allow_html=True)
             
-        st.markdown('<div style="text-align: center; font-size: 17px; color: #64748b; margin-bottom: 15px; font-weight: 500;">Ofis Stok İzleme Paneli</div>', unsafe_allow_html=True)
+        st.markdown('<div style="text-align: center; font-size: 17px; color: #64748b; margin-bottom: 25px; font-weight: 500;">Ofis Stok İzleme Paneli</div>', unsafe_allow_html=True)
         
         username_input = st.text_input("Kullanıcı Adı", placeholder="Kullanıcı adınızı yazın", label_visibility="collapsed")
         password_input = st.text_input("Şifre", type="password", placeholder="Şifrenizi yazın", label_visibility="collapsed")
         
-        submit_button = st.form_submit_button("Sisteme Giriş Yap")
+        # Form yerine normal button kullanıp enter tetiklemesi için küçük bir kontrol ekliyoruz
+        submit_button = st.button("Sisteme Giriş Yap")
         
         if submit_button:
             if username_input == VALID_USERNAME and password_input == VALID_PASSWORD:
@@ -148,46 +143,26 @@ if not st.session_state.logged_in:
                 st.rerun()
             else:
                 st.error("Hatalı kullanıcı adı veya şifre!")
+                
+        st.markdown('</div>', unsafe_allow_html=True)
 
 # ==========================================
 # 4. ANA PANEL (BAŞARILI GİRİŞ SONRASI)
 # ==========================================
 else:
-    # Ana panel yüklendiğinde giriş ekranı kurallarını tamamen eziyoruz
     st.markdown("""
     <style>
         html, body, [data-testid="stAppViewContainer"] { 
             overflow: auto !important; 
             background-color: #ffffff !important;
-            height: auto !important;
         }
         
-        /* Ana paneldeki formu (Filtre alanını vb.) serbest bırak, genişlet */
-        div[data-testid="stAppViewContainer"] [data-testid="stForm"] {
-            position: relative !important;
-            top: unset !important;
-            left: unset !important;
-            transform: unset !important;
-            width: 100% !important;
-            max-width: 100% !important;
-            height: auto !important;
-            padding: 10px !important;
-            box-shadow: none !important;
-            border: none !important;
-            margin: 0 !important;
-        }
-
         .block-container { 
             display: block !important;
             padding-top: 1.5rem !important; 
             padding-bottom: 1.5rem !important; 
             max-width: 100% !important;
         }
-        
-        footer {visibility: hidden !important; display: none !important;}
-        [data-testid="stToolbar"] {display: none !important;}
-        header {visibility: hidden !important; display: none !important;}
-        hr { display: none !important; visibility: hidden !important; }
 
         div[data-testid="stVerticalBlock"] > div:first-child {
             position: sticky !important;
@@ -214,6 +189,7 @@ else:
             margin-top: 32px !important;
         }
 
+        /* Ana panel filtre alanındaki temizle butonu görünümü */
         .stButton button { 
             margin-top: 24px !important;
             height: 40px !important; 
@@ -242,7 +218,7 @@ else:
 
         df[c_stok] = pd.to_numeric(df[c_stok], errors='coerce').fillna(0)
         df[c_maliyet] = pd.to_numeric(df[c_maliyet], errors='coerce').fillna(0)
-        df[c_fiyat] = pd.to_numeric(df[c_fiyat], errors='coerce').fillna(0)
+        df[df.columns[12]] = pd.to_numeric(df[df.columns[12]], errors='coerce').fillna(0)
 
         if logo_data:
             logo_html = f'<img src="data:image/png;base64,{logo_data}" class="custom-logo">'
