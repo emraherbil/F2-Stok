@@ -3,7 +3,6 @@ import pandas as pd
 import os
 import base64
 from pathlib import Path
-from st_keyup import st_keyup  # Harf harf canlı arama sağlayan kararlı kütüphane
 
 # ==========================================
 # 1. SAYFA YAPILANDIRMASI VE KÜRESEL STİLLER
@@ -14,7 +13,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# Görsel stabilite, hizalama, buton renkleri ve st_keyup sabitlemeleri için CSS
+# Görsel stabilite, hizalama ve buton renkleri için optimize edilmiş CSS
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -83,31 +82,6 @@ st.markdown("""
         /* Input focus alt çizgi rengini F2 kurumsal mavisine yaklaştırır */
         div[data-baseweb="input"] {
             border-radius: 6px !important;
-        }
-
-        /* 🔴 ST_KEYUP GENİŞLEME VE YUKARI KAYMA ENGELLEYİCİ CSS KURALLARI 🔴 */
-        /* Custom etiket (label) yerleşimi */
-        .custom-input-label {
-            font-size: 14px !important;
-            color: rgb(49, 51, 63) !important;
-            margin-bottom: 4px !important;
-            display: inline-block;
-            line-height: 1.4 !important;
-        }
-        
-        /* st_keyup bileşeninin iframe kutusunu selectbox'lar ile milimetrik eşitler */
-        div[data-testid="stCustomComponentV1"] iframe {
-            height: 42px !important;
-            max-height: 42px !important;
-            width: 100% !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            display: block !important;
-        }
-        
-        /* İçerideki elementin dışarı taşmasını keser */
-        div[data-testid="element-container"]:has(div[data-testid="stCustomComponentV1"]) {
-            margin-bottom: 0px !important;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -210,16 +184,12 @@ try:
 
         # Form Elemanlarının Dağılımı
         with col1:
-            st.markdown('<span class="custom-input-label">📝 Ürün Ara</span>', unsafe_allow_html=True)
-            # Etiketi gizleyerek st_keyup'ın dikey taşmasını engelliyoruz, hizayı CSS ile sabitliyoruz
-            v_search = st_keyup(
+            # Tamamen yerleşik st.text_input yapısına geçildi, kayma/büyüme imkansızdır.
+            v_search = st.text_input(
                 "📝 Ürün Ara", 
-                value=st.session_state.q_search,
-                placeholder="Kod veya açıklama yazın...",
-                key="live_search_box",
-                label_visibility="collapsed"
+                key="q_search",
+                placeholder="Yazın ve boş bir yere tıklayın veya Enter'a basın..."
             )
-            st.session_state.q_search = v_search
 
         with col2:
             v_marka = st.selectbox("🏷️ Marka", marka_ops, key="q_marka")
