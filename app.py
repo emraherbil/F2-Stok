@@ -58,23 +58,32 @@ st.markdown("""
         .custom-logo { height: 60px; object-fit: contain; }
         .custom-title-block { display: flex; flex-direction: column; justify-content: center; }
         
-        div[data-testid="stHorizontalBlock"] { align-items: flex-end !important; } 
-        div[data-testid="stHorizontalBlock"] div[data-testid="stCheckbox"] { margin-bottom: 10px !important; }
+        /* ==========================================
+           HİZALAMA VE BUTON RENK AYARLARI 
+           ========================================== */
+        
+        /* Tükenenleri Gizle Checkbox Hizalaması */
+        div[data-testid="stCheckbox"] { 
+            margin-top: 36px !important; 
+        }
 
-        /* TEMİZLE BUTONU: Renk ve Dikey Hizalama Ayarı */
-        div[data-testid="stAppViewContainer"] button[data-testid="baseButton-secondary"] { 
-            height: 42px !important; 
-            width: 100% !important; 
+        /* Temizle Butonu Rengi ve Hizalaması */
+        .stButton > button { 
             background-color: #1C355E !important; 
             color: white !important; 
-            border: none !important; 
+            border: 1px solid #1C355E !important; 
             border-radius: 6px !important;
+            height: 40px !important; 
+            width: 100% !important; 
             font-weight: 500 !important;
-            transition: background-color 0.2s !important;
+            margin-top: 28px !important; /* Etiket boşluğunu dengeler ve aşağı iter */
+            transition: all 0.2s !important;
         }
         
-        div[data-testid="stAppViewContainer"] button[data-testid="baseButton-secondary"]:hover { 
+        .stButton > button:hover { 
             background-color: #12223c !important;
+            border: 1px solid #12223c !important;
+            color: white !important; 
         }
     </style>
 """, unsafe_allow_html=True)
@@ -98,7 +107,7 @@ def load_data():
     return pd.read_excel('Stok Sayım Arşivi-v3.1-Web.xlsm', sheet_name='Stok', engine='openpyxl')
 
 # ==========================================
-# 3. DOĞRUDAN ÇWALİŞAN ANA PANEL
+# 3. DOĞRUDAN ÇALIŞAN ANA PANEL
 # ==========================================
 try:
     df = load_data()
@@ -190,8 +199,6 @@ try:
             v_grup = st.selectbox("📂 Ürün Grubu", grup_ops, key="q_grup")
 
         with col4:
-            # Checkbox dikeyde ortalansın diye alt kutuya hafif boşluk verdik
-            st.markdown("<div style='margin-top: 5px;'></div>", unsafe_allow_html=True)
             v_stok = st.checkbox("🚫 Tükenenleri Gizle", key="q_stok")
 
         with col5:
@@ -247,7 +254,7 @@ try:
             height=540
         )
 
-    stog_paneli_icerik = stok_paneli_icerik(df)
+    stok_paneli_icerik(df)
 
 except Exception as e:
     st.error(f"Hata oluştu: {e}")
