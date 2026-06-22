@@ -13,7 +13,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# Görsel stabilite, hizalama ve otomatik tamamlama (autocomplete) için optimize edilmiş CSS
+# Görsel stabilite, hizalama ve buton renkleri için optimize edilmiş CSS
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -79,6 +79,7 @@ st.markdown("""
             color: white !important; 
         }
         
+        /* Input focus alt çizgi rengini F2 kurumsal mavisine yaklaştırır */
         div[data-baseweb="input"] {
             border-radius: 6px !important;
         }
@@ -146,6 +147,7 @@ try:
     # ==========================================
     @st.fragment
     def stok_paneli_icerik(data_frame):
+        # Session State Kontrolleri
         if "q_search" not in st.session_state: st.session_state.q_search = ""
         if "q_grup" not in st.session_state: st.session_state.q_grup = "Tümü"
         if "q_marka" not in st.session_state: st.session_state.q_marka = "Tümü"
@@ -157,6 +159,7 @@ try:
             st.session_state.q_marka = "Tümü"
             st.session_state.q_stok = False
 
+        # Form elemanlarının yerleşimi için sütun genişlikleri ayarı
         col1, col2, col3, col4, col5 = st.columns([3.2, 2.4, 2.4, 2.2, 1.2], vertical_alignment="bottom")
         
         current_marka = st.session_state.q_marka
@@ -179,22 +182,13 @@ try:
         if current_grup not in grup_ops:
             st.session_state.q_grup = "Tümü"
 
+        # Form Elemanlarının Dağılımı
         with col1:
             v_search = st.text_input(
                 "📝 Ürün Ara", 
                 key="q_search",
                 placeholder="Kod veya açıklama yazıp Enter'a basın..."
             )
-            # TARAYICI GEÇMİŞİNİ (AUTOCOMPLETE) ZORLA AÇAN JAVASCRIPT ENJEKSİYONU
-            st.markdown("""
-                <script>
-                    var input = window.parent.document.querySelector('input[aria-label="📝 Ürün Ara"]');
-                    if (input) {
-                        input.setAttribute('autocomplete', 'on');
-                        input.setAttribute('name', 'f2_stok_arama_gecmisi');
-                    }
-                </script>
-            """, unsafe_allow_html=True)
 
         with col2:
             v_marka = st.selectbox("🏷️ Marka", marka_ops, key="q_marka")
@@ -218,7 +212,7 @@ try:
         if v_grup != "Tümü": f_df = f_df[f_df[c_grup].astype(str) == v_grup]
         if v_stok: f_df = f_df[f_df[c_stok] > 0]
 
-        # KPI Kartları
+        # KPI Kartları Hesaplamaları
         t_prod = len(f_df)
         t_stok = int(f_df[c_stok].sum())
         t_cost = f_df[c_maliyet].sum()
@@ -238,7 +232,7 @@ try:
 
         st.markdown("<div style='margin-top:15px;'></div>", unsafe_allow_html=True)
         
-        # Tablo Alanı
+        # Veri Tablosu Çıktısı ve Sıfır Stok Renklendirmesi
         out_df = f_df[[c_kod, c_tanim, c_marka, c_grup, c_stok, c_fiyat, c_maliyet]].copy()
         out_df.columns = ["Ürün Kodu", "Açıklama", "Marka", "Ürün Grubu", "Güncel Stok", "Birim Maliyet", "Toplam Maliyet"]
         
