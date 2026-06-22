@@ -3,7 +3,6 @@ import pandas as pd
 import os
 import base64
 from pathlib import Path
-from st_keyup import st_keyup
 
 # ==========================================
 # 1. SAYFA YAPILANDIRMASI VE KÜRESEL STİLLER
@@ -14,7 +13,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# Görsel stabilite, hizalama ve zıplamayı engelleyen katı CSS kuralları
+# Görsel temizlik ve stabilite CSS kuralları
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -51,7 +50,7 @@ st.markdown("""
         .custom-logo { height: 60px; object-fit: contain; }
         .custom-title-block { display: flex; flex-direction: column; justify-content: center; }
         
-        /* Tüm form elemanlarının üst hizalamasını eşitler */
+        /* Tüm form elemanlarının dikey çizgisini ve buton yüksekliğini eşitler */
         div[data-testid="column"] .stFormSubmitButton, 
         div[data-testid="column"] .stButton {
             margin-top: 0px !important;
@@ -62,7 +61,7 @@ st.markdown("""
             padding-top: 32px !important; 
         }
 
-        /* Temizle Butonunun Görsel Tasarımı */
+        /* Temizle Butonunun Tasarımı (Selectbox yüksekliği olan 42px ile tam eşit) */
         .stButton > button { 
             background-color: #1C355E !important; 
             color: white !important; 
@@ -80,41 +79,9 @@ st.markdown("""
             color: white !important; 
         }
         
-        /* Girdi kutularının yuvarlaklık sınırları */
+        /* Tüm girdi kutularının sınır yarıçapı */
         div[data-baseweb="input"] {
             border-radius: 6px !important;
-        }
-
-        /* 🎯 ST_KEYUP KUTUSUNUN ZIPLAMASINI VE HİZASINI KİLİTLEYEN KATI CSS 🎯 */
-        /* Üst etiket mesafesini selectbox ile milimetrik eşitler */
-        .custom-search-label {
-            font-size: 14px !important;
-            color: rgb(49, 51, 63) !important;
-            font-weight: 400 !important;
-            display: block !important;
-            margin-bottom: 5px !important;
-        }
-
-        /* Iframe'i saran dış bileşeni beton gibi dondurarak zıplamayı kesin olarak engeller */
-        div[data-testid="element-container"]:has(div[data-testid="stCustomComponentV1"]) {
-            height: 42px !important;
-            min-height: 42px !important;
-            max-height: 42px !important;
-            margin: 0px !important;
-            padding: 0px !important;
-            overflow: hidden !important;
-        }
-
-        /* st_keyup bileşeninin iframe'ini 42px'e hapseder */
-        div[data-testid="stCustomComponentV1"], 
-        div[data-testid="stCustomComponentV1"] iframe {
-            height: 42px !important;
-            min-height: 42px !important;
-            max-height: 42px !important;
-            margin: 0px !important;
-            padding: 0px !important;
-            display: block !important;
-            width: 100% !important;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -179,17 +146,20 @@ try:
     # ==========================================
     @st.fragment
     def stok_paneli_icerik(data_frame):
-        # Temizle fonksiyonu için dinamik key versiyon takibi
-        if "search_key_version" not in st.session_state: 
-            st.session_state.search_key_version = 0
-            
+        # State Değişkenlerinin Güvenli Tanımlanması
+        if "search_text" not in st.session_state: st.session_state.search_text = ""
         if "q_grup" not in st.session_state: st.session_state.q_grup = "Tümü"
         if "q_marka" not in st.session_state: st.session_state.q_marka = "Tümü"
         if "q_stok" not in st.session_state: st.session_state.q_stok = False
         
-        # Temizle butonuna basıldığında tetiklenecek fonksiyon (Kutuyu Boşaltır)
+        # Yazıldıkça filtreleri anlık tetikleyen fonksiyon
+        def arama_degisti():
+            st.session_state.search_text = st.session_state.real_search_box
+            
+        # Temizle fonksiyonu (Kutuyu ve filtreleri anında sıfırlar)
         def filtreleri_temizle():
-            st.session_state.search_key_version += 1
+            st.session_state.search_text = ""
+            st.session_state.real_search_box = ""
             st.session_state.q_grup = "Tümü"
             st.session_state.q_marka = "Tümü"
             st.session_state.q_stok = False
@@ -217,17 +187,17 @@ try:
             st.session_state.q_grup = "Tümü"
 
         with col1:
-            # Yapay etiket (selectbox etiket boşluğu ile birebir eşleşir)
-            st.markdown('<label class="custom-search-label">📝 Ürün Ara</label>', unsafe_allow_html=True)
-            
-            # Anahtar (key) mekanizması ile temizle butonuna basınca içi boşalır
-            v_search = st_keyup(
+            # 🎯 %100 Orijinal Yerel Arama Kutusu: Sıfır zıplama, kusursuz selectbox hizası!
+            v_search = st.text_input(
                 "📝 Ürün Ara", 
-                value="",
-                placeholder="Kod veya açıklama arayın...",
-                key=f"live_search_box_v_{st.session_state.search_key_version}",
-                label_visibility="collapsed"
+                value=st.session_state.search_text,
+                placeholder="Kod veya açıklama yazıp Enter'a basın...",
+                key="real_search_box",
+                on_change=arama_degisti
             )
+            # Eğer on_change dışında anlık el yardımı gerekiyorsa state'e eşitle
+            if v_search != st.session_state.search_text:
+                st.session_state.search_text = v_search
 
         with col2:
             v_marka = st.selectbox("🏷️ Marka", marka_ops, key="q_marka")
@@ -243,9 +213,10 @@ try:
 
         # Filtreleme Algoritması
         f_df = data_frame.copy()
-        if v_search:
-            m1 = f_df[c_kod].astype(str).str.contains(v_search, case=False)
-            m2 = f_df[c_tanim].astype(str).str.contains(v_search, case=False)
+        current_search = st.session_state.search_text
+        if current_search:
+            m1 = f_df[c_kod].astype(str).str.contains(current_search, case=False)
+            m2 = f_df[c_tanim].astype(str).str.contains(current_search, case=False)
             f_df = f_df[m1 | m2]
         if v_marka != "Tümü": f_df = f_df[f_df[c_marka].astype(str) == v_marka]
         if v_grup != "Tümü": f_df = f_df[f_df[c_grup].astype(str) == v_grup]
