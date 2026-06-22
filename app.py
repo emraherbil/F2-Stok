@@ -85,10 +85,18 @@ st.markdown("""
             border-radius: 6px !important;
         }
 
-        /* 🟢 CANLI ARAMA BİLEŞENİ İÇİN ÖZEL HİZALAMA VE YÜKSEKLİK AYARI */
+        /* 🛠️ KAYMA PROBLEMİNİ ÇÖZEN KRİTİK CSS DÜZELTMELERİ 🛠️ */
+        div[data-testid="stCustomComponentV1"] {
+            margin-bottom: 0px !important;
+            padding-bottom: 0px !important;
+            display: flex !important;
+            align-items: flex-end !important;
+        }
+        
         div[data-testid="stCustomComponentV1"] iframe {
             height: 72px !important;
             margin-bottom: 0px !important;
+            vertical-align: bottom !important;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -166,7 +174,7 @@ try:
             st.session_state.q_marka = "Tümü"
             st.session_state.q_stok = False
 
-        # Form elemanlarının yerleşimi için sütun genişlikleri ayarı
+        # Form elemanlarının yerleşimi için sütun genişlikleri ayarı (Dikey hizalama bottom olarak kilitlendi)
         col1, col2, col3, col4, col5 = st.columns([3.2, 2.4, 2.4, 2.2, 1.2], vertical_alignment="bottom")
         
         current_marka = st.session_state.q_marka
@@ -191,7 +199,7 @@ try:
 
         # Form Elemanlarının Dağılımı
         with col1:
-            # 🟢 Hem canlı arama yapan hem de temizleme butonuyla senkronize olan yeni kurgu
+            # Hem canlı arama yapan hem de temizleme butonuyla senkronize olan kurgu
             v_search = st_keyup(
                 "📝 Ürün Ara", 
                 key="live_search_widget",
