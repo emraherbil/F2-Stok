@@ -13,23 +13,7 @@ except ImportError:
 # -----------------------------------
 
 # ==========================================
-# 1. LOGO DÖNÜŞTÜRÜCÜ
-# ==========================================
-def logo_to_base64(img_path):
-    try:
-        if os.path.exists(img_path):
-            img_bytes = Path(img_path).read_bytes()
-            return base64.b64encode(img_bytes).decode()
-    except Exception:
-        pass
-    return None
-
-@st.cache_data(ttl=600)
-def load_data():
-    return pd.read_excel('Stok Sayım Arşivi-v3.1-Web.xlsm', sheet_name='Stok', engine='openpyxl')
-
-# ==========================================
-# 2. SAYFA YAPILANDIRMASI
+# 1. SAYFA YAPILANDIRMASI VE SABİT CSS
 # ==========================================
 st.set_page_config(
     page_title="F2 ICT - Ofis Stok İzleme Paneli", 
@@ -37,9 +21,16 @@ st.set_page_config(
     layout="wide"
 )
 
-# Her iki ekranda da ortak gizlenmesi gereken yapısal CSS'ler
+if "logged_in" not in st.session_state:
+    st.session_state.logged_in = False
+
+VALID_USERNAME = "admin"
+VALID_PASSWORD = "f2"
+
+# Giriş ekranı tasarımı ve geçiş zıplamasını önleyen tek parça temiz CSS
 st.markdown("""
     <style>
+        /* Gereksiz Streamlit araçlarını her zaman gizle */
         footer {visibility: hidden !important; display: none !important;}
         .viewerBadge_container {display: none !important;}
         [data-testid="stToolbar"] {display: none !important;}
@@ -47,59 +38,35 @@ st.markdown("""
         header {visibility: hidden !important; display: none !important;}
         hr { display: none !important; visibility: hidden !important; }
         
-        div[data-testid="stFragment"] div[data-testid="column"] {
-            min-height: 75px !important;
-        }
-        div[data-testid="stHorizontalBlock"] div[data-testid="column"]:nth-child(1) iframe {
-            height: 76px !important;
-            width: 100% !important;
-        }
-    </style>
-""", unsafe_allow_html=True)
-
-if "logged_in" not in st.session_state:
-    st.session_state.logged_in = False
-
-VALID_USERNAME = "admin"
-VALID_PASSWORD = "f2"
-logo_data = logo_to_base64("logo.png") or logo_to_base64("logo.jpg")
-
-# ==========================================
-# 3. GİRİŞ EKRANI (KOLON YAPISI İLE SABİTLENMİŞ)
-# ==========================================
-if not st.session_state.logged_in:
-    # Giriş ekranı için arka planı sabitleyen ve butonu daraltıp ortalayan özel CSS
-    st.markdown("""
-    <style>
-        html, body, [data-testid="stAppViewContainer"], .stApp {
-            background-color: #f8fafc !important;
-        }
-        
-        /* Giriş kutusunun genel çerçeve stili */
-        div.login-card {
+        /* GİRİŞ EKRANI İÇİN KUSURSUZ KUTU TASARIMI */
+        .login-box-container {
+            max-width: 380px !important;
+            margin: 12vh auto 0 auto !important;
+            padding: 35px 30px !important;
             background-color: #ffffff !important;
-            padding: 40px 35px !important;
             border-radius: 12px !important;
             box-shadow: 0px 10px 40px rgba(0, 0, 0, 0.06) !important;
             border: 1px solid #e2e8f0 !important;
-            margin-top: 15vh !important;
+            text-align: center;
         }
         
-        /* Input Alanları */
-        [data-testid="stAppViewContainer"] [data-baseweb="input"] {
+        /* Giriş alanındaki inputları gri ve yuvarlak yap */
+        .login-box-container [data-baseweb="input"] {
             background-color: #f1f5f9 !important;
             border: 1px solid #cbd5e1 !important;
             border-radius: 6px !important;
+            text-align: left !important;
         }
-        
-        /* BUTONU SADECE YAZI KADAR YAPIP ORTALAYAN SİHİRLİ KISIM */
-        div.login-card div[data-testid="stButton"] {
+
+        /* BUTONU TAM ORTALAYAN VE YAZI KADAR YAPAN YAPI */
+        .login-box-container div[data-testid="stFormSubmitButton"] {
             display: flex !important;
             justify-content: center !important;
-            margin-top: 10px !important;
+            width: 100% !important;
+            margin-top: 15px !important;
         }
         
-        div.login-card div[data-testid="stButton"] button {
+        .login-box-container div[data-testid="stFormSubmitButton"] button {
             width: fit-content !important;
             padding: 0 35px !important;
             background-color: #1e293b !important;
@@ -111,31 +78,52 @@ if not st.session_state.logged_in:
             transition: background-color 0.2s;
         }
         
-        div.login-card div[data-testid="stButton"] button:hover {
+        .login-box-container div[data-testid="stFormSubmitButton"] button:hover {
             background-color: #0f172a !important;
         }
     </style>
-    """, unsafe_allow_html=True)
+""", unsafe_allow_html=True)
+
+# ==========================================
+# 2. LOGO VE ÖNBELLEK FONKSİYONLARI
+# ==========================================
+def logo_to_base64(img_path):
+    try:
+        if os.path.exists(img_path):
+            img_bytes = Path(img_path).read_bytes()
+            return base64.b64encode(img_bytes).decode()
+    except Exception:
+        pass
+    return None
+
+logo_data = logo_to_base64("logo.png") or logo_to_base64("logo.jpg")
+
+@st.cache_data(ttl=600)
+def load_data():
+    return pd.read_excel('Stok Sayım Arşivi-v3.1-Web.xlsm', sheet_name='Stok', engine='openpyxl')
+
+# ==========================================
+# 3. GİRİŞ EKRANI GÖVDESI
+# ==========================================
+if not st.session_state.logged_in:
+    # Arka plan rengini gri yapalım
+    st.markdown("<style>html, body, .stApp { background-color: #f8fafc !important; }</style>", unsafe_allow_html=True)
     
-    # 3 Kolon oluşturup ortadakini 380px genişliğe sabitleyerek zıplamayı imkansız hale getiriyoruz
-    empty_l, login_col, empty_r = st.columns([1, 3.8, 1])
+    # HTML Kapsayıcı ile formu tamamen izole ediyoruz (Böylece asla zıplayamaz veya genişleyemez)
+    st.markdown('<div class="login-box-container">', unsafe_allow_html=True)
     
-    with login_col:
-        # Özel bir div konteyneri açıyoruz (CSS'deki login-card burayı şekillendirir)
-        st.markdown('<div class="login-card">', unsafe_allow_html=True)
-        
+    with st.form("login_form", clear_on_submit=False):
         if logo_data:
-            st.markdown(f'<div style="text-align: center; margin-bottom: 20px;"><img src="data:image/png;base64,{logo_data}" style="max-width: 210px; height: auto;"></div>', unsafe_allow_html=True)
+            st.markdown(f'<div style="text-align: center; margin-bottom: 15px;"><img src="data:image/png;base64,{logo_data}" style="max-width: 210px; height: auto;"></div>', unsafe_allow_html=True)
         else:
-            st.markdown('<div style="text-align: center; font-size: 2.5rem; margin-bottom: 20px;">📦</div>', unsafe_allow_html=True)
+            st.markdown('<div style="text-align: center; font-size: 2.5rem; margin-bottom: 15px;">📦</div>', unsafe_allow_html=True)
             
-        st.markdown('<div style="text-align: center; font-size: 17px; color: #64748b; margin-bottom: 25px; font-weight: 500;">Ofis Stok İzleme Paneli</div>', unsafe_allow_html=True)
+        st.markdown('<div style="text-align: center; font-size: 17px; color: #64748b; margin-bottom: 20px; font-weight: 500;">Ofis Stok İzleme Paneli</div>', unsafe_allow_html=True)
         
         username_input = st.text_input("Kullanıcı Adı", placeholder="Kullanıcı adınızı yazın", label_visibility="collapsed")
         password_input = st.text_input("Şifre", type="password", placeholder="Şifrenizi yazın", label_visibility="collapsed")
         
-        # Form yerine normal button kullanıp enter tetiklemesi için küçük bir kontrol ekliyoruz
-        submit_button = st.button("Sisteme Giriş Yap")
+        submit_button = st.form_submit_button("Sisteme Giriş Yap")
         
         if submit_button:
             if username_input == VALID_USERNAME and password_input == VALID_PASSWORD:
@@ -144,26 +132,22 @@ if not st.session_state.logged_in:
             else:
                 st.error("Hatalı kullanıcı adı veya şifre!")
                 
-        st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
 
 # ==========================================
 # 4. ANA PANEL (BAŞARILI GİRİŞ SONRASI)
 # ==========================================
 else:
+    # Ana panel açıldığında arka planı beyaza çek ve yerleşimi serbest bırak
     st.markdown("""
     <style>
-        html, body, [data-testid="stAppViewContainer"] { 
-            overflow: auto !important; 
-            background-color: #ffffff !important;
-        }
-        
+        html, body, .stApp { background-color: #ffffff !important; }
         .block-container { 
             display: block !important;
             padding-top: 1.5rem !important; 
             padding-bottom: 1.5rem !important; 
             max-width: 100% !important;
         }
-
         div[data-testid="stVerticalBlock"] > div:first-child {
             position: sticky !important;
             top: 0px !important;
@@ -181,15 +165,10 @@ else:
         .custom-logo { height: 60px; object-fit: contain; }
         .custom-title-block { display: flex; flex-direction: column; justify-content: center; }
         
-        div[data-testid="stHorizontalBlock"] {
-            align-items: flex-start !important;
-        } 
+        div[data-testid="stHorizontalBlock"] { align-items: flex-start !important; } 
+        div[data-testid="stHorizontalBlock"] div[data-testid="stCheckbox"] { margin-top: 32px !important; }
 
-        div[data-testid="stHorizontalBlock"] div[data-testid="stCheckbox"] {
-            margin-top: 32px !important;
-        }
-
-        /* Ana panel filtre alanındaki temizle butonu görünümü */
+        /* Filtre alanındaki temizle butonu */
         .stButton button { 
             margin-top: 24px !important;
             height: 40px !important; 
@@ -203,6 +182,7 @@ else:
     """, unsafe_allow_html=True)
 
     try:
+        # Excel okuma işlemi burada güvenle çalışır, giriş ekranını etkileyemez
         df = load_data()
         df.columns = [str(c).strip() for c in df.columns]
         
@@ -218,7 +198,7 @@ else:
 
         df[c_stok] = pd.to_numeric(df[c_stok], errors='coerce').fillna(0)
         df[c_maliyet] = pd.to_numeric(df[c_maliyet], errors='coerce').fillna(0)
-        df[df.columns[12]] = pd.to_numeric(df[df.columns[12]], errors='coerce').fillna(0)
+        df[c_fiyat] = pd.to_numeric(df[c_fiyat], errors='coerce').fillna(0)
 
         if logo_data:
             logo_html = f'<img src="data:image/png;base64,{logo_data}" class="custom-logo">'
@@ -285,31 +265,16 @@ else:
                 )
 
             with col2:
-                v_marka = st.selectbox(
-                    "🏷️ Marka",
-                    marka_ops,
-                    key="q_marka"
-                )
+                v_marka = st.selectbox("🏷️ Marka", marka_ops, key="q_marka")
 
             with col3:
-                v_grup = st.selectbox(
-                    "📂 Ürün Grubu",
-                    grup_ops,
-                    key="q_grup"
-                )
+                v_grup = st.selectbox("📂 Ürün Grubu", grup_ops, key="q_grup")
 
             with col4:
-                v_stok = st.checkbox(
-                    "🚫 Tükenenleri Gizle",
-                    key="q_stok"
-                )
+                v_stok = st.checkbox("🚫 Tükenenleri Gizle", key="q_stok")
 
             with col5:
-                st.button(
-                    "🧹 Temizle",
-                    on_click=filtreleri_temizle,
-                    use_container_width=True
-                )
+                st.button("🧹 Temizle", on_click=filtreleri_temizle, use_container_width=True)
 
             f_df = data_frame.copy()
             if v_search:
