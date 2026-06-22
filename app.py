@@ -58,10 +58,11 @@ st.markdown("""
         .custom-logo { height: 60px; object-fit: contain; }
         .custom-title-block { display: flex; flex-direction: column; justify-content: center; }
         
-        /* --- ZIPLAMAYI ENGELLEYEN KRİTİK CSS --- */
-        /* Arama kutusu sıfırlanırken altındaki bileşenlerin yukarı/aşağı zıplamasını (Layout Shift) engeller */
-        div[data-testid="column"]:has(.search-box-anchor) {
-            min-height: 95px !important;
+        /* --- KUSURSUZ HİZALAMA VE SIFIR ZIPLAMA CSS KİLİDİ --- */
+        /* Arama kutusunun bulunduğu sütunun yüksekliğini yandaki selectbox'lar ile eşitler ve dondurur */
+        div[data-testid="column"]:has([data-testid="stCustomComponentV1"]) {
+            min-height: 76px !important;
+            max-height: 76px !important;
         }
         
         /* Tükenenleri Gizle Checkbox Hizalaması */
@@ -151,14 +152,12 @@ try:
     # ==========================================
     @st.fragment
     def stok_paneli_icerik(data_frame):
-        # Durum takipleri ve güvenli sıfırlama sayacı
         if "reset_counter" not in st.session_state: st.session_state.reset_counter = 0
         if "q_grup" not in st.session_state: st.session_state.q_grup = "Tümü"
         if "q_marka" not in st.session_state: st.session_state.q_marka = "Tümü"
         if "q_stok" not in st.session_state: st.session_state.q_stok = False
         
         def filtreleri_temizle():
-            # Sayacı artırarak st_keyup kutusunu zıplama olmadan sıfırlıyoruz
             st.session_state.reset_counter += 1
             st.session_state.q_grup = "Tümü"
             st.session_state.q_marka = "Tümü"
@@ -187,8 +186,7 @@ try:
             st.session_state.q_grup = "Tümü"
 
         with col1:
-            # CSS'in algılayabilmesi için görünmez bir çapa sınıfı bırakıyoruz
-            st.markdown('<div class="search-box-anchor"></div>', unsafe_allow_html=True)
+            # Hizalamayı bozan yapay HTML anchor kaldırıldı. CSS otomatik olarak bu sütunu algılar.
             v_search = st_keyup(
                 label="📝 Ürün Ara",
                 key=f"q_search_{st.session_state.reset_counter}",
