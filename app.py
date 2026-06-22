@@ -86,13 +86,12 @@ st.markdown("""
             min-height: 73px !important;
             margin-bottom: 0px !important;
             display: block !important;
-        }
-        
-        div[data-testid="stCustomComponentV1"]:has(iframe[title*="st_keyup"]) {
-            min-height: 73px !important;
-            padding: 0 !important;
-        }
-        
+    /* Ürün Ara etiketini selectbox etiketleriyle hizala */
+/* Ürün Ara etiketini selectbox etiketleriyle hizala */
+div[data-testid="stCustomComponentV1"]:has(iframe[title*="st_keyup"]) {
+    margin-top: 8px !important;
+}
+   
         iframe[title*="st_keyup"] {
             min-height: 73px !important;
             border: none !important;
