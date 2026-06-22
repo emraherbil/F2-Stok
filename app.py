@@ -58,88 +58,85 @@ def load_data():
     return pd.read_excel('Stok Sayım Arşivi-v3.1-Web.xlsm', sheet_name='Stok', engine='openpyxl')
 
 # ==========================================
-# 3. GİRİŞ EKRANI (ZIPLAMAYAN YENİ NESİL MİMARİ)
+# 3. GİRİŞ EKRANI (BEYAZ ÇERÇEVESİ DÜZELTİLMİŞ)
 # ==========================================
 if not st.session_state.logged_in:
-    # Giriş ekranına özel arka plan rengi ve input kutusu yuvarlama CSS'i
+    # Giriş ekranına özel kusursuz kart mimarisi
     st.markdown("""
     <style>
         html, body, .stApp { 
             background-color: #f8fafc !important; 
         }
-        /* Input alanlarını estetik ve modern gri yap */
+        
+        /* ORTAK KART YAPISI: Ortadaki sütunun kendisini beyaz karta dönüştürüyoruz */
+        div[data-testid="stHorizontalBlock"] div[data-testid="column"]:nth-child(2) {
+            background-color: #ffffff !important;
+            padding: 40px 35px !important;
+            border-radius: 14px !important;
+            box-shadow: 0px 10px 40px rgba(0, 0, 0, 0.05) !important;
+            border: 1px solid #e2e8f0 !important;
+        }
+        
+        /* Input alanlarını estetik gri yapıyoruz */
         [data-testid="stAppViewContainer"] [data-baseweb="input"] {
             background-color: #f1f5f9 !important;
             border: 1px solid #cbd5e1 !important;
             border-radius: 8px !important;
         }
-        /* Butonun altındaki gereksiz boşlukları temizle */
+        
+        /* Butonun alt boşluklarını sıfırlıyoruz */
         div[data-testid="element-container"] {
             margin-bottom: 0px !important;
+        }
+        
+        /* BUTONU KARTIN İÇİNDE TAM ORTALAYAN CSS */
+        div[data-testid="stHorizontalBlock"] div[data-testid="column"]:nth-child(2) div[data-testid="stButton"] {
+            display: flex !important;
+            justify-content: center !important;
+            margin-top: 25px !important;
+        }
+        
+        div[data-testid="stHorizontalBlock"] div[data-testid="column"]:nth-child(2) div[data-testid="stButton"] button {
+            width: fit-content !important;
+            padding: 0 45px !important;
+            background-color: #1e293b !important;
+            color: white !important;
+            border: none !important;
+            border-radius: 6px !important;
+            font-weight: 600 !important;
+            height: 44px !important;
+            font-size: 14px !important;
+            transition: background-color 0.2s !important;
+        }
+        
+        div[data-testid="stHorizontalBlock"] div[data-testid="column"]:nth-child(2) div[data-testid="stButton"] button:hover {
+            background-color: #0f172a !important;
         }
     </style>
     """, unsafe_allow_html=True)
     
-    # Ekranın dikeyde ortalanması için boşluk bırakıyoruz
-    st.markdown("<div style='margin-top: 12vh;'></div>", unsafe_allow_html=True)
+    # Dikeyde ortalama payı
+    st.markdown("<div style='margin-top: 14vh;'></div>", unsafe_allow_html=True)
     
-    # Sayfayı 3 sütuna bölüyoruz: [Sol Boşluk, Giriş Kartı Genişliği, Sağ Boşluk]
-    # Ortadaki sütunun oranı (2.2) geniş ekranlarda tam olarak ~380px bir kutu oluşturur.
-    col_left, col_center, col_right = st.columns([5, 2.2, 5])
+    # Sayfayı dengeli 3 sütuna bölüyoruz
+    col_left, col_center, col_right = st.columns([5, 2.4, 5])
     
     with col_center:
-        # Şık beyaz kartın başlangıcı (HTML div)
-        st.markdown("""
-            <div style="
-                background-color: #ffffff; 
-                padding: 40px 30px; 
-                border-radius: 14px; 
-                box-shadow: 0px 10px 40px rgba(0, 0, 0, 0.05); 
-                border: 1px solid #e2e8f0;
-                width: 100%;
-                box-sizing: border-box;
-            ">
-        """, unsafe_allow_html=True)
-        
         # Logo Alanı
         if logo_data:
-            st.markdown(f'<div style="text-align: center; margin-bottom: 20px;"><img src="data:image/png;base64,{logo_data}" style="max-width: 210px; height: auto;"></div>', unsafe_allow_html=True)
+            st.markdown(f'<div style="text-align: center; margin-bottom: 18px;"><img src="data:image/png;base64,{logo_data}" style="max-width: 210px; height: auto;"></div>', unsafe_allow_html=True)
         else:
-            st.markdown('<div style="text-align: center; font-size: 2.5rem; margin-bottom: 20px;">📦</div>', unsafe_allow_html=True)
+            st.markdown('<div style="text-align: center; font-size: 2.5rem; margin-bottom: 18px;">📦</div>', unsafe_allow_html=True)
             
         # Başlık Bilgisi
         st.markdown('<div style="text-align: center; font-size: 17px; color: #475569; margin-bottom: 25px; font-weight: 600; font-family: sans-serif;">Ofis Stok İzleme Paneli</div>', unsafe_allow_html=True)
         
-        # Kullanıcı Giriş Elemanları (Formsuz, doğrudan yerleşim)
+        # Giriş Elemanları (Ekstra hiçbir HTML div yok, tertemiz render edilir)
         username_input = st.text_input("Kullanıcı Adı", placeholder="Kullanıcı adınızı yazın", label_visibility="collapsed", key="login_user")
         password_input = st.text_input("Şifre", type="password", placeholder="Şifrenizi yazın", label_visibility="collapsed", key="login_pass")
         
-        st.markdown("<div style='margin-top: 20px;'></div>", unsafe_allow_html=True)
-        
-        # Butonu tam ortalamak ve yazı boyutu kadar daraltmak için kendi içinde 3 küçük sütuna bölüyoruz
-        b_l, b_c, b_r = st.columns([1, 4.5, 1])
-        with b_c:
-            # Butona basıldığında veya klavyeden tetiklendiğinde çalışacak yapı
-            submit_button = st.button("Sisteme Giriş Yap", use_container_width=True)
-            
-            # Tamamen bağımsız bir buton tasarımı (Zıplamayı engelleyen ana etken)
-            st.markdown("""
-                <style>
-                    div[data-testid="stButton"] button {
-                        background-color: #1e293b !important;
-                        color: white !important;
-                        border: none !important;
-                        border-radius: 6px !important;
-                        font-weight: 600 !important;
-                        height: 44px !important;
-                        font-size: 14px !important;
-                        transition: background-color 0.2s !important;
-                    }
-                    div[data-testid="stButton"] button:hover {
-                        background-color: #0f172a !important;
-                    }
-                </style>
-            """, unsafe_allow_html=True)
+        # Giriş Butonu
+        submit_button = st.button("Sisteme Giriş Yap")
 
         # Doğrulama Kontrolü
         if submit_button:
@@ -149,15 +146,12 @@ if not st.session_state.logged_in:
             else:
                 st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True)
                 st.error("Hatalı kullanıcı adı veya şifre!")
-                
-        # Şık beyaz kartın kapanışı (HTML div)
-        st.markdown('</div>', unsafe_allow_html=True)
 
 # ==========================================
 # 4. ANA PANEL (BAŞARILI GİRİŞ SONRASI)
 # ==========================================
 else:
-    # Ana panel açıldığında arka planı temiz beyaz yap ve tam genişliğe izin ver
+    # Ana panel açıldığında arka planı beyaz yap ve genişlik kısıtlamalarını kaldır
     st.markdown("""
     <style>
         html, body, .stApp { background-color: #ffffff !important; }
@@ -201,7 +195,6 @@ else:
     """, unsafe_allow_html=True)
 
     try:
-        # Excel verisi artık burada güvenle arka planda yüklenir
         df = load_data()
         df.columns = [str(c).strip() for c in df.columns]
         
@@ -220,132 +213,3 @@ else:
         df[c_fiyat] = pd.to_numeric(df[c_fiyat], errors='coerce').fillna(0)
 
         if logo_data:
-            logo_html = f'<img src="data:image/png;base64,{logo_data}" class="custom-logo">'
-        else:
-            logo_html = '<div style="font-size: 2.5rem;">📦</div>'
-
-        st.markdown(f"""
-            <div class="custom-header-container">
-                {logo_html}
-                <div class="custom-title-block">
-                    <h2 style="margin:0; padding:0; font-size:1.85rem; color:#262730; font-weight:700; line-height:1.2;">Ofis Stok İzleme Paneli</h2>
-                    <span style="color:#7d7f87; font-size:0.85rem; margin-top:4px;">📅 <b>Son Güncelleme / Sayım Tarihi:</b> {c_stok}</span>
-                </div>
-            </div>
-            <div style="margin-top:10px;"></div>
-        """, unsafe_allow_html=True)
-
-        # ==========================================
-        # 5. FRAGMENT ALANI (İLİŞKİLİ FİLTRELEME)
-        # ==========================================
-        @st.fragment
-        def stok_paneli_icerik(data_frame):
-            if "q_grup" not in st.session_state: st.session_state.q_grup = "Tümü"
-            if "q_marka" not in st.session_state: st.session_state.q_marka = "Tümü"
-            if "q_stok" not in st.session_state: st.session_state.q_stok = False
-            
-            def filtreleri_temizle():
-                st.session_state.q_search = ""
-                st.session_state.q_grup = "Tümü"
-                st.session_state.q_marka = "Tümü"
-                st.session_state.q_stok = False
-
-            col1, col2, col3, col4, col5 = st.columns([3.2, 2.4, 2.4, 2.2, 1.2])
-            
-            current_marka = st.session_state.q_marka
-            current_grup = st.session_state.q_grup
-
-            if current_grup != "Tümü":
-                df_for_marka = data_frame[data_frame[c_grup].astype(str) == current_grup]
-            else:
-                df_for_marka = data_frame
-            marka_ops = ["Tümü"] + sorted([str(x) for x in df_for_marka[c_marka].dropna().unique() if str(x).lower() != 'nan'])
-
-            if current_marka != "Tümü":
-                df_for_grup = data_frame[data_frame[c_marka].astype(str) == current_marka]
-            else:
-                df_for_grup = data_frame
-            grup_ops = ["Tümü"] + sorted([str(x) for x in df_for_grup[c_grup].dropna().unique() if str(x).lower() != 'nan'])
-
-            if current_marka not in marka_ops:
-                st.session_state.q_marka = "Tümü"
-            if current_grup not in grup_ops:
-                st.session_state.q_grup = "Tümü"
-
-            with col1:
-                if "q_search" not in st.session_state:
-                    st.session_state.q_search = ""
-
-                v_search = st_keyup(
-                    label="📝 Ürün Ara",
-                    key="q_search",
-                    placeholder="Kod veya açıklama ara...",
-                    debounce=500
-                )
-
-            with col2:
-                v_marka = st.selectbox("🏷️ Marka", marka_ops, key="q_marka")
-
-            with col3:
-                v_grup = st.selectbox("📂 Ürün Grubu", grup_ops, key="q_grup")
-
-            with col4:
-                v_stok = st.checkbox("🚫 Tükenenleri Gizle", key="q_stok")
-
-            with col5:
-                st.button("🧹 Temizle", on_click=filtreleri_temizle, use_container_width=True)
-
-            f_df = data_frame.copy()
-            if v_search:
-                m1 = f_df[c_kod].astype(str).str.contains(v_search, case=False)
-                m2 = f_df[c_tanim].astype(str).str.contains(v_search, case=False)
-                f_df = f_df[m1 | m2]
-            if v_marka != "Tümü": f_df = f_df[f_df[c_marka].astype(str) == v_marka]
-            if v_grup != "Tümü": f_df = f_df[f_df[c_grup].astype(str) == v_grup]
-            if v_stok: f_df = f_df[f_df[c_stok] > 0]
-
-            t_prod = len(f_df)
-            t_stok = int(f_df[c_stok].sum())
-            t_cost = f_df[c_maliyet].sum()
-            
-            def kpi_card(label, val, color):
-                return f"""
-                <div style='background-color: rgba(28, 31, 46, 0.03); padding: 12px 15px; border-radius: 6px; border-left: 5px solid {color}; display: flex; justify-content: space-between; align-items: center;'>
-                    <span style='font-size:13px; color:#555; font-weight:bold;'>{label}</span>
-                    <span style='font-size:1.15rem; font-weight: 800; color:#111;'>{val}</span>
-                </div>
-                """
-
-            k1, k2, k3 = st.columns(3)
-            with k1: st.markdown(kpi_card("📋 Toplam Çeşit:", f"{t_prod:,}".replace(",", ".") + " Adet", "#1E88E5"), unsafe_allow_html=True)
-            with k2: st.markdown(kpi_card("📦 Toplam Stok:", f"{t_stok:,}".replace(",", ".") + " Adet", "#4CAF50"), unsafe_allow_html=True)
-            with k3: st.markdown(kpi_card("💰 Toplam Maliyet:", f"${t_cost:,.0f}".replace(",", "."), "#FFC107"), unsafe_allow_html=True)
-
-            st.markdown("<div style='margin-top:15px;'></div>", unsafe_allow_html=True)
-            
-            out_df = f_df[[c_kod, c_tanim, c_marka, c_grup, c_stok, c_fiyat, c_maliyet]].copy()
-            out_df.columns = ["Ürün Kodu", "Açıklama", "Marka", "Ürün Grubu", "Güncel Stok", "Birim Maliyet", "Toplam Maliyet"]
-            
-            out_df = out_df.reset_index(drop=True)
-            raw_stok = out_df["Güncel Stok"].copy()
-
-            out_df["Birim Maliyet"] = out_df["Birim Maliyet"].apply(lambda v: f"${v:,.0f}".replace(",", "."))
-            out_df["Toplam Maliyet"] = out_df["Toplam Maliyet"].apply(lambda v: f"${v:,.0f}".replace(",", "."))
-            out_df["Güncel Stok"] = out_df["Güncel Stok"].apply(lambda v: f"{int(v):,}".replace(",", "."))
-
-            def row_style(row):
-                if raw_stok.loc[row.name] == 0:
-                    return ['background-color: rgba(255, 75, 75, 0.08)'] * len(row)
-                return [''] * len(row)
-
-            st.dataframe(
-                out_df.style.apply(row_style, axis=1), 
-                use_container_width=True, 
-                hide_index=True,
-                height=480
-            )
-
-        stok_paneli_icerik(df)
-
-    except Exception as e:
-        st.error(f"Hata oluştu: {e}")
