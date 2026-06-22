@@ -13,7 +13,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# Görsel temizlik ve stabilite CSS kuralları
+# Görsel temizlik, milimetrik hizalama ve global JS enjeksiyonu
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -84,10 +84,24 @@ st.markdown("""
             border-radius: 6px !important;
         }
     </style>
+
+    <script>
+    setInterval(function() {
+        var parentDoc = window.parent.document;
+        var inputEl = parentDoc.querySelector('input[aria-label="📝 Ürün Ara"]');
+        if (inputEl && !inputEl.dataset.listenerBound) {
+            inputEl.dataset.listenerBound = "true";
+            inputEl.addEventListener('input', function() {
+                var event = new Event('change', { bubbles: true });
+                inputEl.dispatchEvent(event);
+            });
+        }
+    }, 200);
+    </script>
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 2. LOGO VE VERİ YÜKLEME FONKSİYONLARI
+# 2. LOGO VE VERİ YÜKLEME FONKSİYON LARI
 # ==========================================
 def logo_to_base64(img_path):
     try:
@@ -183,7 +197,7 @@ try:
             st.session_state.q_grup = "Tümü"
 
         with col1:
-            # Yerel Girdi Bileşeni
+            # Saf yerel kutu (Hizayı bozan hiçbir yan element içermez)
             v_search = st.text_input(
                 "📝 Ürün Ara", 
                 value=st.session_state.search_text,
@@ -191,24 +205,6 @@ try:
                 key="real_search_box"
             )
             st.session_state.search_text = v_search
-
-            # Odağı bozmadan harf harf canlı süzme sağlayan hafif JavaScript enjeksiyonu
-            st.components.v1.html(
-                """
-                <script>
-                var parentDoc = window.parent.document;
-                var inputEl = parentDoc.querySelector('input[aria-label="📝 Ürün Ara"]');
-                if (inputEl && !inputEl.dataset.listenerBound) {
-                    inputEl.dataset.listenerBound = "true";
-                    inputEl.addEventListener('input', function() {
-                        var event = new Event('change', { bubbles: true });
-                        inputEl.dispatchEvent(event);
-                    });
-                }
-                </script>
-                """,
-                height=0
-            )
 
         with col2:
             v_marka = st.selectbox("🏷️ Marka", marka_ops, key="q_marka")
