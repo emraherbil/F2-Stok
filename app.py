@@ -4,14 +4,6 @@ import os
 import base64
 from pathlib import Path
 
-# --- RESMİ CANLI ARAMA EKLENTİSİ ---
-try:
-    from st_keyup import st_keyup
-except ImportError:
-    st.error("Lütfen terminalde 'pip install streamlit-keyup' çalıştırın veya requirements.txt dosyanıza 'streamlit-keyup' ekleyin.")
-    st.stop()
-# -----------------------------------
-
 # ==========================================
 # 1. SAYFA YAPILANDIRMASI VE KÜRESEL STİLLER
 # ==========================================
