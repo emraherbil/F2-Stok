@@ -14,6 +14,17 @@ st.set_page_config(
 )
 
 # Görsel stabilite, hizalama ve buton renkleri için optimize edilmiş CSS
+
+# ... (KÜRESEL STİLLER BÖLÜMÜNE AŞAĞIDAKİ EKLEMEYİ YAPIYORUZ)
+st.markdown("""
+    <style>
+        /* Standart inputu özel bir CSS ile diğer elemanlarla tam hizalıyoruz */
+        div[data-testid="stTextInput"] {
+            margin-top: -10px !important;
+        }
+    </style>
+""", unsafe_allow_html=True)
+
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -183,16 +194,20 @@ try:
             st.session_state.q_grup = "Tümü"
 
         # Form Elemanlarının Dağılımı
+       # ... (FRAGMENT İÇERİĞİNDE DEĞİŞİKLİK)
+
         with col1:
+            # st_keyup yerine native text_input kullanıyoruz ama arama mantığını 
+            # fragment içinde anlık tetiklenecek şekilde optimize ediyoruz.
             v_search = st.text_input(
                 "📝 Ürün Ara", 
                 key="q_search",
-                placeholder="Kod veya açıklama yazıp Enter'a basın..."
+                placeholder="Kod veya açıklama yazın..."
             )
-
+            
         with col2:
             v_marka = st.selectbox("🏷️ Marka", marka_ops, key="q_marka")
-
+            
         with col3:
             v_grup = st.selectbox("📂 Ürün Grubu", grup_ops, key="q_grup")
 
