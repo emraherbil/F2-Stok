@@ -58,80 +58,86 @@ def load_data():
     return pd.read_excel('Stok Sayım Arşivi-v3.1-Web.xlsm', sheet_name='Stok', engine='openpyxl')
 
 # ==========================================
-# 3. GİRİŞ EKRANI (BEYAZ ÇERÇEVESİ DÜZELTİLMİŞ)
+# 3. GİRİŞ EKRANI (TAM KAPSAYICI BEYAZ KARTLI SİSTEM)
 # ==========================================
 if not st.session_state.logged_in:
-    # Giriş ekranına özel kusursuz kart mimarisi
+    # Sayfa arka planını hafif gri yapıyoruz
     st.markdown("""
     <style>
         html, body, .stApp { 
             background-color: #f8fafc !important; 
         }
         
-        /* ORTAK KART YAPISI: Ortadaki sütunun kendisini beyaz karta dönüştürüyoruz */
-        div[data-testid="stHorizontalBlock"] div[data-testid="column"]:nth-child(2) {
-            background-color: #ffffff !important;
-            padding: 40px 35px !important;
-            border-radius: 14px !important;
-            box-shadow: 0px 10px 40px rgba(0, 0, 0, 0.05) !important;
-            border: 1px solid #e2e8f0 !important;
-        }
-        
-        /* Input alanlarını estetik gri yapıyoruz */
+        /* Input alanlarını estetik gri ve yuvarlak yap */
         [data-testid="stAppViewContainer"] [data-baseweb="input"] {
             background-color: #f1f5f9 !important;
             border: 1px solid #cbd5e1 !important;
             border-radius: 8px !important;
         }
         
-        /* Butonun alt boşluklarını sıfırlıyoruz */
+        /* Streamlit'in buton etrafına koyduğu varsayılan görünmez boşluk kutusunu kır */
         div[data-testid="element-container"] {
             margin-bottom: 0px !important;
         }
-        
-        /* BUTONU KARTIN İÇİNDE TAM ORTALAYAN CSS */
-        div[data-testid="stHorizontalBlock"] div[data-testid="column"]:nth-child(2) div[data-testid="stButton"] {
+
+        /* BUTONUNU KOYU LACİVERT VE TAM ORTALI YAPAN CSS */
+        div[data-testid="stButton"] {
             display: flex !important;
             justify-content: center !important;
             margin-top: 25px !important;
+            width: 100% !important;
         }
         
-        div[data-testid="stHorizontalBlock"] div[data-testid="column"]:nth-child(2) div[data-testid="stButton"] button {
+        div[data-testid="stButton"] button {
             width: fit-content !important;
             padding: 0 45px !important;
             background-color: #1e293b !important;
             color: white !important;
             border: none !important;
-            border-radius: 6px !important;
+            border-radius: 8px !important;
             font-weight: 600 !important;
-            height: 44px !important;
+            height: 46px !important;
             font-size: 14px !important;
             transition: background-color 0.2s !important;
         }
         
-        div[data-testid="stHorizontalBlock"] div[data-testid="column"]:nth-child(2) div[data-testid="stButton"] button:hover {
+        div[data-testid="stButton"] button:hover {
             background-color: #0f172a !important;
+            color: white !important;
         }
     </style>
     """, unsafe_allow_html=True)
     
-    # Dikeyde ortalama payı
-    st.markdown("<div style='margin-top: 14vh;'></div>", unsafe_allow_html=True)
+    # Üstten dikey hizalama boşluğu
+    st.markdown("<div style='margin-top: 12vh;'></div>", unsafe_allow_html=True)
     
-    # Sayfayı dengeli 3 sütuna bölüyoruz
-    col_left, col_center, col_right = st.columns([5, 2.4, 5])
+    # Ekranı 3 sütuna bölüyoruz (Ortadaki alan kartımızın yerleşeceği kılavuz)
+    col_left, col_center, col_right = st.columns([4.8, 2.4, 4.8])
     
     with col_center:
+        # TEK BİR HTML DIV: Logoyu, kutuları ve butonu tek bir pürüzsüz beyaz çerçeve içine alır
+        st.markdown("""
+            <div style="
+                background-color: #ffffff; 
+                padding: 45px 35px; 
+                border-radius: 16px; 
+                box-shadow: 0px 10px 40px rgba(0, 0, 0, 0.04); 
+                border: 1px solid #e2e8f0;
+                width: 100%;
+                box-sizing: border-box;
+            ">
+        """, unsafe_allow_html=True)
+        
         # Logo Alanı
         if logo_data:
-            st.markdown(f'<div style="text-align: center; margin-bottom: 18px;"><img src="data:image/png;base64,{logo_data}" style="max-width: 210px; height: auto;"></div>', unsafe_allow_html=True)
+            st.markdown(f'<div style="text-align: center; margin-bottom: 15px;"><img src="data:image/png;base64,{logo_data}" style="max-width: 210px; height: auto;"></div>', unsafe_allow_html=True)
         else:
-            st.markdown('<div style="text-align: center; font-size: 2.5rem; margin-bottom: 18px;">📦</div>', unsafe_allow_html=True)
+            st.markdown('<div style="text-align: center; font-size: 2.5rem; margin-bottom: 15px;">📦</div>', unsafe_allow_html=True)
             
         # Başlık Bilgisi
         st.markdown('<div style="text-align: center; font-size: 17px; color: #475569; margin-bottom: 25px; font-weight: 600; font-family: sans-serif;">Ofis Stok İzleme Paneli</div>', unsafe_allow_html=True)
         
-        # Giriş Elemanları (Ekstra hiçbir HTML div yok, tertemiz render edilir)
+        # Kullanıcı Giriş Alanları
         username_input = st.text_input("Kullanıcı Adı", placeholder="Kullanıcı adınızı yazın", label_visibility="collapsed", key="login_user")
         password_input = st.text_input("Şifre", type="password", placeholder="Şifrenizi yazın", label_visibility="collapsed", key="login_pass")
         
@@ -146,6 +152,9 @@ if not st.session_state.logged_in:
             else:
                 st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True)
                 st.error("Hatalı kullanıcı adı veya şifre!")
+                
+        # Kapsayıcı beyaz çerçevenin kapanışı
+        st.markdown('</div>', unsafe_allow_html=True)
 
 # ==========================================
 # 4. ANA PANEL (BAŞARILI GİRİŞ SONRASI)
@@ -310,7 +319,7 @@ else:
                 """
 
             k1, k2, k3 = st.columns(3)
-            with k1: st.markdown(kpi_card("📋 Toplam Çesist:", f"{t_prod:,}".replace(",", ".") + " Adet", "#1E88E5"), unsafe_allow_html=True)
+            with k1: st.markdown(kpi_card("📋 Toplam Çeşit:", f"{t_prod:,}".replace(",", ".") + " Adet", "#1E88E5"), unsafe_allow_html=True)
             with k2: st.markdown(kpi_card("📦 Toplam Stok:", f"{t_stok:,}".replace(",", ".") + " Adet", "#4CAF50"), unsafe_allow_html=True)
             with k3: st.markdown(kpi_card("💰 Toplam Maliyet:", f"${t_cost:,.0f}".replace(",", "."), "#FFC107"), unsafe_allow_html=True)
 
@@ -341,4 +350,4 @@ else:
         stok_paneli_icerik(df)
 
     except Exception as e:
-        st.error(f"Hata olustu: {e}")
+        st.error(f"Hata oluştu: {e}")
