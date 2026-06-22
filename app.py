@@ -3,6 +3,7 @@ import pandas as pd
 import os
 import base64
 from pathlib import Path
+from st_keyup import st_keyup  # Canlı arama için gerekli kütüphane
 
 # ==========================================
 # 1. SAYFA YAPILANDIRMASI VE KÜRESEL STİLLER
@@ -14,17 +15,6 @@ st.set_page_config(
 )
 
 # Görsel stabilite, hizalama ve buton renkleri için optimize edilmiş CSS
-
-# ... (KÜRESEL STİLLER BÖLÜMÜNE AŞAĞIDAKİ EKLEMEYİ YAPIYORUZ)
-st.markdown("""
-    <style>
-        /* Standart inputu özel bir CSS ile diğer elemanlarla tam hizalıyoruz */
-        div[data-testid="stTextInput"] {
-            margin-top: -10px !important;
-        }
-    </style>
-""", unsafe_allow_html=True)
-
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -93,6 +83,12 @@ st.markdown("""
         /* Input focus alt çizgi rengini F2 kurumsal mavisine yaklaştırır */
         div[data-baseweb="input"] {
             border-radius: 6px !important;
+        }
+
+        /* 🟢 CANLI ARAMA BİLEŞENİ İÇİN ÖZEL HİZALAMA VE YÜKSEKLİK AYARI */
+        div[data-testid="stCustomComponentV1"] iframe {
+            height: 72px !important;
+            margin-bottom: 0px !important;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -194,20 +190,20 @@ try:
             st.session_state.q_grup = "Tümü"
 
         # Form Elemanlarının Dağılımı
-       # ... (FRAGMENT İÇERİĞİNDE DEĞİŞİKLİK)
-
         with col1:
-            # st_keyup yerine native text_input kullanıyoruz ama arama mantığını 
-            # fragment içinde anlık tetiklenecek şekilde optimize ediyoruz.
-            v_search = st.text_input(
+            # 🟢 Hem canlı arama yapan hem de temizleme butonuyla senkronize olan yeni kurgu
+            v_search = st_keyup(
                 "📝 Ürün Ara", 
-                key="q_search",
-                placeholder="Kod veya açıklama yazın..."
+                key="live_search_widget",
+                value=st.session_state.q_search,
+                placeholder="Kod veya açıklama ara...",
+                debounce=250
             )
-            
+            st.session_state.q_search = v_search
+
         with col2:
             v_marka = st.selectbox("🏷️ Marka", marka_ops, key="q_marka")
-            
+
         with col3:
             v_grup = st.selectbox("📂 Ürün Grubu", grup_ops, key="q_grup")
 
