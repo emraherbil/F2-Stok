@@ -27,7 +27,7 @@ if "logged_in" not in st.session_state:
 VALID_USERNAME = "admin"
 VALID_PASSWORD = "f2"
 
-# Ortak elementleri ve Streamlit araç çubuklarını gizleyen CSS
+# Standart Streamlit üst/alt araç çubuklarını gizle
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -35,7 +35,6 @@ st.markdown("""
         [data-testid="stToolbar"] {display: none !important;}
         .stDeployButton {display: none !important;}
         header {visibility: hidden !important; display: none !important;}
-        hr { display: none !important; visibility: hidden !important; }
     </style>
 """, unsafe_allow_html=True)
 
@@ -58,42 +57,35 @@ def load_data():
     return pd.read_excel('Stok Sayım Arşivi-v3.1-Web.xlsm', sheet_name='Stok', engine='openpyxl')
 
 # ==========================================
-# 3. GİRİŞ EKRANI (KESİN VE KALICI MİMARİ)
+# 3. GİRİŞ EKRANI (GARANTİLİ FORM MİMARİSİ)
 # ==========================================
 if not st.session_state.logged_in:
-    # Sayfa genel tasarımını ve form kutusunu milimetrik eşitleyen CSS
+    # Sayfa arka planını hafif gri yapıp, formu pürüzsüz beyaz bir karta dönüştüren CSS
     st.markdown("""
     <style>
-        /* Arka plan hafif gri */
+        /* Arka plan yumuşak gri */
         html, body, .stApp { 
             background-color: #f8fafc !important; 
         }
         
-        /* GİRİŞ KUTUSUNUN KENDİSİ: Tüm elemanları saran tek çerçeve */
-        div[data-testid="stVerticalBlockBorderWrapper"] {
+        /* BEYAZ KART ÇERÇEVESİ (Streamlit Formunu şık bir karta dönüştürür) */
+        div[data-testid="stForm"] {
             background-color: #ffffff !important;
-            padding: 45px 35px !important;
+            padding: 40px 35px !important;
             border-radius: 16px !important;
-            box-shadow: 0px 10px 40px rgba(0, 0, 0, 0.04) !important;
+            box-shadow: 0px 10px 35px rgba(0, 0, 0, 0.03) !important;
             border: 1px solid #e2e8f0 !important;
-            max-width: 400px !important;
-            margin: 0 auto !important;
         }
         
-        /* Input alanları modern gri ve oval */
-        [data-testid="stAppViewContainer"] [data-baseweb="input"] {
+        /* Kullanıcı adı ve şifre kutularını estetik gri yap */
+        [data-testid="stForm"] [data-baseweb="input"] {
             background-color: #f1f5f9 !important;
             border: 1px solid #cbd5e1 !important;
             border-radius: 8px !important;
         }
         
-        /* Elemanlar arası boşlukları dengele */
-        div[data-testid="element-container"] {
-            margin-bottom: 12px !important;
-        }
-
-        /* KOYU LACİVERT GENİŞ BUTON TASARIMI (image_246e21.png'deki gibi) */
-        div[data-testid="stButton"] button {
+        /* KOYU LACİVERT VE TAM GENİŞLİKTE BUTON (Sıkışmayı önler) */
+        div[data-testid="stForm"] button {
             width: 100% !important;
             background-color: #1e293b !important;
             color: white !important;
@@ -102,53 +94,55 @@ if not st.session_state.logged_in:
             font-weight: 600 !important;
             height: 46px !important;
             font-size: 14px !important;
-            margin-top: 15px !important;
+            margin-top: 10px !important;
             transition: background-color 0.2s !important;
         }
         
-        div[data-testid="stButton"] button:hover {
+        div[data-testid="stForm"] button:hover {
             background-color: #0f172a !important;
             color: white !important;
         }
     </style>
     """, unsafe_allow_html=True)
     
-    # Üstten dikey boşluk (Kartı dikeyde ortalamak için)
+    # Üstten dikey boşluk ayarı
     st.markdown("<div style='margin-top: 12vh;'></div>", unsafe_allow_html=True)
     
-    # Resmi Streamlit border'lı konteyner yapısı (Zıplamayı imkansız kılar)
-    with st.container(border=True):
-        
-        # Logo Alanı
-        if logo_data:
-            st.markdown(f'<div style="text-align: center; margin-bottom: 15px;"><img src="data:image/png;base64,{logo_data}" style="max-width: 210px; height: auto;"></div>', unsafe_allow_html=True)
-        else:
-            st.markdown('<div style="text-align: center; font-size: 2.5rem; margin-bottom: 15px;">📦</div>', unsafe_allow_html=True)
+    # Sayfayı ortalamak için güvenli sütun yapısı
+    col_left, col_center, col_right = st.columns([4.5, 3.0, 4.5])
+    
+    with col_center:
+        # st.form her şeyi tek bir sınır (border) ve mantıksal bütünlük içinde tutar, zıplama yapmaz
+        with st.form(key="login_form", clear_on_submit=False):
             
-        # Başlık Bilgisi
-        st.markdown('<div style="text-align: center; font-size: 17px; color: #475569; margin-bottom: 25px; font-weight: 600; font-family: sans-serif;">Ofis Stok İzleme Paneli</div>', unsafe_allow_html=True)
-        
-        # Giriş Elemanları
-        username_input = st.text_input("Kullanıcı Adı", placeholder="Kullanıcı adınızı yazın", label_visibility="collapsed", key="login_user")
-        password_input = st.text_input("Şifre", type="password", placeholder="Şifrenizi yazın", label_visibility="collapsed", key="login_pass")
-        
-        # Giriş Butonu
-        submit_button = st.button("Sisteme Giriş Yap")
-
-        # Doğrulama Kontrolü
-        if submit_button:
-            if username_input == VALID_USERNAME and password_input == VALID_PASSWORD:
-                st.session_state.logged_in = True
-                st.rerun()
+            # Logo Yapısı
+            if logo_data:
+                st.markdown(f'<div style="text-align: center; margin-bottom: 15px;"><img src="data:image/png;base64,{logo_data}" style="max-width: 210px; height: auto;"></div>', unsafe_allow_html=True)
             else:
-                st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
-                st.error("Hatalı kullanıcı adı veya şifre!")
+                st.markdown('<div style="text-align: center; font-size: 2.5rem; margin-bottom: 15px;">📦</div>', unsafe_allow_html=True)
+                
+            # Alt Başlık
+            st.markdown('<div style="text-align: center; font-size: 17px; color: #475569; margin-bottom: 25px; font-weight: 600; font-family: sans-serif;">Ofis Stok İzleme Paneli</div>', unsafe_allow_html=True)
+            
+            # Form Girdileri
+            username_input = st.text_input("Kullanıcı Adı", placeholder="Kullanıcı adınızı yazın", label_visibility="collapsed")
+            password_input = st.text_input("Şifre", type="password", placeholder="Şifrenizi yazın", label_visibility="collapsed")
+            
+            # Formun kendi submit butonu (Asla kaymaz veya sıkışmaz)
+            submit_button = st.form_submit_button("Sisteme Giriş Yap")
+
+            if submit_button:
+                if username_input == VALID_USERNAME and password_input == VALID_PASSWORD:
+                    st.session_state.logged_in = True
+                    st.rerun()
+                else:
+                    st.error("Hatalı kullanıcı adı veya şifre!")
 
 # ==========================================
 # 4. ANA PANEL (BAŞARILI GİRİŞ SONRASI)
 # ==========================================
 else:
-    # Ana panel açıldığında arka planı beyaz yap ve genişlik kısıtlamalarını kaldır
+    # Giriş yapıldıktan sonra arka planı ve düzeni temizle
     st.markdown("""
     <style>
         html, body, .stApp { background-color: #ffffff !important; }
@@ -156,15 +150,6 @@ else:
             display: block !important;
             padding-top: 1.5rem !important; 
             padding-bottom: 1.5rem !important; 
-            max-width: 100% !important;
-        }
-        /* Giriş ekranındaki kart kısıtlamasını ana sayfada kaldır */
-        div[data-testid="stVerticalBlockBorderWrapper"] {
-            background-color: transparent !important;
-            padding: 0px !important;
-            border-radius: 0px !important;
-            box-shadow: none !important;
-            border: none !important;
             max-width: 100% !important;
         }
         div[data-testid="stVerticalBlock"] > div:first-child {
