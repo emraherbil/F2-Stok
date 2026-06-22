@@ -268,3 +268,25 @@ try:
         out_df.columns = ["Ürün Kodu", "Açıklama", "Marka", "Ürün Grubu", "Güncel Stok", "Birim Maliyet", "Toplam Maliyet"]
         
         out_df = out_df.reset_index(drop=True)
+        raw_stok = out_df["Güncel Stok"].copy()
+
+        out_df["Birim Maliyet"] = out_df["Birim Maliyet"].apply(lambda v: f"${v:,.0f}".replace(",", "."))
+        out_df["Toplam Maliyet"] = out_df["Toplam Maliyet"].apply(lambda v: f"${v:,.0f}".replace(",", "."))
+        out_df["Güncel Stok"] = out_df["Güncel Stok"].apply(lambda v: f"{int(v):,}".replace(",", "."))
+
+        def row_style(row):
+            if raw_stok.loc[row.name] == 0:
+                return ['background-color: rgba(255, 75, 75, 0.08)'] * len(row)
+            return [''] * len(row)
+
+        st.dataframe(
+            out_df.style.apply(row_style, axis=1), 
+            use_container_width=True, 
+            hide_index=True,
+            height=540
+        )
+
+    stok_paneli_icerik(df)
+
+except Exception as e:
+    st.error(f"Hata oluştu: {e}")
