@@ -85,18 +85,25 @@ st.markdown("""
             border-radius: 6px !important;
         }
 
-        /* 🛠️ KAYMA PROBLEMİNİ ÇÖZEN KRİTİK CSS DÜZELTMELERİ 🛠️ */
+        /* 🛠️ ÜRÜN ARA KUTUSUNU TAM AŞAĞIYA HİZALAYAN VE KAYMAYI ÇÖZEN CSS 🛠️ */
         div[data-testid="stCustomComponentV1"] {
             margin-bottom: 0px !important;
             padding-bottom: 0px !important;
-            display: flex !important;
-            align-items: flex-end !important;
+            margin-top: 6px !important; /* Diğer kutuların etiket (label) hizasıyla dengelemek için üst boşluk */
         }
         
         div[data-testid="stCustomComponentV1"] iframe {
-            height: 72px !important;
+            height: 42px !important; /* Marka/Grup kutularının tam net yüksekliği */
             margin-bottom: 0px !important;
-            vertical-align: bottom !important;
+        }
+        
+        /* Manuel başlık etiketi stili */
+        .custom-input-label {
+            font-size: 14px;
+            color: rgb(49, 51, 63);
+            margin-bottom: 4px;
+            font-weight: 400;
+            display: block;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -174,7 +181,7 @@ try:
             st.session_state.q_marka = "Tümü"
             st.session_state.q_stok = False
 
-        # Form elemanlarının yerleşimi için sütun genişlikleri ayarı (Dikey hizalama bottom olarak kilitlendi)
+        # Form elemanlarının yerleşimi için sütun genişlikleri ayarı
         col1, col2, col3, col4, col5 = st.columns([3.2, 2.4, 2.4, 2.2, 1.2], vertical_alignment="bottom")
         
         current_marka = st.session_state.q_marka
@@ -199,13 +206,15 @@ try:
 
         # Form Elemanlarının Dağılımı
         with col1:
-            # Hem canlı arama yapan hem de temizleme butonuyla senkronize olan kurgu
+            # Başlığı dışarı alarak yerleşik selectbox etiketleriyle aynı hizada olmasını sağlıyoruz
+            st.markdown('<span class="custom-input-label">📝 Ürün Ara</span>', unsafe_allow_html=True)
             v_search = st_keyup(
                 "📝 Ürün Ara", 
                 key="live_search_widget",
                 value=st.session_state.q_search,
                 placeholder="Kod veya açıklama ara...",
-                debounce=250
+                debounce=250,
+                label_visibility="collapsed"  # İçerideki sorunlu etiketi kapatıp gizledik
             )
             st.session_state.q_search = v_search
 
