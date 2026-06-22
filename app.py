@@ -3,7 +3,7 @@ import pandas as pd
 import os
 import base64
 from pathlib import Path
-from st_keyup import st_keyup  # Canlı arama motorunu akışı bozmadan entegre ettik
+from st_keyup import st_keyup  # Canlı arama kütüphanesi
 
 # ==========================================
 # 1. SAYFA YAPILANDIRMASI VE KÜRESEL STİLLER
@@ -83,6 +83,12 @@ st.markdown("""
         /* Input focus alt çizgi rengini F2 kurumsal mavisine yaklaştırır */
         div[data-baseweb="input"] {
             border-radius: 6px !important;
+        }
+
+        /* CANLI ARAMA KUTUSU (IFRAME) HİZALAMA VE BOŞLUK SABİTLEMESİ */
+        div[data-testid="stCustomComponentV1"] iframe {
+            height: 72px !important;
+            margin-bottom: 0px !important;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -185,14 +191,16 @@ try:
 
         # Form Elemanlarının Dağılımı
         with col1:
-            # Sadece bu girdiyi canlı arama yapacak şekilde değiştirdik. 
-            # Debounce=250 yazarken takılmayı önler ve akıcılık sağlar.
+            # Hem canlı arama hem de senkronize temizleme sağlayan kurgu
             v_search = st_keyup(
                 "📝 Ürün Ara", 
-                key="q_search",
-                placeholder="Kod veya açıklama yazın...",
+                key="keyup_search_widget",
+                value=st.session_state.q_search,
+                placeholder="Kod veya açıklama ara...",
                 debounce=250
             )
+            # Bileşenden gelen anlık veriyi state mimarisine bağlıyoruz
+            st.session_state.q_search = v_search
 
         with col2:
             v_marka = st.selectbox("🏷️ Marka", marka_ops, key="q_marka")
@@ -230,7 +238,7 @@ try:
             """
 
         k1, k2, k3 = st.columns(3)
-        with k1: st.markdown(kpi_card("📋 Toplam Çeşit:", f"{t_prod:,}".replace(",", ".") + " Adet", "#1E88E5"), unsafe_allow_html=True)
+        with k1: st.markdown(kpi_card("📋 Toplam Çesist:", f"{t_prod:,}".replace(",", ".") + " Adet", "#1E88E5"), unsafe_allow_html=True)
         with k2: st.markdown(kpi_card("📦 Toplam Stok:", f"{t_stok:,}".replace(",", ".") + " Adet", "#4CAF50"), unsafe_allow_html=True)
         with k3: st.markdown(kpi_card("💰 Toplam Maliyet:", f"${t_cost:,.0f}".replace(",", "."), "#FFC107"), unsafe_allow_html=True)
 
@@ -262,4 +270,4 @@ try:
     stok_paneli_icerik(df)
 
 except Exception as e:
-    st.error(f"Hata oluştu: {e}")
+    st.error(f"Hata olustu: {e}")
