@@ -3,6 +3,7 @@ import pandas as pd
 import os
 import base64
 from pathlib import Path
+from st_keyup import st_keyup
 
 # ==========================================
 # 1. SAYFA YAPILANDIRMASI VE KÜRESEL STİLLER
@@ -13,7 +14,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# Görsel temizlik ve stabilite CSS kuralları
+# Görsel stabilite kuralları
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -50,7 +51,7 @@ st.markdown("""
         .custom-logo { height: 60px; object-fit: contain; }
         .custom-title-block { display: flex; flex-direction: column; justify-content: center; }
         
-        /* Tüm form elemanlarının dikey çizgisini ve buton yüksekliğini eşitler */
+        /* Dikey çizgi hizalamaları */
         div[data-testid="column"] .stFormSubmitButton, 
         div[data-testid="column"] .stButton {
             margin-top: 0px !important;
@@ -61,7 +62,7 @@ st.markdown("""
             padding-top: 32px !important; 
         }
 
-        /* Temizle Butonunun Tasarımı (Selectbox yüksekliği olan 42px ile tam eşit) */
+        /* Temizle Butonunun Tasarımı */
         .stButton > button { 
             background-color: #1C355E !important; 
             color: white !important; 
@@ -79,9 +80,14 @@ st.markdown("""
             color: white !important; 
         }
         
-        /* Tüm girdi kutularının sınır yarıçapı */
+        /* Tüm girdi kutularının yuvarlaklık sınırları */
         div[data-baseweb="input"] {
             border-radius: 6px !important;
+        }
+        
+        /* st_keyup iframe hizasını selectbox'lar ile pürüzsüz eşitleyen CSS */
+        div[data-testid="stCustomComponentV1"] iframe {
+            height: 42px !important;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -141,25 +147,23 @@ try:
         <div style="margin-top:10px;"></div>
     """, unsafe_allow_html=True)
 
+    # Global Session State Tanımlamaları
+    if "live_search_val" not in st.session_state: st.session_state.live_search_val = ""
+    if "search_version" not in st.session_state: st.session_state.search_version = 0
+
     # ==========================================
     # 4. FRAGMENT ALANI (SABİT FORM MİMARİSİ)
     # ==========================================
     @st.fragment
-    def stok_paneli_icerik(data_frame):
-        # State Değişkenlerinin Güvenli Tanımlanması
-        if "search_text" not in st.session_state: st.session_state.search_text = ""
+    def filter_area(data_frame):
         if "q_grup" not in st.session_state: st.session_state.q_grup = "Tümü"
         if "q_marka" not in st.session_state: st.session_state.q_marka = "Tümü"
         if "q_stok" not in st.session_state: st.session_state.q_stok = False
-        
-        # Yazıldıkça filtreleri anlık tetikleyen fonksiyon
-        def arama_degisti():
-            st.session_state.search_text = st.session_state.real_search_box
-            
-        # Temizle fonksiyonu (Kutuyu ve filtreleri anında sıfırlar)
+
+        # Temizle fonksiyonu (Kutunun içini sıfırlar ve sürümü artırır)
         def filtreleri_temizle():
-            st.session_state.search_text = ""
-            st.session_state.real_search_box = ""
+            st.session_state.search_version += 1
+            st.session_state.live_search_val = ""
             st.session_state.q_grup = "Tümü"
             st.session_state.q_marka = "Tümü"
             st.session_state.q_stok = False
@@ -187,36 +191,25 @@ try:
             st.session_state.q_grup = "Tümü"
 
         with col1:
-            # Orijinal Yerel Arama Kutusu
-            v_search = st.text_input(
-                "📝 Ürün Ara", 
-                value=st.session_state.search_text,
-                placeholder="Yazmaya başlayın...",
-                key="real_search_box",
-                on_change=arama_degisti
-            )
-            if v_search != st.session_state.search_text:
-                st.session_state.search_text = v_search
-
-            # 🎯 HARF HARF ANLIK TETİKLEME SAĞLAYAN HAFİF JAVASCRIPT
-            # Orijinal kutuya her input girildiğinde (harf yazıldığında veya silindiğinde) arka planda otomatik tetikler.
-            st.components.v1.html(
-                """
-                <script>
-                var parentDoc = window.parent.document;
-                var inputEl = parentDoc.querySelector('input[aria-label="📝 Ürün Ara"]');
-                if (inputEl && !inputEl.dataset.keyupBound) {
-                    inputEl.dataset.keyupBound = "true";
-                    inputEl.addEventListener('input', function() {
-                        // Streamlit'e veriyi göndermek için native değişim eventini tetikler
-                        var event = new Event('change', { bubbles: true });
-                        inputEl.dispatchEvent(event);
-                    });
-                }
-                </script>
-                """,
-                height=0, # Görünmez, sıfır alan kaplar, hizalamayı asla bozmaz!
-            )
+            # Hizalamayı bozmayan temiz alt boşluklu başlık yapısı
+            st.markdown('<div style="font-size: 14px; color: rgb(49, 51, 63); font-weight: 400; margin-bottom: 4px;">📝 Ürün Ara</div>', unsafe_allow_html=True)
+            
+            # İç içe geçmiş mikro-fragment: Sadece harf yazıldığında burası çalışır,
+            # böylece dışarıdaki hiçbir element (ve kutunun kendisi) zıplama yapamaz.
+            @st.fragment
+            def search_input_box():
+                res = st_keyup(
+                    "📝 Ürün Ara",
+                    value=st.session_state.live_search_val,
+                    placeholder="Kod veya açıklama...",
+                    key=f"st_keyup_box_v_{st.session_state.search_version}",
+                    label_visibility="collapsed"
+                )
+                if res != st.session_state.live_search_val:
+                    st.session_state.live_search_val = res
+                    st.rerun() # Sadece tablo verisini tetikler, kutuyu sarsmaz.
+            
+            search_input_box()
 
         with col2:
             v_marka = st.selectbox("🏷️ Marka", marka_ops, key="q_marka")
@@ -230,12 +223,12 @@ try:
         with col5:
             st.button("🧹 Temizle", on_click=filtreleri_temizle, use_container_width=True)
 
-        # Filtreleme Algoritması
+        # Filtreleme İşlemleri
         f_df = data_frame.copy()
-        current_search = st.session_state.search_text
-        if current_search:
-            m1 = f_df[c_kod].astype(str).str.contains(current_search, case=False)
-            m2 = f_df[c_tanim].astype(str).str.contains(current_search, case=False)
+        v_search = st.session_state.live_search_val
+        if v_search:
+            m1 = f_df[c_kod].astype(str).str.contains(v_search, case=False)
+            m2 = f_df[c_tanim].astype(str).str.contains(v_search, case=False)
             f_df = f_df[m1 | m2]
         if v_marka != "Tümü": f_df = f_df[f_df[c_marka].astype(str) == v_marka]
         if v_grup != "Tümü": f_df = f_df[f_df[c_grup].astype(str) == v_grup]
@@ -284,7 +277,7 @@ try:
             height=540
         )
 
-    stok_paneli_icerik(df)
+    filter_area(df)
 
 except Exception as e:
     st.error(f"Hata oluştu: {e}")
