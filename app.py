@@ -3,7 +3,7 @@ import pandas as pd
 import os
 import base64
 from pathlib import Path
-import streamlit.components.v1 as components
+from st_keyup import st_keyup  # Canlı arama için kararlı kütüphaneye geri dönüyoruz
 
 # ==========================================
 # 1. SAYFA YAPILANDIRMASI VE KÜRESEL STİLLER
@@ -14,6 +14,7 @@ st.set_page_config(
     layout="wide"
 )
 
+# Görsel stabilite, hizalama ve st_keyup kutusunu kutu içine hapseden CSS
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -31,6 +32,7 @@ st.markdown("""
             max-width: 100% !important;
         }
         
+        /* Üst başlık alanını sabitle */
         div[data-testid="stVerticalBlock"] > div:first-child {
             position: sticky !important;
             top: 0px !important;
@@ -49,15 +51,18 @@ st.markdown("""
         .custom-logo { height: 60px; object-fit: contain; }
         .custom-title-block { display: flex; flex-direction: column; justify-content: center; }
         
+        /* Tüm form elemanlarının üst hizalamasını eşitler */
         div[data-testid="column"] .stFormSubmitButton, 
         div[data-testid="column"] .stButton {
             margin-top: 0px !important;
         }
 
+        /* Checkbox dikey hizalama sabitlemesi */
         div[data-testid="stCheckbox"] { 
             padding-top: 32px !important; 
         }
 
+        /* Temizle Butonunun Görsel Tasarımı */
         .stButton > button { 
             background-color: #1C355E !important; 
             color: white !important; 
@@ -75,8 +80,25 @@ st.markdown("""
             color: white !important; 
         }
         
+        /* Girdi kutularının yuvarlaklık sınırları */
         div[data-baseweb="input"] {
             border-radius: 6px !important;
+        }
+
+        /* 🎯 ST_KEYUP BİLEŞENİNİ SELECTBOX BOYUTUNA HAPSEDEN ÖZEL KAPSAYICI 🎯 */
+        .keyup-container {
+            height: 42px !important;
+            max-height: 42px !important;
+            overflow: hidden !important;
+            display: block !important;
+            margin-top: 2px !important;
+        }
+        
+        /* st_keyup iframe'inin dışarı taşmasını ve ekstra boşluklar üretmesini engeller */
+        div[data-testid="stCustomComponentV1"] {
+            height: 42px !important;
+            max-height: 42px !important;
+            overflow: hidden !important;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -141,16 +163,13 @@ try:
     # ==========================================
     @st.fragment
     def stok_paneli_icerik(data_frame):
-        if "live_search" not in st.session_state:
-            st.session_state.live_search = st.query_params.get("search", "")
-
+        if "q_search" not in st.session_state: st.session_state.q_search = ""
         if "q_grup" not in st.session_state: st.session_state.q_grup = "Tümü"
         if "q_marka" not in st.session_state: st.session_state.q_marka = "Tümü"
         if "q_stok" not in st.session_state: st.session_state.q_stok = False
         
         def filtreleri_temizle():
-            st.query_params.clear()
-            st.session_state.live_search = ""
+            st.session_state.q_search = ""
             st.session_state.q_grup = "Tümü"
             st.session_state.q_marka = "Tümü"
             st.session_state.q_stok = False
@@ -178,56 +197,20 @@ try:
             st.session_state.q_grup = "Tümü"
 
         with col1:
-            v_search = st.text_input(
+            # Kutunun üst etiketini selectbox etiketleriyle eşitleyen başlık alanı
+            st.markdown('<div style="font-size: 14px; color: rgb(49, 51, 63); margin-bottom: 0px; padding-bottom:0px;">📝 Ürün Ara</div>', unsafe_allow_html=True)
+            
+            # Kapsayıcı Div: st_keyup'ın büyümesini engeller ve selectboxlar ile aynı dikey boyuta (42px) kilitler
+            st.markdown('<div class="keyup-container">', unsafe_allow_html=True)
+            v_search = st_keyup(
                 "📝 Ürün Ara", 
-                value=st.session_state.live_search,
-                placeholder="Kod veya açıklama arayın...",
-                key="search_input_box"
+                value=st.session_state.q_search,
+                placeholder="Kod veya açıklama yazın...",
+                key="live_search_box",
+                label_visibility="collapsed" # Varsayılan etiketi gizleyip yukarıdaki HTML etiketi kullanıyoruz
             )
-            
-            # 🎯 IMPERATIVE FOCUS KORUYUCU: İmleci ve odağı elinden bırakmayan JS Enjeksiyonu
-            components.html(
-                """
-                <script>
-                function maintainFocus() {
-                    var input = window.parent.document.querySelector('input[aria-label="📝 Ürün Ara"]');
-                    if (input) {
-                        // Eğer sayfa yenilendiyse odağı hemen geri çağır
-                        if (window.parent.document.activeElement !== input && input.dataset.shouldFocus === "true") {
-                            input.focus();
-                            // İmleci en son yazılan karakterin sonuna taşı
-                            var len = input.value.length;
-                            input.setSelectionRange(len, len);
-                            input.dataset.shouldFocus = "false";
-                        }
-
-                        if (!input.dataset.keyupBound) {
-                            input.dataset.keyupBound = true;
-                            input.addEventListener('input', function(e) {
-                                input.dataset.shouldFocus = "true";
-                                const url = new URL(window.parent.location.href);
-                                url.searchParams.set('search', e.target.value);
-                                window.parent.history.replaceState({}, '', url.href);
-                                
-                                // Streamlit tetikleyicisini dürt
-                                const r = window.parent.document.querySelector('.stButton button');
-                                if (r) { r.focus(); r.blur(); }
-                            });
-                        }
-                    }
-                }
-                // Bileşen yüklenirken ve periyodik olarak kontrol et
-                setTimeout(maintainFocus, 50);
-                setTimeout(maintainFocus, 150);
-                </script>
-                """,
-                height=0
-            )
-            
-            current_url_search = st.query_params.get("search", "")
-            if current_url_search != st.session_state.live_search:
-                st.session_state.live_search = current_url_search
-                st.rerun()
+            st.markdown('</div>', unsafe_allow_html=True)
+            st.session_state.q_search = v_search
 
         with col2:
             v_marka = st.selectbox("🏷️ Marka", marka_ops, key="q_marka")
@@ -243,9 +226,9 @@ try:
 
         # Filtreleme Algoritması
         f_df = data_frame.copy()
-        if st.session_state.live_search:
-            m1 = f_df[c_kod].astype(str).str.contains(st.session_state.live_search, case=False)
-            m2 = f_df[c_tanim].astype(str).str.contains(st.session_state.live_search, case=False)
+        if v_search:
+            m1 = f_df[c_kod].astype(str).str.contains(v_search, case=False)
+            m2 = f_df[c_tanim].astype(str).str.contains(v_search, case=False)
             f_df = f_df[m1 | m2]
         if v_marka != "Tümü": f_df = f_df[f_df[c_marka].astype(str) == v_marka]
         if v_grup != "Tümü": f_df = f_df[f_df[c_grup].astype(str) == v_grup]
