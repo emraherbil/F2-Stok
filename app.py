@@ -24,6 +24,28 @@ st.markdown("""
         header {visibility: hidden !important; display: none !important;}
         
         html, body, .stApp { background-color: #ffffff !important; }
+    st.markdown("""
+    <style>
+        /* 1. Tüm form sütunlarının dikey hizasını sabitle */
+        div[data-testid="column"] {
+            display: flex;
+            align-items: flex-end; /* Tüm öğeleri tabana oturtur */
+        }
+
+        /* 2. Zıplamayı engelleyen kalkan: st_keyup elementini sabit yüksekliğe kilitler */
+        div[data-testid="stCustomComponentV1"] {
+            min-height: 73px !important; /* Selectbox ile aynı yükseklik */
+            display: flex;
+            align-items: flex-end;
+            margin-bottom: 0px !important;
+        }
+        
+        /* 3. Buton ve inputların selectbox ile kusursuz hizalanması */
+        .stButton, .stTextInput, .stSelectbox {
+            margin-bottom: 0px !important;
+        }
+        </style>
+""", unsafe_allow_html=True)
       
         .block-container { 
             display: block !important;
