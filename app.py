@@ -24,7 +24,7 @@ def logo_to_base64(img_path):
         pass
     return None
 
-@st.cache_data(ttl=600)
+@st.cache_data(ttl=600)  # GitHub senkronizasyonu için önbellek süresi eklendi
 def load_data():
     return pd.read_excel('Stok Sayım Arşivi-v3.1-Web.xlsm', sheet_name='Stok', engine='openpyxl')
 
@@ -37,19 +37,20 @@ st.set_page_config(
     layout="wide"
 )
 
-# Genel arayüz temizliği için temel CSS kuralları (Zıplatma yapmayan global kurallar)
+# ==========================================
+# 3. GLOBAL VE GEÇİŞ ESKİSİNİ ÖNLEYEN CSS
+# ==========================================
+# Giriş ekranı kurallarını en tepeye, global alana alıyoruz.
+# Böylece rerun() esnasında form asla genişleyemez veya dağılamaz.
 st.markdown("""
     <style>
+        /* Gereksiz Streamlit arayüz elemanlarını gizle */
         footer {visibility: hidden !important; display: none !important;}
         .viewerBadge_container {display: none !important;}
         [data-testid="stToolbar"] {display: none !important;}
         .stDeployButton {display: none !important;}
         header {visibility: hidden !important; display: none !important;}
         hr { display: none !important; visibility: hidden !important; }
-        
-        div[data-testid="stHorizontalBlock"] {
-            align-items: flex-start !important;
-        } 
         
         div[data-testid="stFragment"] div[data-testid="column"] {
             min-height: 75px !important;
@@ -58,6 +59,49 @@ st.markdown("""
         div[data-testid="stHorizontalBlock"] div[data-testid="column"]:nth-child(1) iframe {
             height: 76px !important;
             width: 100% !important;
+        }
+
+        /* GİRİŞ EKRANI FORMUNA ÖZEL SABİTLEME KURALLARI (Zıplamayı Önleyen Kısım) */
+        /* Sadece login_form id'sine sahip formu hedefler, ana paneli etkilemez */
+        form[data-testid="stForm"] {
+            max-width: 360px !important;
+            width: 360px !important;
+            margin: 0 auto !important;
+            padding: 35px 30px !important;
+            background-color: #ffffff !important;
+            border-radius: 12px !important;
+            box-shadow: 0px 10px 40px rgba(0, 0, 0, 0.08) !important;
+            border: 1px solid #e2e8f0 !important;
+        }
+
+        /* Giriş Butonunu Akışı Bozmadan Metin Kadar Yapıp Ortala */
+        form[data-testid="stForm"] div[data-testid="stFormSubmitButton"] {
+            display: flex !important;
+            justify-content: center !important;
+            margin-top: 20px !important;
+            width: 100% !important;
+        }
+
+        form[data-testid="stForm"] [data-testid="stFormSubmitButton"] button {
+            width: fit-content !important;
+            padding: 0 30px !important;
+            background-color: #1e293b !important;
+            color: white !important;
+            border: none !important;
+            border-radius: 6px !important;
+            font-weight: 600 !important;
+            height: 45px !important;
+            transition: background-color 0.3s;
+        }
+        
+        form[data-testid="stForm"] [data-testid="stFormSubmitButton"] button:hover {
+            background-color: #0f172a !important;
+        }
+
+        form[data-testid="stForm"] [data-baseweb="input"] {
+            background-color: #f1f5f9 !important;
+            border: 1px solid #cbd5e1 !important;
+            border-radius: 6px !important;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -70,74 +114,24 @@ VALID_PASSWORD = "f2"
 logo_data = logo_to_base64("logo.png") or logo_to_base64("logo.jpg")
 
 # ==========================================
-# 3. KUSURSUZ GİRİŞ EKRANI (KAYMAZ VE SÜTUNLARLA ORTALANMIŞ)
+# 4. GİRİŞ EKRANI GÖVDESİ
 # ==========================================
 if not st.session_state.logged_in:
+    # Sayfa ortalama maskesi sadece giriş aşamasında aktif olsun
     st.markdown("""
     <style>
-        /* Ekranın kaymasını engelleyen maske */
         html, body, [data-testid="stAppViewContainer"], .stApp {
             overflow: hidden !important; 
             background-color: #f8fafc !important;
-            margin: 0 !important; 
-            padding: 0 !important;
             height: 100vh !important;
         }
-        .block-container {
-            padding: 0 !important;
-            max-width: 100% !important;
+        /* Formu dikeyde tam ekranın ortasına alan esnek kapsayıcı kuralı */
+        .stMain {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            height: 100vh !important;
         }
-        
-        /* Sadece giriş formunu yakalamak için hedefli seçici */
-        div[data-testid="stAppViewContainer"] [data-testid="stForm"] {
-            position: fixed !important;
-            top: 50% !important;
-            left: 50% !important;
-            transform: translate(-50%, -50%) !important;
-            width: 380px !important;
-            max-width: 90vw !important;
-            height: auto !important;
-            min-height: auto !important;
-            padding: 35px 30px !important;
-            background-color: #ffffff !important;
-            border-radius: 12px !important;
-            box-shadow: 0px 10px 40px rgba(0, 0, 0, 0.08) !important;
-            border: 1px solid #e2e8f0 !important;
-            margin: 0 !important;
-            z-index: 99999 !important;
-        }
-        
-        /* Giriş formundaki girdiler */
-        [data-testid="stForm"] [data-baseweb="input"] {
-            background-color: #f1f5f9 !important;
-            border: 1px solid #cbd5e1 !important;
-            border-radius: 6px !important;
-        }
-        
-        [data-testid="stForm"] [data-baseweb="input"] button {
-            background-color: transparent !important;
-            border: none !important;
-            width: auto !important;
-            height: auto !important;
-        }
-        
-        /* Butonun şık ve kurumsal durması için temel renk ayarı */
-        [data-testid="stForm"] div[data-testid="stFormSubmitButton"] button {
-            background-color: #1e293b !important;
-            color: white !important;
-            border: none !important;
-            border-radius: 6px !important;
-            font-weight: 600 !important;
-            height: 45px !important;
-            padding-left: 20px !important;
-            padding-right: 20px !important;
-            white-space: nowrap !important;
-            transition: background-color 0.3s;
-        }
-        
-        [data-testid="stForm"] div[data-testid="stFormSubmitButton"] button:hover {
-            background-color: #0f172a !important;
-        }        
     </style>
     """, unsafe_allow_html=True)
     
@@ -152,14 +146,7 @@ if not st.session_state.logged_in:
         username_input = st.text_input("Kullanıcı Adı", placeholder="Kullanıcı adınızı yazın", label_visibility="collapsed")
         password_input = st.text_input("Şifre", type="password", placeholder="Şifrenizi yazın", label_visibility="collapsed")
         
-        st.markdown("<div style='margin-top: 5px;'></div>", unsafe_allow_html=True)
-        
-        # --- BUTONU SÜTUNLARLA DOĞAL VE TAM GEOMETRİK OLARAK ORTALAMA ---
-        # Sol ve sağ sütunlar (1.15 boyutu) boşluk görevi görür, ortadaki (2.0 boyutu) butonu tam merkeze oturtur.
-        btn_col_left, btn_col_center, btn_col_right = st.columns([1.15, 2.0, 1.15])
-        
-        with btn_col_center:
-            submit_button = st.form_submit_button("Sisteme Giriş Yap")
+        submit_button = st.form_submit_button("Sisteme Giriş Yap")
         
         if submit_button:
             if username_input == VALID_USERNAME and password_input == VALID_PASSWORD:
@@ -169,16 +156,24 @@ if not st.session_state.logged_in:
                 st.error("Hatalı kullanıcı adı veya şifre!")
 
 # ==========================================
-# 4. ANA PANEL (GİRİŞ SONRASI - ASLA ZIPLAMAZ)
+# 5. ANA PANEL (BAŞARILI GİRİŞ SONRASI)
 # ==========================================
 else:
+    # Ana panel yüklendiğinde formu ezen tüm kuralları kaldırıp genişletiyoruz
     st.markdown("""
     <style>
-        html, body, [data-testid="stAppViewContainer"] { 
-            overflow: auto !important; 
-            height: auto !important;
-            background-color: #ffffff !important;
+        html, body, [data-testid="stAppViewContainer"] { overflow: auto !important; }
+        
+        /* Ana paneldeki diğer olası form yapılarını serbest bırak */
+        [data-testid="stForm"] {
+            max-width: 100% !important;
+            width: 100% !important;
+            position: relative !important;
+            margin: 0 !important;
+            box-shadow: none !important;
+            padding: 20px !important;
         }
+
         .block-container { 
             display: block !important;
             padding-top: 1.5rem !important; 
@@ -202,8 +197,12 @@ else:
         .custom-logo { height: 60px; object-fit: contain; }
         .custom-title-block { display: flex; flex-direction: column; justify-content: center; }
         
-        div[data-testid="stHorizontalBlock"] div[data-testid="column"]:nth-child(4) .stCheckbox {
-            margin-top: 24px !important;
+        div[data-testid="stHorizontalBlock"] {
+            align-items: flex-start !important;
+        } 
+
+        div[data-testid="stHorizontalBlock"] div[data-testid="stCheckbox"] {
+            margin-top: 32px !important;
         }
 
         .stButton button { 
@@ -253,7 +252,7 @@ else:
         """, unsafe_allow_html=True)
 
         # =================================================================
-        # 5. FRAGMENT ALANI (İLİŞKİLİ FİLTRELEME DÜZELTİLDİ)
+        # 6. FRAGMENT ALANI (İLİŞKİLİ FİLTRELEME)
         # =================================================================
         @st.fragment
         def stok_paneli_icerik(data_frame):
@@ -272,22 +271,18 @@ else:
             current_marka = st.session_state.q_marka
             current_grup = st.session_state.q_grup
 
-            # 1. Adım: Seçilen ÜRÜN GRUBU'na göre MARKA listesini daralt
             if current_grup != "Tümü":
                 df_for_marka = data_frame[data_frame[c_grup].astype(str) == current_grup]
             else:
                 df_for_marka = data_frame
             marka_ops = ["Tümü"] + sorted([str(x) for x in df_for_marka[c_marka].dropna().unique() if str(x).lower() != 'nan'])
 
-            # 2. Adım: Seçilen MARKA'ya göre ÜRÜN GRUBU listesini daralt (DÜZELTİLEN KISIM)
             if current_marka != "Tümü":
                 df_for_grup = data_frame[data_frame[c_marka].astype(str) == current_marka]
             else:
                 df_for_grup = data_frame
-            # Burada 'data_frame' yerine 'df_for_grup' kullanarak ilişkiyi bağladık:
             grup_ops = ["Tümü"] + sorted([str(x) for x in df_for_grup[c_grup].dropna().unique() if str(x).lower() != 'nan'])
 
-            # Güvenlik Kontrolleri: Seçili eleman daralan listede yoksa sıfırla
             if current_marka not in marka_ops:
                 st.session_state.q_marka = "Tümü"
             if current_grup not in grup_ops:
@@ -331,7 +326,6 @@ else:
                     use_container_width=True
                 )
 
-            # Tablo Filtreleme Mantığı
             f_df = data_frame.copy()
             if v_search:
                 m1 = f_df[c_kod].astype(str).str.contains(v_search, case=False)
@@ -341,7 +335,6 @@ else:
             if v_grup != "Tümü": f_df = f_df[f_df[c_grup].astype(str) == v_grup]
             if v_stok: f_df = f_df[f_df[c_stok] > 0]
 
-            # KPI Hesaplamaları
             t_prod = len(f_df)
             t_stok = int(f_df[c_stok].sum())
             t_cost = f_df[c_maliyet].sum()
@@ -355,13 +348,12 @@ else:
                 """
 
             k1, k2, k3 = st.columns(3)
-            with k1: st.markdown(kpi_card("📋 Toplam Çesist:", f"{t_prod:,}".replace(",", ".") + " Adet", "#1E88E5"), unsafe_allow_html=True)
+            with k1: st.markdown(kpi_card("📋 Toplam Çeşit:", f"{t_prod:,}".replace(",", ".") + " Adet", "#1E88E5"), unsafe_allow_html=True)
             with k2: st.markdown(kpi_card("📦 Toplam Stok:", f"{t_stok:,}".replace(",", ".") + " Adet", "#4CAF50"), unsafe_allow_html=True)
             with k3: st.markdown(kpi_card("💰 Toplam Maliyet:", f"${t_cost:,.0f}".replace(",", "."), "#FFC107"), unsafe_allow_html=True)
 
             st.markdown("<div style='margin-top:15px;'></div>", unsafe_allow_html=True)
             
-            # Tablo Çıktısı Formatlaması
             out_df = f_df[[c_kod, c_tanim, c_marka, c_grup, c_stok, c_fiyat, c_maliyet]].copy()
             out_df.columns = ["Ürün Kodu", "Açıklama", "Marka", "Ürün Grubu", "Güncel Stok", "Birim Maliyet", "Toplam Maliyet"]
             
