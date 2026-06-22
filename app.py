@@ -3,7 +3,6 @@ import pandas as pd
 import os
 import base64
 from pathlib import Path
-from st_keyup import st_keyup  # Canlı arama kütüphanesi
 
 # ==========================================
 # 1. SAYFA YAPILANDIRMASI VE KÜRESEL STİLLER
@@ -57,15 +56,10 @@ st.markdown("""
             margin-top: 0px !important;
         }
 
-        /* Checkbox hizalama */
-div[data-testid="stCheckbox"] { 
-    padding-top: 24px !important; 
-}
-
-/* Filtre satırını hizala */
-div[data-testid="stHorizontalBlock"] {
-    align-items: flex-end !important;
-}
+        /* Checkbox dikey hizalama sabitlemesi */
+        div[data-testid="stCheckbox"] { 
+            padding-top: 32px !important; 
+        }
 
         /* Temizle Butonunun Görsel Tasarımı (Görselinizdeki Lacivert Tonu) */
         .stButton > button { 
@@ -88,12 +82,6 @@ div[data-testid="stHorizontalBlock"] {
         /* Input focus alt çizgi rengini F2 kurumsal mavisine yaklaştırır */
         div[data-baseweb="input"] {
             border-radius: 6px !important;
-        }
-
-        /* CANLI ARAMA KUTUSU (IFRAME) HİZALAMA VE BOŞLUK SABİTLEMESİ */
-        div[data-testid="stCustomComponentV1"] iframe {
-            height: 72px !important;
-            margin-bottom: 0px !important;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -166,13 +154,13 @@ try:
         if "q_stok" not in st.session_state: st.session_state.q_stok = False
         
         def filtreleri_temizle():
-            st.session_state["q_search"] = ""
-            st.session_state["q_grup"] = "Tümü"
-            st.session_state["q_marka"] = "Tümü"
-            st.session_state["q_stok"] = False
+            st.session_state.q_search = ""
+            st.session_state.q_grup = "Tümü"
+            st.session_state.q_marka = "Tümü"
+            st.session_state.q_stok = False
 
         # Form elemanlarının yerleşimi için sütun genişlikleri ayarı
-        col1, col2, col3, col4, col5 = st.columns( [3.2, 2.4, 2.4, 2.2, 1.2])
+        col1, col2, col3, col4, col5 = st.columns([3.2, 2.4, 2.4, 2.2, 1.2], vertical_alignment="bottom")
         
         current_marka = st.session_state.q_marka
         current_grup = st.session_state.q_grup
@@ -196,16 +184,11 @@ try:
 
         # Form Elemanlarının Dağılımı
         with col1:
-            # Hem canlı arama hem de senkronize temizleme sağlayan kurgu
-            v_search = st_keyup(
+            v_search = st.text_input(
                 "📝 Ürün Ara", 
-                key="keyup_search_widget",
-                value=st.session_state.q_search,
-                placeholder="Kod veya açıklama ara...",
-                debounce=250
+                key="q_search",
+                placeholder="Kod veya açıklama yazıp Enter'a basın..."
             )
-            # Bileşenden gelen anlık veriyi state mimarisine bağlıyoruz
-            st.session_state.q_search = v_search
 
         with col2:
             v_marka = st.selectbox("🏷️ Marka", marka_ops, key="q_marka")
@@ -222,17 +205,8 @@ try:
         # Filtreleme Algoritması
         f_df = data_frame.copy()
         if v_search:
-            m1 = f_df[c_kod].astype(str).str.contains(
-    v_search,
-    case=False,
-    na=False
-)
-
-m2 = f_df[c_tanim].astype(str).str.contains(
-    v_search,
-    case=False,
-    na=False
-)
+            m1 = f_df[c_kod].astype(str).str.contains(v_search, case=False)
+            m2 = f_df[c_tanim].astype(str).str.contains(v_search, case=False)
             f_df = f_df[m1 | m2]
         if v_marka != "Tümü": f_df = f_df[f_df[c_marka].astype(str) == v_marka]
         if v_grup != "Tümü": f_df = f_df[f_df[c_grup].astype(str) == v_grup]
@@ -252,7 +226,7 @@ m2 = f_df[c_tanim].astype(str).str.contains(
             """
 
         k1, k2, k3 = st.columns(3)
-        with k1: st.markdown(kpi_card("📋 Toplam Çesist:", f"{t_prod:,}".replace(",", ".") + " Adet", "#1E88E5"), unsafe_allow_html=True)
+        with k1: st.markdown(kpi_card("📋 Toplam Çeşit:", f"{t_prod:,}".replace(",", ".") + " Adet", "#1E88E5"), unsafe_allow_html=True)
         with k2: st.markdown(kpi_card("📦 Toplam Stok:", f"{t_stok:,}".replace(",", ".") + " Adet", "#4CAF50"), unsafe_allow_html=True)
         with k3: st.markdown(kpi_card("💰 Toplam Maliyet:", f"${t_cost:,.0f}".replace(",", "."), "#FFC107"), unsafe_allow_html=True)
 
@@ -284,4 +258,4 @@ m2 = f_df[c_tanim].astype(str).str.contains(
     stok_paneli_icerik(df)
 
 except Exception as e:
-    st.error(f"Hata olustu: {e}")
+    st.error(f"Hata oluştu: {e}")
