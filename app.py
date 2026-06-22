@@ -3,6 +3,7 @@ import pandas as pd
 import os
 import base64
 from pathlib import Path
+from st_keyup import st_keyup  # Canlı arama motorunu akışı bozmadan entegre ettik
 
 # ==========================================
 # 1. SAYFA YAPILANDIRMASI VE KÜRESEL STİLLER
@@ -184,10 +185,13 @@ try:
 
         # Form Elemanlarının Dağılımı
         with col1:
-            v_search = st.text_input(
+            # Sadece bu girdiyi canlı arama yapacak şekilde değiştirdik. 
+            # Debounce=250 yazarken takılmayı önler ve akıcılık sağlar.
+            v_search = st_keyup(
                 "📝 Ürün Ara", 
                 key="q_search",
-                placeholder="Kod veya açıklama yazıp Enter'a basın..."
+                placeholder="Kod veya açıklama yazın...",
+                debounce=250
             )
 
         with col2:
