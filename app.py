@@ -3,6 +3,7 @@ import pandas as pd
 import os
 import base64
 from pathlib import Path
+from st_keyup import st_keyup  # Canlı arama için harici kararlı kütüphane
 
 # ==========================================
 # 1. SAYFA YAPILANDIRMASI VE KÜRESEL STİLLER
@@ -50,7 +51,7 @@ st.markdown("""
         .custom-logo { height: 60px; object-fit: contain; }
         .custom-title-block { display: flex; flex-direction: column; justify-content: center; }
         
-        /* Tüm form elemanlarının (input, selectbox) üst hizalamasını eşitler */
+        /* Tüm form elemanlarının üst hizalamasını eşitler */
         div[data-testid="column"] .stFormSubmitButton, 
         div[data-testid="column"] .stButton {
             margin-top: 0px !important;
@@ -82,6 +83,21 @@ st.markdown("""
         /* Input focus alt çizgi rengini F2 kurumsal mavisine yaklaştırır */
         div[data-baseweb="input"] {
             border-radius: 6px !important;
+        }
+
+        /* st_keyup bileşeninin iframe dikey kaymasını ve taşmasını kesin olarak sıfırlayan kurallar */
+        div[data-testid="stCustomComponentV1"] iframe {
+            height: 42px !important;
+            margin-bottom: 0px !important;
+        }
+        
+        /* Custom etiket yapısı */
+        .custom-label-text {
+            font-size: 14px !important;
+            color: rgb(49, 51, 63) !important;
+            margin-bottom: 4px !important;
+            font-weight: 400 !important;
+            display: inline-block;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -159,7 +175,7 @@ try:
             st.session_state.q_marka = "Tümü"
             st.session_state.q_stok = False
 
-        # Form elemanlarının yerleşimi için sütun genişlikleri ayarı
+        # Sütun Genişliklerini Grid Yapısına Göre Kesin Olarak Sabitliyoruz
         col1, col2, col3, col4, col5 = st.columns([3.2, 2.4, 2.4, 2.2, 1.2], vertical_alignment="bottom")
         
         current_marka = st.session_state.q_marka
@@ -168,6 +184,7 @@ try:
         if current_grup != "Tümü":
             df_for_marka = data_frame[data_frame[c_grup].astype(str) == current_grup]
         else:
+            df_for_break = data_frame
             df_for_marka = data_frame
         marka_ops = ["Tümü"] + sorted([str(x) for x in df_for_marka[c_marka].dropna().unique() if str(x).lower() != 'nan'])
 
@@ -184,35 +201,18 @@ try:
 
         # Form Elemanlarının Dağılımı
         with col1:
-            # Kusursuz yerleşime sahip yerleşik bileşen
-            v_search = st.text_input(
-                "📝 Ürün Ara", 
-                key="q_search",
-                placeholder="Kod veya açıklama yazın..."
+            st.markdown('<span class="custom-label-text">📝 Ürün Ara</span>', unsafe_allow_html=True)
+            # st_keyup bileşenini yerleşim sınırlarına hapsetmek ve genişlemesini önlemek için 
+            # label_visibility="collapsed" kullanarak iç boşluğunu sıfırlıyoruz.
+            v_search = st_keyup(
+                "📝 Ürün Ara",
+                key="live_search_box",
+                value=st.session_state.q_search,
+                placeholder="Kod veya açıklama ara...",
+                debounce=100,
+                label_visibility="collapsed"
             )
-            
-            # 🟢 GÖRÜNMEZ CANLI ARAMA TETİKLEYİCİSİ (Hizalamayı asla bozmaz, yüksekliği 0px'tir)
-            st.components.v1.html(
-                """
-                <script>
-                // Ana penceredeki (Streamlit) ürün arama kutusunu bul
-                var inputs = window.parent.document.querySelectorAll('input[aria-label="📝 Ürün Ara"]');
-                inputs.forEach(function(input) {
-                    if (input && !input.dataset.livebound) {
-                        input.dataset.livebound = "true";
-                        
-                        // Her tuşa basıldığında (harf girildiğinde) çalışacak dinleyici
-                        input.addEventListener('input', function(e) {
-                            // Değişikliği Streamlit'in anlık algılamasını sağlayan 'change' ve 'blur' tetiklemeleri
-                            input.dispatchEvent(new Event('change', { bubbles: true }));
-                            input.dispatchEvent(new Event('blur', { bubbles: true }));
-                        });
-                    }
-                });
-                </script>
-                """,
-                height=0, # Sıfır yükseklik sayesinde ekranda kesinlikle yer kaplamaz ve kayma yapmaz
-            )
+            st.session_state.q_search = v_search
 
         with col2:
             v_marka = st.selectbox("🏷️ Marka", marka_ops, key="q_marka")
