@@ -3,6 +3,7 @@ import pandas as pd
 import os
 import base64
 from pathlib import Path
+from st_keyup import st_keyup  # Canlı arama için harf duyarlı kararlı kütüphane
 
 # ==========================================
 # 1. SAYFA YAPILANDIRMASI VE KÜRESEL STİLLER
@@ -13,7 +14,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# Görsel stabilite, hizalama ve buton renkleri için optimize edilmiş CSS
+# Görsel stabilite, hizalama ve st_keyup iframe'ini tamamen evcilleştiren CSS
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -50,7 +51,7 @@ st.markdown("""
         .custom-logo { height: 60px; object-fit: contain; }
         .custom-title-block { display: flex; flex-direction: column; justify-content: center; }
         
-        /* Tüm form elemanlarının (input, selectbox) üst hizalamasını eşitler */
+        /* Tüm form elemanlarının üst hizalamasını eşitler */
         div[data-testid="column"] .stFormSubmitButton, 
         div[data-testid="column"] .stButton {
             margin-top: 0px !important;
@@ -61,7 +62,7 @@ st.markdown("""
             padding-top: 32px !important; 
         }
 
-        /* Temizle Butonunun Görsel Tasarımı (Görselinizdeki Lacivert Tonu) */
+        /* Temizle Butonunun Görsel Tasarımı */
         .stButton > button { 
             background-color: #1C355E !important; 
             color: white !important; 
@@ -79,9 +80,35 @@ st.markdown("""
             color: white !important; 
         }
         
-        /* Input focus alt çizgi rengini F2 kurumsal mavisine yaklaştırır */
+        /* 🎯 ST_KEYUP KUTUSUNU EVCİLLEŞTİREN, NORMALLEŞTİREN VE ÇERÇEVEYİ YOK EDEN KESİN CSSLER 🎯 */
+        /* Üst etiket yazısının standart selectbox etiketleriyle birebir eşitlenmesi */
+        .custom-input-label {
+            font-size: 14px !important;
+            color: rgb(49, 51, 63) !important;
+            margin-bottom: 4px !important;
+            display: inline-block;
+            font-weight: 400 !important;
+        }
+        
+        /* st_keyup iframe'inin dış kılıfını, yüksekliğini ve sınır taşmalarını tamamen selectbox boyutuna (42px) çeker */
+        div[data-testid="stCustomComponentV1"] {
+            height: 42px !important;
+            max-height: 42px !important;
+            overflow: hidden !important;
+            display: block !important;
+        }
+
+        div[data-testid="stCustomComponentV1"] iframe {
+            height: 42px !important;
+            max-height: 42px !important;
+            border: none !important;
+            outline: none !important;
+        }
+        
+        /* Orijinal girdi alanındaki o kırmızı hatalı veya geniş çerçeveyi, Streamlit standart rengine zorlar */
         div[data-baseweb="input"] {
             border-radius: 6px !important;
+            height: 42px !important;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -125,7 +152,6 @@ try:
     df[c_maliyet] = pd.to_numeric(df[c_maliyet], errors='coerce').fillna(0)
     df[c_fiyat] = pd.to_numeric(df[c_fiyat], errors='coerce').fillna(0)
 
-    # Üst Logo ve Başlık Alanı
     if logo_data:
         logo_html = f'<img src="data:image/png;base64,{logo_data}" class="custom-logo">'
     else:
@@ -147,7 +173,6 @@ try:
     # ==========================================
     @st.fragment
     def stok_paneli_icerik(data_frame):
-        # Session State Kontrolleri
         if "q_search" not in st.session_state: st.session_state.q_search = ""
         if "q_grup" not in st.session_state: st.session_state.q_grup = "Tümü"
         if "q_marka" not in st.session_state: st.session_state.q_marka = "Tümü"
@@ -159,7 +184,6 @@ try:
             st.session_state.q_marka = "Tümü"
             st.session_state.q_stok = False
 
-        # Form elemanlarının yerleşimi için sütun genişlikleri ayarı
         col1, col2, col3, col4, col5 = st.columns([3.2, 2.4, 2.4, 2.2, 1.2], vertical_alignment="bottom")
         
         current_marka = st.session_state.q_marka
@@ -182,14 +206,17 @@ try:
         if current_grup not in grup_ops:
             st.session_state.q_grup = "Tümü"
 
-        # Form Elemanlarının Dağılımı
         with col1:
-            # Tamamen yerleşik st.text_input yapısına geçildi, kayma/büyüme imkansızdır.
-            v_search = st.text_input(
+            st.markdown('<span class="custom-input-label">📝 Ürün Ara</span>', unsafe_allow_html=True)
+            # Hem her harfte CANLI filtreleme yapar hem de dış kılıfını yukarıdaki CSS ile normal forma zorlar
+            v_search = st_keyup(
                 "📝 Ürün Ara", 
-                key="q_search",
-                placeholder="Yazın ve boş bir yere tıklayın veya Enter'a basın..."
+                value=st.session_state.q_search,
+                placeholder="Kod veya açıklama yazın...",
+                key="live_search_box",
+                label_visibility="collapsed"
             )
+            st.session_state.q_search = v_search
 
         with col2:
             v_marka = st.selectbox("🏷️ Marka", marka_ops, key="q_marka")
