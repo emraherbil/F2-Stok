@@ -3,7 +3,6 @@ import pandas as pd
 import os
 import base64
 from pathlib import Path
-from st_keyup import st_keyup  # Canlı arama için gerekli kütüphane
 
 # ==========================================
 # 1. SAYFA YAPILANDIRMASI VE KÜRESEL STİLLER
@@ -83,27 +82,6 @@ st.markdown("""
         /* Input focus alt çizgi rengini F2 kurumsal mavisine yaklaştırır */
         div[data-baseweb="input"] {
             border-radius: 6px !important;
-        }
-
-        /* 🛠️ ÜRÜN ARA KUTUSUNU TAM AŞAĞIYA HİZALAYAN VE KAYMAYI ÇÖZEN CSS 🛠️ */
-        div[data-testid="stCustomComponentV1"] {
-            margin-bottom: 0px !important;
-            padding-bottom: 0px !important;
-            margin-top: 6px !important; /* Diğer kutuların etiket (label) hizasıyla dengelemek için üst boşluk */
-        }
-        
-        div[data-testid="stCustomComponentV1"] iframe {
-            height: 42px !important; /* Marka/Grup kutularının tam net yüksekliği */
-            margin-bottom: 0px !important;
-        }
-        
-        /* Manuel başlık etiketi stili */
-        .custom-input-label {
-            font-size: 14px;
-            color: rgb(49, 51, 63);
-            margin-bottom: 4px;
-            font-weight: 400;
-            display: block;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -206,17 +184,11 @@ try:
 
         # Form Elemanlarının Dağılımı
         with col1:
-            # Başlığı dışarı alarak yerleşik selectbox etiketleriyle aynı hizada olmasını sağlıyoruz
-            st.markdown('<span class="custom-input-label">📝 Ürün Ara</span>', unsafe_allow_html=True)
-            v_search = st_keyup(
+            v_search = st.text_input(
                 "📝 Ürün Ara", 
-                key="live_search_widget",
-                value=st.session_state.q_search,
-                placeholder="Kod veya açıklama ara...",
-                debounce=250,
-                label_visibility="collapsed"  # İçerideki sorunlu etiketi kapatıp gizledik
+                key="q_search",
+                placeholder="Kod veya açıklama yazıp Enter'a basın..."
             )
-            st.session_state.q_search = v_search
 
         with col2:
             v_marka = st.selectbox("🏷️ Marka", marka_ops, key="q_marka")
