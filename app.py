@@ -13,7 +13,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# Görsel stabilite, hizalama ve temiz arayüz CSS kuralları
+# Görsel temizlik ve stabilite CSS kuralları
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -155,6 +155,7 @@ try:
         # Temizle fonksiyonu (Kutuyu ve filtreleri anında sıfırlar)
         def filtreleri_temizle():
             st.session_state.search_text = ""
+            st.session_state.real_search_box = ""
             st.session_state.q_grup = "Tümü"
             st.session_state.q_marka = "Tümü"
             st.session_state.q_stok = False
@@ -182,13 +183,31 @@ try:
             st.session_state.q_grup = "Tümü"
 
         with col1:
-            # 🎯 ARTIK KESİNLİKLE ZIPLAMA YAPMAYAN YEREL BİLEŞEN
-            # Harf girildikçe veya silindikçe odağı kaybetmeden anlık süzme yapar.
+            # Yerel Girdi Bileşeni
             v_search = st.text_input(
                 "📝 Ürün Ara", 
                 value=st.session_state.search_text,
                 placeholder="Yazmaya başlayın...",
-                key="search_text" # Doğrudan session state ile senkronize çalışır
+                key="real_search_box"
+            )
+            st.session_state.search_text = v_search
+
+            # Odağı bozmadan harf harf canlı süzme sağlayan hafif JavaScript enjeksiyonu
+            st.components.v1.html(
+                """
+                <script>
+                var parentDoc = window.parent.document;
+                var inputEl = parentDoc.querySelector('input[aria-label="📝 Ürün Ara"]');
+                if (inputEl && !inputEl.dataset.listenerBound) {
+                    inputEl.dataset.listenerBound = "true";
+                    inputEl.addEventListener('input', function() {
+                        var event = new Event('change', { bubbles: true });
+                        inputEl.dispatchEvent(event);
+                    });
+                }
+                </script>
+                """,
+                height=0
             )
 
         with col2:
