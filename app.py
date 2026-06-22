@@ -14,7 +14,6 @@ st.set_page_config(
     layout="wide"
 )
 
-# Görsel stabilite, hizalama ve temiz buton renkleri için CSS
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -32,7 +31,6 @@ st.markdown("""
             max-width: 100% !important;
         }
         
-        /* Üst başlık alanını sabitle */
         div[data-testid="stVerticalBlock"] > div:first-child {
             position: sticky !important;
             top: 0px !important;
@@ -51,18 +49,15 @@ st.markdown("""
         .custom-logo { height: 60px; object-fit: contain; }
         .custom-title-block { display: flex; flex-direction: column; justify-content: center; }
         
-        /* Tüm form elemanlarının üst hizalamasını eşitler */
         div[data-testid="column"] .stFormSubmitButton, 
         div[data-testid="column"] .stButton {
             margin-top: 0px !important;
         }
 
-        /* Checkbox dikey hizalama sabitlemesi */
         div[data-testid="stCheckbox"] { 
             padding-top: 32px !important; 
         }
 
-        /* Temizle Butonunun Görsel Tasarımı */
         .stButton > button { 
             background-color: #1C355E !important; 
             color: white !important; 
@@ -80,7 +75,6 @@ st.markdown("""
             color: white !important; 
         }
         
-        /* Girdi kutularının yuvarlaklık sınırları */
         div[data-baseweb="input"] {
             border-radius: 6px !important;
         }
@@ -147,7 +141,6 @@ try:
     # ==========================================
     @st.fragment
     def stok_paneli_icerik(data_frame):
-        # URL Parametresi veya state kontrolü ile canlı arama verisini çekme
         if "live_search" not in st.session_state:
             st.session_state.live_search = st.query_params.get("search", "")
 
@@ -185,7 +178,6 @@ try:
             st.session_state.q_grup = "Tümü"
 
         with col1:
-            # 🎯 1. Orijinal ve Kusursuz Hizalanan Girdi Kutusu
             v_search = st.text_input(
                 "📝 Ürün Ara", 
                 value=st.session_state.live_search,
@@ -193,29 +185,45 @@ try:
                 key="search_input_box"
             )
             
-            # 🎯 2. Her tuş vuruşunda Enter gerektirmeden çalışan Canlı JS Enjeksiyonu
+            # 🎯 IMPERATIVE FOCUS KORUYUCU: İmleci ve odağı elinden bırakmayan JS Enjeksiyonu
             components.html(
                 """
                 <script>
-                var input = window.parent.document.querySelector('input[aria-label="📝 Ürün Ara"]');
-                if (input && !input.dataset.keyupBound) {
-                    input.dataset.keyupBound = true;
-                    input.addEventListener('input', function(e) {
-                        const url = new URL(window.parent.location.href);
-                        url.searchParams.set('search', e.target.value);
-                        window.parent.history.replaceState({}, '', url.href);
-                        
-                        // Streamlit'in değişimi fark etmesi için küçük bir görünmez buton tetikleme mekanizması
-                        const r = window.parent.document.querySelector('.stButton button');
-                        if (r) { r.focus(); r.blur(); }
-                    });
+                function maintainFocus() {
+                    var input = window.parent.document.querySelector('input[aria-label="📝 Ürün Ara"]');
+                    if (input) {
+                        // Eğer sayfa yenilendiyse odağı hemen geri çağır
+                        if (window.parent.document.activeElement !== input && input.dataset.shouldFocus === "true") {
+                            input.focus();
+                            // İmleci en son yazılan karakterin sonuna taşı
+                            var len = input.value.length;
+                            input.setSelectionRange(len, len);
+                            input.dataset.shouldFocus = "false";
+                        }
+
+                        if (!input.dataset.keyupBound) {
+                            input.dataset.keyupBound = true;
+                            input.addEventListener('input', function(e) {
+                                input.dataset.shouldFocus = "true";
+                                const url = new URL(window.parent.location.href);
+                                url.searchParams.set('search', e.target.value);
+                                window.parent.history.replaceState({}, '', url.href);
+                                
+                                // Streamlit tetikleyicisini dürt
+                                const r = window.parent.document.querySelector('.stButton button');
+                                if (r) { r.focus(); r.blur(); }
+                            });
+                        }
+                    }
                 }
+                // Bileşen yüklenirken ve periyodik olarak kontrol et
+                setTimeout(maintainFocus, 50);
+                setTimeout(maintainFocus, 150);
                 </script>
                 """,
                 height=0
             )
             
-            # Değişimi yakala
             current_url_search = st.query_params.get("search", "")
             if current_url_search != st.session_state.live_search:
                 st.session_state.live_search = current_url_search
@@ -263,7 +271,7 @@ try:
 
         st.markdown("<div style='margin-top:15px;'></div>", unsafe_allow_html=True)
         
-        # Veri Tablosu Çıktısı ve Sıfır Stok Renklendirmesi
+        # Veri Tablosu Çıktısı
         out_df = f_df[[c_kod, c_tanim, c_marka, c_grup, c_stok, c_fiyat, c_maliyet]].copy()
         out_df.columns = ["Ürün Kodu", "Açıklama", "Marka", "Ürün Grubu", "Güncel Stok", "Birim Maliyet", "Toplam Maliyet"]
         
