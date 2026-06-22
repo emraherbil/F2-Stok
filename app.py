@@ -4,14 +4,6 @@ import os
 import base64
 from pathlib import Path
 
-# --- RESMİ CANLI ARAMA EKLENTİSİ ---
-try:
-    from st_keyup import st_keyup
-except ImportError:
-    st.error("Lütfen terminalde 'pip install streamlit-keyup' çalıştırın veya requirements.txt dosyanıza 'streamlit-keyup' ekleyin.")
-    st.stop()
-# -----------------------------------
-
 # ==========================================
 # 1. SAYFA YAPILANDIRMASI VE KÜRESEL STİLLER
 # ==========================================
@@ -21,7 +13,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# Standart üst/alt araç çubuklarını temizle ve ana sayfa düzenini kur
+# Görsel stabilite, hizalama ve buton renkleri için optimize edilmiş CSS
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -58,43 +50,26 @@ st.markdown("""
         .custom-logo { height: 60px; object-fit: contain; }
         .custom-title-block { display: flex; flex-direction: column; justify-content: center; }
         
-        /* --- KUSURSUZ HİZALAMA VE %100 ZIPLAMA ENGELLEYİCİ CSS --- */
-        /* Sabit etiket stili - Orijinal Streamlit etiket tasarımıyla birebir aynı */
-        .stable-search-label {
-            font-size: 14px !important;
-            color: #31333F !important;
-            margin-bottom: 8px !important;
-            font-weight: 400 !important;
-            display: block !important;
-            line-height: 1.2 !important;
-        }
-        
-        /* Arama sütununun içindeki otomatik boşlukları sıfırla (Milisaniyelik kaymaları önler) */
-        div[data-testid="column"]:has(.stable-search-label) div[data-testid="stVerticalBlock"] {
-            gap: 0px !important;
-        }
-        
-        /* Sütun kilidi: Etiket sabit kaldığı için bu kilit temizleme esnasında ASLA kırılmaz */
-        div[data-testid="column"]:has(.stable-search-label) {
-            min-height: 76px !important;
-            max-height: 76px !important;
-        }
-        
-        /* Tükenenleri Gizle Checkbox Hizalaması */
-        div[data-testid="stCheckbox"] { 
-            margin-top: 36px !important; 
+        /* Tüm form elemanlarının (input, selectbox) üst hizalamasını eşitler */
+        div[data-testid="column"] .stFormSubmitButton, 
+        div[data-testid="column"] .stButton {
+            margin-top: 0px !important;
         }
 
-        /* Temizle Butonu Rengi ve Hizalaması */
+        /* Checkbox dikey hizalama sabitlemesi */
+        div[data-testid="stCheckbox"] { 
+            padding-top: 32px !important; 
+        }
+
+        /* Temizle Butonunun Görsel Tasarımı (Görselinizdeki Lacivert Tonu) */
         .stButton > button { 
             background-color: #1C355E !important; 
             color: white !important; 
             border: 1px solid #1C355E !important; 
             border-radius: 6px !important;
-            height: 40px !important; 
+            height: 42px !important; 
             width: 100% !important; 
             font-weight: 500 !important;
-            margin-top: 28px !important; 
             transition: all 0.2s !important;
         }
         
@@ -102,6 +77,11 @@ st.markdown("""
             background-color: #12223c !important;
             border: 1px solid #12223c !important;
             color: white !important; 
+        }
+        
+        /* Input focus alt çizgi rengini F2 kurumsal mavisine yaklaştırır */
+        div[data-baseweb="input"] {
+            border-radius: 6px !important;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -125,7 +105,7 @@ def load_data():
     return pd.read_excel('Stok Sayım Arşivi-v3.1-Web.xlsm', sheet_name='Stok', engine='openpyxl')
 
 # ==========================================
-# 3. DOĞRUDAN ÇALIŞAN ANA PANEL
+# 3. ANA PANEL DÜZENİ
 # ==========================================
 try:
     df = load_data()
@@ -145,7 +125,7 @@ try:
     df[c_maliyet] = pd.to_numeric(df[c_maliyet], errors='coerce').fillna(0)
     df[c_fiyat] = pd.to_numeric(df[c_fiyat], errors='coerce').fillna(0)
 
-    # Üst Logo ve Başlık Yapısı
+    # Üst Logo ve Başlık Alanı
     if logo_data:
         logo_html = f'<img src="data:image/png;base64,{logo_data}" class="custom-logo">'
     else:
@@ -163,22 +143,24 @@ try:
     """, unsafe_allow_html=True)
 
     # ==========================================
-    # 4. FRAGMENT ALANI (İLİŞKİLİ FİLTRELEME)
+    # 4. FRAGMENT ALANI (SABİT FORM MİMARİSİ)
     # ==========================================
     @st.fragment
     def stok_paneli_icerik(data_frame):
-        if "reset_counter" not in st.session_state: st.session_state.reset_counter = 0
+        # Session State Kontrolleri
+        if "q_search" not in st.session_state: st.session_state.q_search = ""
         if "q_grup" not in st.session_state: st.session_state.q_grup = "Tümü"
         if "q_marka" not in st.session_state: st.session_state.q_marka = "Tümü"
         if "q_stok" not in st.session_state: st.session_state.q_stok = False
         
         def filtreleri_temizle():
-            st.session_state.reset_counter += 1
+            st.session_state.q_search = ""
             st.session_state.q_grup = "Tümü"
             st.session_state.q_marka = "Tümü"
             st.session_state.q_stok = False
 
-        col1, col2, col3, col4, col5 = st.columns([3.2, 2.4, 2.4, 2.2, 1.2])
+        # Form elemanlarının yerleşimi için sütun genişlikleri ayarı
+        col1, col2, col3, col4, col5 = st.columns([3.2, 2.4, 2.4, 2.2, 1.2], vertical_alignment="bottom")
         
         current_marka = st.session_state.q_marka
         current_grup = st.session_state.q_grup
@@ -200,16 +182,12 @@ try:
         if current_grup not in grup_ops:
             st.session_state.q_grup = "Tümü"
 
+        # Form Elemanlarının Dağılımı
         with col1:
-            # 1. BAĞIMSIZ VE SABİT ETİKET (Asla silinmez, kaybolmaz, yer değiştirmez)
-            st.markdown('<span class="stable-search-label">📝 Ürün Ara</span>', unsafe_allow_html=True)
-            
-            # 2. İÇ ETİKETİ GİZLENMİŞ ARAMA KUTUSU
-            v_search = st_keyup(
-                label="", # İç etiketi boş bırakarak sadece girdi alanını çizdiriyoruz
-                key=f"q_search_{st.session_state.reset_counter}",
-                placeholder="Kod veya açıklama ara...",
-                debounce=500
+            v_search = st.text_input(
+                "📝 Ürün Ara", 
+                key="q_search",
+                placeholder="Kod veya açıklama yazıp Enter'a basın..."
             )
 
         with col2:
@@ -224,6 +202,7 @@ try:
         with col5:
             st.button("🧹 Temizle", on_click=filtreleri_temizle, use_container_width=True)
 
+        # Filtreleme Algoritması
         f_df = data_frame.copy()
         if v_search:
             m1 = f_df[c_kod].astype(str).str.contains(v_search, case=False)
@@ -233,6 +212,7 @@ try:
         if v_grup != "Tümü": f_df = f_df[f_df[c_grup].astype(str) == v_grup]
         if v_stok: f_df = f_df[f_df[c_stok] > 0]
 
+        # KPI Kartları Hesaplamaları
         t_prod = len(f_df)
         t_stok = int(f_df[c_stok].sum())
         t_cost = f_df[c_maliyet].sum()
@@ -252,6 +232,7 @@ try:
 
         st.markdown("<div style='margin-top:15px;'></div>", unsafe_allow_html=True)
         
+        # Veri Tablosu Çıktısı ve Sıfır Stok Renklendirmesi
         out_df = f_df[[c_kod, c_tanim, c_marka, c_grup, c_stok, c_fiyat, c_maliyet]].copy()
         out_df.columns = ["Ürün Kodu", "Açıklama", "Marka", "Ürün Grubu", "Güncel Stok", "Birim Maliyet", "Toplam Maliyet"]
         
@@ -277,4 +258,4 @@ try:
     stok_paneli_icerik(df)
 
 except Exception as e:
-    st.error(f"Hata olustu: {e}")
+    st.error(f"Hata oluştu: {e}")
