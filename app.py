@@ -14,7 +14,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# Görsel stabilite ve kusursuz hizalama için CSS
+# Görsel stabilite ve kusursuz dikey hizalama için CSS kuralları
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -85,19 +85,20 @@ st.markdown("""
             border-radius: 6px !important;
         }
 
-        /* 🎯 ST_KEYUP KUTUSUNU SELECTBOX İLE MILİMETRİK HİZALAYAN CSS 🎯 */
-        /* Custom component'in fazladan boşluk yaratmasını engeller ve yüksekliği kilitler */
-        div[data-testid="stCustomComponentV1"] {
-            height: 42px !important;
-            min-height: 42px !important;
-            margin-bottom: 0px !important;
-            padding-bottom: 0px !important;
-        }
-        
-        /* İçerideki iframe'in selectbox boyutundan (42px) taşmasını önler */
+        /* 🎯 ST_KEYUP IFRAME'İNİ SELECTBOX BOYUTUNA (42PX) KİLİTLEYEN CSS 🎯 */
+        div[data-testid="stCustomComponentV1"], 
         div[data-testid="stCustomComponentV1"] iframe {
             height: 42px !important;
             max-height: 42px !important;
+            min-height: 42px !important;
+            margin: 0px !important;
+            padding: 0px !important;
+            vertical-align: bottom !important;
+        }
+        
+        /* Streamlit bileşen alt boşluğunu sıfırla */
+        div[data-testid="element-container"]:has(iframe[title="st_keyup.st_keyup"]) {
+            margin-bottom: 0px !important;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -162,13 +163,18 @@ try:
     # ==========================================
     @st.fragment
     def stok_paneli_icerik(data_frame):
-        if "q_search" not in st.session_state: st.session_state.q_search = ""
+        # Temizle fonksiyonu için dinamik key versiyon takibi
+        if "search_key_version" not in st.session_state: 
+            st.session_state.search_key_version = 0
+            
         if "q_grup" not in st.session_state: st.session_state.q_grup = "Tümü"
         if "q_marka" not in st.session_state: st.session_state.q_marka = "Tümü"
         if "q_stok" not in st.session_state: st.session_state.q_stok = False
         
+        # Temizle butonuna basıldığında tetiklenecek fonksiyon
         def filtreleri_temizle():
-            st.session_state.q_search = ""
+            # Anahtarı değiştirerek st_keyup kutusunun sıfırlanmasını (text silinmesini) sağlıyoruz
+            st.session_state.search_key_version += 1
             st.session_state.q_grup = "Tümü"
             st.session_state.q_marka = "Tümü"
             st.session_state.q_stok = False
@@ -196,15 +202,17 @@ try:
             st.session_state.q_grup = "Tümü"
 
         with col1:
-            # HTML kapsayıcılar tamamen kaldırıldı. 
-            # Kendi orijinal etiketiyle doğrudan kullanıyoruz, CSS arka planda boyutu eşitliyor.
+            # 🎯 1. Selectbox etiketleriyle birebir eşleşen yapay HTML etiketi
+            st.markdown('<label style="font-size: 14px; color: rgb(49, 51, 63); font-weight: 400; display: block; margin-bottom: 6px;">📝 Ürün Ara</label>', unsafe_allow_html=True)
+            
+            # 🎯 2. Dinamik versiyonlu anahtara (key) sahip Canlı Arama Kutusu
             v_search = st_keyup(
                 "📝 Ürün Ara", 
-                value=st.session_state.q_search,
+                value="",
                 placeholder="Kod veya açıklama arayın...",
-                key="live_search_box"
+                key=f"live_search_box_v_{st.session_state.search_key_version}",
+                label_visibility="collapsed"  # İçerideki orijinal etiketi gizleyip yukarıdaki HTML'i kullanıyoruz
             )
-            st.session_state.q_search = v_search
 
         with col2:
             v_marka = st.selectbox("🏷️ Marka", marka_ops, key="q_marka")
