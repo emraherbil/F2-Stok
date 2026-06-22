@@ -3,7 +3,7 @@ import pandas as pd
 import os
 import base64
 from pathlib import Path
-from st_keyup import st_keyup  # Canlı arama için kararlı kütüphaneye geri dönüyoruz
+from st_keyup import st_keyup
 
 # ==========================================
 # 1. SAYFA YAPILANDIRMASI VE KÜRESEL STİLLER
@@ -14,7 +14,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# Görsel stabilite, hizalama ve st_keyup kutusunu kutu içine hapseden CSS
+# Görsel stabilite ve kusursuz hizalama için CSS
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -85,20 +85,19 @@ st.markdown("""
             border-radius: 6px !important;
         }
 
-        /* 🎯 ST_KEYUP BİLEŞENİNİ SELECTBOX BOYUTUNA HAPSEDEN ÖZEL KAPSAYICI 🎯 */
-        .keyup-container {
-            height: 42px !important;
-            max-height: 42px !important;
-            overflow: hidden !important;
-            display: block !important;
-            margin-top: 2px !important;
-        }
-        
-        /* st_keyup iframe'inin dışarı taşmasını ve ekstra boşluklar üretmesini engeller */
+        /* 🎯 ST_KEYUP KUTUSUNU SELECTBOX İLE MILİMETRİK HİZALAYAN CSS 🎯 */
+        /* Custom component'in fazladan boşluk yaratmasını engeller ve yüksekliği kilitler */
         div[data-testid="stCustomComponentV1"] {
             height: 42px !important;
+            min-height: 42px !important;
+            margin-bottom: 0px !important;
+            padding-bottom: 0px !important;
+        }
+        
+        /* İçerideki iframe'in selectbox boyutundan (42px) taşmasını önler */
+        div[data-testid="stCustomComponentV1"] iframe {
+            height: 42px !important;
             max-height: 42px !important;
-            overflow: hidden !important;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -197,19 +196,14 @@ try:
             st.session_state.q_grup = "Tümü"
 
         with col1:
-            # Kutunun üst etiketini selectbox etiketleriyle eşitleyen başlık alanı
-            st.markdown('<div style="font-size: 14px; color: rgb(49, 51, 63); margin-bottom: 0px; padding-bottom:0px;">📝 Ürün Ara</div>', unsafe_allow_html=True)
-            
-            # Kapsayıcı Div: st_keyup'ın büyümesini engeller ve selectboxlar ile aynı dikey boyuta (42px) kilitler
-            st.markdown('<div class="keyup-container">', unsafe_allow_html=True)
+            # HTML kapsayıcılar tamamen kaldırıldı. 
+            # Kendi orijinal etiketiyle doğrudan kullanıyoruz, CSS arka planda boyutu eşitliyor.
             v_search = st_keyup(
                 "📝 Ürün Ara", 
                 value=st.session_state.q_search,
-                placeholder="Kod veya açıklama yazın...",
-                key="live_search_box",
-                label_visibility="collapsed" # Varsayılan etiketi gizleyip yukarıdaki HTML etiketi kullanıyoruz
+                placeholder="Kod veya açıklama arayın...",
+                key="live_search_box"
             )
-            st.markdown('</div>', unsafe_allow_html=True)
             st.session_state.q_search = v_search
 
         with col2:
