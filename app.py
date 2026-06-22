@@ -58,9 +58,24 @@ st.markdown("""
         .custom-logo { height: 60px; object-fit: contain; }
         .custom-title-block { display: flex; flex-direction: column; justify-content: center; }
         
-        /* --- KUSURSUZ HİZALAMA VE SIFIR ZIPLAMA CSS KİLİDİ --- */
-        /* Arama kutusunun bulunduğu sütunun yüksekliğini yandaki selectbox'lar ile eşitler ve dondurur */
-        div[data-testid="column"]:has([data-testid="stCustomComponentV1"]) {
+        /* --- KUSURSUZ HİZALAMA VE %100 ZIPLAMA ENGELLEYİCİ CSS --- */
+        /* Sabit etiket stili - Orijinal Streamlit etiket tasarımıyla birebir aynı */
+        .stable-search-label {
+            font-size: 14px !important;
+            color: #31333F !important;
+            margin-bottom: 8px !important;
+            font-weight: 400 !important;
+            display: block !important;
+            line-height: 1.2 !important;
+        }
+        
+        /* Arama sütununun içindeki otomatik boşlukları sıfırla (Milisaniyelik kaymaları önler) */
+        div[data-testid="column"]:has(.stable-search-label) div[data-testid="stVerticalBlock"] {
+            gap: 0px !important;
+        }
+        
+        /* Sütun kilidi: Etiket sabit kaldığı için bu kilit temizleme esnasında ASLA kırılmaz */
+        div[data-testid="column"]:has(.stable-search-label) {
             min-height: 76px !important;
             max-height: 76px !important;
         }
@@ -186,9 +201,12 @@ try:
             st.session_state.q_grup = "Tümü"
 
         with col1:
-            # Hizalamayı bozan yapay HTML anchor kaldırıldı. CSS otomatik olarak bu sütunu algılar.
+            # 1. BAĞIMSIZ VE SABİT ETİKET (Asla silinmez, kaybolmaz, yer değiştirmez)
+            st.markdown('<span class="stable-search-label">📝 Ürün Ara</span>', unsafe_allow_html=True)
+            
+            # 2. İÇ ETİKETİ GİZLENMİŞ ARAMA KUTUSU
             v_search = st_keyup(
-                label="📝 Ürün Ara",
+                label="", # İç etiketi boş bırakarak sadece girdi alanını çizdiriyoruz
                 key=f"q_search_{st.session_state.reset_counter}",
                 placeholder="Kod veya açıklama ara...",
                 debounce=500
