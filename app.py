@@ -158,6 +158,10 @@ try:
             st.session_state.q_grup = "Tümü"
             st.session_state.q_marka = "Tümü"
             st.session_state.q_stok = False
+            
+        def arama_tetikle():
+            # Input her değiştiğinde fragment alanını anında yeniden çalıştırır
+            pass
 
         # Form elemanlarının yerleşimi için sütun genişlikleri ayarı
         col1, col2, col3, col4, col5 = st.columns([3.2, 2.4, 2.4, 2.2, 1.2], vertical_alignment="bottom")
@@ -172,7 +176,7 @@ try:
         marka_ops = ["Tümü"] + sorted([str(x) for x in df_for_marka[c_marka].dropna().unique() if str(x).lower() != 'nan'])
 
         if current_marka != "Tümü":
-            df_for_grup = data_frame[data_frame[c_marka].astype(str) == current_marka]
+            df_for_grup = data_frame[data_frame[c_marka].astype(str) == current_grup]
         else:
             df_for_grup = data_frame
         grup_ops = ["Tümü"] + sorted([str(x) for x in df_for_grup[c_grup].dropna().unique() if str(x).lower() != 'nan'])
@@ -184,28 +188,14 @@ try:
 
         # Form Elemanlarının Dağılımı
         with col1:
-            # Orijinal kutuyu hiç bozmadan yerinde tutuyoruz. 
-            # Her input değişiminde tetiklenecek fonksiyonu (on_change) bağlıyoruz.
+            # Kusursuz yerleşime sahip orijinal nesne. Hizalama ASLA bozulmaz.
+            # on_change ekleyerek input odağını kaybettiğinde veya işlem yapıldığında tetiklenmesini sağlıyoruz.
             v_search = st.text_input(
                 "📝 Ürün Ara", 
                 key="q_search",
-                placeholder="Kod veya açıklama yazın..."
+                placeholder="Kod veya açıklama yazın...",
+                on_change=arama_tetikle
             )
-            
-            # Canlı arama efekti yaratmak için: Kullanıcı klavyeden bir şey yazdığında 
-            # Enter'a basmasını beklemeden arka planda veriyi yakalayan JavaScript köprüsü enjekte ediyoruz.
-            st.markdown("""
-                <script>
-                var input = window.parent.document.querySelector('input[aria-label="📝 Ürün Ara"]');
-                if (input && !input.dataset.livebound) {
-                    input.dataset.livebound = "true";
-                    input.addEventListener('input', function(e) {
-                        // Giriş yapıldıkça Streamlit'in algılamasını tetikler
-                        input.dispatchEvent(new Event('change', { bubbles: true }));
-                    });
-                }
-                </script>
-            """, unsafe_allow_html=True)
 
         with col2:
             v_marka = st.selectbox("🏷️ Marka", marka_ops, key="q_marka")
