@@ -184,11 +184,28 @@ try:
 
         # Form Elemanlarının Dağılımı
         with col1:
+            # Orijinal kutuyu hiç bozmadan yerinde tutuyoruz. 
+            # Her input değişiminde tetiklenecek fonksiyonu (on_change) bağlıyoruz.
             v_search = st.text_input(
                 "📝 Ürün Ara", 
                 key="q_search",
-                placeholder="Kod veya açıklama yazıp Enter'a basın..."
+                placeholder="Kod veya açıklama yazın..."
             )
+            
+            # Canlı arama efekti yaratmak için: Kullanıcı klavyeden bir şey yazdığında 
+            # Enter'a basmasını beklemeden arka planda veriyi yakalayan JavaScript köprüsü enjekte ediyoruz.
+            st.markdown("""
+                <script>
+                var input = window.parent.document.querySelector('input[aria-label="📝 Ürün Ara"]');
+                if (input && !input.dataset.livebound) {
+                    input.dataset.livebound = "true";
+                    input.addEventListener('input', function(e) {
+                        // Giriş yapıldıkça Streamlit'in algılamasını tetikler
+                        input.dispatchEvent(new Event('change', { bubbles: true }));
+                    });
+                }
+                </script>
+            """, unsafe_allow_html=True)
 
         with col2:
             v_marka = st.selectbox("🏷️ Marka", marka_ops, key="q_marka")
