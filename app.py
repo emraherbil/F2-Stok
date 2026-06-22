@@ -58,16 +58,12 @@ st.markdown("""
         .custom-logo { height: 60px; object-fit: contain; }
         .custom-title-block { display: flex; flex-direction: column; justify-content: center; }
         
-        /* ==========================================
-           HİZALAMA VE BUTON RENK AYARLARI 
-           ========================================== */
-        
         /* Tükenenleri Gizle Checkbox Hizalaması */
         div[data-testid="stCheckbox"] { 
             margin-top: 36px !important; 
         }
 
-        /* Temizle Butonu Rengi ve Hizalaması */
+        /* Temizle Butonu Rengi (#1C355E) ve Hizalaması */
         .stButton > button { 
             background-color: #1C355E !important; 
             color: white !important; 
@@ -76,7 +72,7 @@ st.markdown("""
             height: 40px !important; 
             width: 100% !important; 
             font-weight: 500 !important;
-            margin-top: 28px !important; /* Etiket boşluğunu dengeler ve aşağı iter */
+            margin-top: 28px !important; 
             transition: all 0.2s !important;
         }
         
@@ -149,11 +145,14 @@ try:
     # ==========================================
     @st.fragment
     def stok_paneli_icerik(data_frame):
+        # Tüm filtre state'lerini güvenli şekilde başlatıyoruz
+        if "q_search" not in st.session_state: st.session_state.q_search = ""
         if "q_grup" not in st.session_state: st.session_state.q_grup = "Tümü"
         if "q_marka" not in st.session_state: st.session_state.q_marka = "Tümü"
         if "q_stok" not in st.session_state: st.session_state.q_stok = False
         
         def filtreleri_temizle():
+            # KEY DEĞİŞTİRMEDEN, doğrudan state temizliği (Zıplamayı önleyen kesin çözüm)
             st.session_state.q_search = ""
             st.session_state.q_grup = "Tümü"
             st.session_state.q_marka = "Tümü"
@@ -182,9 +181,7 @@ try:
             st.session_state.q_grup = "Tümü"
 
         with col1:
-            if "q_search" not in st.session_state:
-                st.session_state.q_search = ""
-
+            # Key artık sabit, zıplama yapmaz
             v_search = st_keyup(
                 label="📝 Ürün Ara",
                 key="q_search",
@@ -257,4 +254,4 @@ try:
     stok_paneli_icerik(df)
 
 except Exception as e:
-    st.error(f"Hata oluştu: {e}")
+    st.error(f"Hata olustu: {e}")
