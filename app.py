@@ -14,7 +14,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# Görsel stabilite ve kusursuz dikey hizalama için CSS kuralları
+# Görsel stabilite, hizalama ve zıplamayı engelleyen katı CSS kuralları
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -85,20 +85,36 @@ st.markdown("""
             border-radius: 6px !important;
         }
 
-        /* 🎯 ST_KEYUP IFRAME'İNİ SELECTBOX BOYUTUNA (42PX) KİLİTLEYEN CSS 🎯 */
+        /* 🎯 ST_KEYUP KUTUSUNUN ZIPLAMASINI VE HİZASINI KİLİTLEYEN KATI CSS 🎯 */
+        /* Üst etiket mesafesini selectbox ile milimetrik eşitler */
+        .custom-search-label {
+            font-size: 14px !important;
+            color: rgb(49, 51, 63) !important;
+            font-weight: 400 !important;
+            display: block !important;
+            margin-bottom: 5px !important;
+        }
+
+        /* Iframe'i saran dış bileşeni beton gibi dondurarak zıplamayı kesin olarak engeller */
+        div[data-testid="element-container"]:has(div[data-testid="stCustomComponentV1"]) {
+            height: 42px !important;
+            min-height: 42px !important;
+            max-height: 42px !important;
+            margin: 0px !important;
+            padding: 0px !important;
+            overflow: hidden !important;
+        }
+
+        /* st_keyup bileşeninin iframe'ini 42px'e hapseder */
         div[data-testid="stCustomComponentV1"], 
         div[data-testid="stCustomComponentV1"] iframe {
             height: 42px !important;
-            max-height: 42px !important;
             min-height: 42px !important;
+            max-height: 42px !important;
             margin: 0px !important;
             padding: 0px !important;
-            vertical-align: bottom !important;
-        }
-        
-        /* Streamlit bileşen alt boşluğunu sıfırla */
-        div[data-testid="element-container"]:has(iframe[title="st_keyup.st_keyup"]) {
-            margin-bottom: 0px !important;
+            display: block !important;
+            width: 100% !important;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -171,9 +187,8 @@ try:
         if "q_marka" not in st.session_state: st.session_state.q_marka = "Tümü"
         if "q_stok" not in st.session_state: st.session_state.q_stok = False
         
-        # Temizle butonuna basıldığında tetiklenecek fonksiyon
+        # Temizle butonuna basıldığında tetiklenecek fonksiyon (Kutuyu Boşaltır)
         def filtreleri_temizle():
-            # Anahtarı değiştirerek st_keyup kutusunun sıfırlanmasını (text silinmesini) sağlıyoruz
             st.session_state.search_key_version += 1
             st.session_state.q_grup = "Tümü"
             st.session_state.q_marka = "Tümü"
@@ -202,16 +217,16 @@ try:
             st.session_state.q_grup = "Tümü"
 
         with col1:
-            # 🎯 1. Selectbox etiketleriyle birebir eşleşen yapay HTML etiketi
-            st.markdown('<label style="font-size: 14px; color: rgb(49, 51, 63); font-weight: 400; display: block; margin-bottom: 6px;">📝 Ürün Ara</label>', unsafe_allow_html=True)
+            # Yapay etiket (selectbox etiket boşluğu ile birebir eşleşir)
+            st.markdown('<label class="custom-search-label">📝 Ürün Ara</label>', unsafe_allow_html=True)
             
-            # 🎯 2. Dinamik versiyonlu anahtara (key) sahip Canlı Arama Kutusu
+            # Anahtar (key) mekanizması ile temizle butonuna basınca içi boşalır
             v_search = st_keyup(
                 "📝 Ürün Ara", 
                 value="",
                 placeholder="Kod veya açıklama arayın...",
                 key=f"live_search_box_v_{st.session_state.search_key_version}",
-                label_visibility="collapsed"  # İçerideki orijinal etiketi gizleyip yukarıdaki HTML'i kullanıyoruz
+                label_visibility="collapsed"
             )
 
         with col2:
