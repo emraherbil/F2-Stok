@@ -14,7 +14,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# Hizalamanın en kusursuz olduğu o kararlı CSS tabanımız
+# Hizalamanın milimetrik oturduğu o kararlı CSS yapısı
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -183,6 +183,9 @@ try:
             st.session_state.q_marka = "Tümü"
             st.session_state.q_stok = False
 
+        # --------------------------------------------------
+        # FİLTRE ALANI İSKELETİ (Üst Satır)
+        # --------------------------------------------------
         col1, col2, col3, col4, col5 = st.columns([3.2, 2.4, 2.4, 2.2, 1.2], vertical_alignment="bottom")
         
         current_marka = st.session_state.q_marka
@@ -206,9 +209,8 @@ try:
             st.session_state.q_grup = "Tümü"
 
         with col1:
-            # 🎯 KİLİT: Arama kutusunu doğrudan kolona basmak yerine bir placeholder (st.empty) içine alıyoruz.
+            # 🎯 ARAMA KUTUSU PLACEHOLDER'I
             search_placeholder = st.empty()
-            
             with search_placeholder:
                 v_search = st_keyup(
                     "📝 Ürün Ara", 
@@ -229,7 +231,22 @@ try:
         with col5:
             st.button("🧹 Temizle", on_click=filtreleri_temizle, use_container_width=True)
 
-        # Filtreleme Algoritması
+        # --------------------------------------------------
+        # KPI KARTLARI İSKELETİ (Orta Satır)
+        # --------------------------------------------------
+        k1, k2, k3 = st.columns(3)
+        with k1: metric1_placeholder = st.empty()
+        with k2: metric2_placeholder = st.empty()
+        with k3: metric3_placeholder = st.empty()
+
+        st.markdown("<div style='margin-top:15px;'></div>", unsafe_allow_html=True)
+        
+        # --------------------------------------------------
+        # VERİ TABLOSU PLACEHOLDER'I (Alt Satır)
+        # --------------------------------------------------
+        table_placeholder = st.empty()
+
+        # Filtreleme Algoritması işlemleri
         f_df = data_frame.copy()
         if v_search:
             m1 = f_df[c_kod].astype(str).str.contains(v_search, case=False)
@@ -239,7 +256,7 @@ try:
         if v_grup != "Tümü": f_df = f_df[f_df[c_grup].astype(str) == v_grup]
         if v_stok: f_df = f_df[f_df[c_stok] > 0]
 
-        # KPI Kartları Hesaplamaları
+        # KPI Değerleri Hesaplama
         t_prod = len(f_df)
         t_stok = int(f_df[c_stok].sum())
         t_cost = f_df[c_maliyet].sum()
@@ -252,14 +269,12 @@ try:
             </div>
             """
 
-        k1, k2, k3 = st.columns(3)
-        with k1: st.markdown(kpi_card("📋 Toplam Çeşit:", f"{t_prod:,}".replace(",", ".") + " Adet", "#1E88E5"), unsafe_allow_html=True)
-        with k2: st.markdown(kpi_card("📦 Toplam Stok:", f"{t_stok:,}".replace(",", ".") + " Adet", "#4CAF50"), unsafe_allow_html=True)
-        with k3: st.markdown(kpi_card("💰 Toplam Maliyet:", f"${t_cost:,.0f}".replace(",", "."), "#FFC107"), unsafe_allow_html=True)
-
-        st.markdown("<div style='margin-top:15px;'></div>", unsafe_allow_html=True)
+        # 🎯 ÖNERİNİZ: Metriklerin placeholder üzerinden güncellenmesi
+        metric1_placeholder.markdown(kpi_card("📋 Toplam Çeşit:", f"{t_prod:,}".replace(",", ".") + " Adet", "#1E88E5"), unsafe_allow_html=True)
+        metric2_placeholder.markdown(kpi_card("📦 Toplam Stok:", f"{t_stok:,}".replace(",", ".") + " Adet", "#4CAF50"), unsafe_allow_html=True)
+        metric3_placeholder.markdown(kpi_card("💰 Toplam Maliyet:", f"${t_cost:,.0f}".replace(",", "."), "#FFC107"), unsafe_allow_html=True)
         
-        # Veri Tablosu Çıktısı
+        # Veri Tablosu Çıktısı Hazırlığı
         out_df = f_df[[c_kod, c_tanim, c_marka, c_grup, c_stok, c_fiyat, c_maliyet]].copy()
         out_df.columns = ["Ürün Kodu", "Açıklama", "Marka", "Ürün Grubu", "Güncel Stok", "Birim Maliyet", "Toplam Maliyet"]
         
@@ -275,7 +290,8 @@ try:
                 return ['background-color: rgba(255, 75, 75, 0.08)'] * len(row)
             return [''] * len(row)
 
-        st.dataframe(
+        # 🎯 TABLONUN DA PLACEHOLDER ÜZERİNDEN GÜNCELLENMESİ
+        table_placeholder.dataframe(
             out_df.style.apply(row_style, axis=1), 
             use_container_width=True, 
             hide_index=True,
