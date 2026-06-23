@@ -72,8 +72,8 @@ st.markdown("""
             font-weight: 400 !important;
             display: block !important;
             margin-bottom: 4px !important;
-            height: 20px !important;
-            line-height: 20px !important;
+            height: 18px !important;
+            line-height: 18px !important;
             position: relative;
             top: -6px !important; /* ✨ EKLENDİ: Etiketi kutudan hafifçe yukarı kaldırır */
             z-index: 10;
