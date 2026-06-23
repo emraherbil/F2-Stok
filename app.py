@@ -70,9 +70,9 @@ st.markdown("""
             font-size: 14px !important;
             color: rgb(49, 51, 63) !important;
             font-weight: 400 !important;
-            display: none !important;
+            display: block !important;
             margin-bottom: -4px 
-            height: 10px !important;
+            height: 2px !important;
             line-height: 10px !important;
             position: relative;
             top: -6px !important; /* ✨ EKLENDİ: Etiketi kutudan hafifçe yukarı kaldırır */
