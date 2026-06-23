@@ -104,7 +104,7 @@ st.markdown("""
         iframe[title*="st_keyup"] {
             height: 75px !important;
             min-height: 75px !important;
-            margin-top: -52px !important;
+            margin-top: -55px !important;
             margin-bottom: 0px !important;
             display: block !important;
             position: relative;
