@@ -113,7 +113,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 2. LOGO VE VERİ YÜKLEME FONKSİYONLARI
+# 2. CACHE'LENMİŞ VERİ YÜKLEME FONKSİYONU
 # ==========================================
 def logo_to_base64(img_path):
     try:
@@ -126,6 +126,7 @@ def logo_to_base64(img_path):
 
 logo_data = logo_to_base64("logo.png") or logo_to_base64("logo.jpg")
 
+# Önerdiğiniz gibi veriyi hafızada tutan güçlü cache mekanizması aktif
 @st.cache_data(ttl=600)
 def load_data():
     return pd.read_excel('Stok Sayım Arşivi-v3.1-Web.xlsm', sheet_name='Stok', engine='openpyxl')
@@ -168,7 +169,7 @@ try:
     """, unsafe_allow_html=True)
 
     # ==========================================
-    # 4. FRAGMENT ALANI (SABİT FORM MİMARİSİ)
+    # 4. FRAGMENT ALANI
     # ==========================================
     @st.fragment
     def stok_paneli_icerik(data_frame):
@@ -176,15 +177,9 @@ try:
         if "q_grup" not in st.session_state: st.session_state.q_grup = "Tümü"
         if "q_marka" not in st.session_state: st.session_state.q_marka = "Tümü"
         if "q_stok" not in st.session_state: st.session_state.q_stok = False
-        
-        def filtreleri_temizle():
-            st.session_state.clear_ver += 1
-            st.session_state.q_grup = "Tümü"
-            st.session_state.q_marka = "Tümü"
-            st.session_state.q_stok = False
 
         # --------------------------------------------------
-        # FİLTRE ALANI İSKELETİ (Üst Satır)
+        # FİLTRE GERÇEKLEŞTİRME VE DÜZEN ALANI
         # --------------------------------------------------
         col1, col2, col3, col4, col5 = st.columns([3.2, 2.4, 2.4, 2.2, 1.2], vertical_alignment="bottom")
         
@@ -209,15 +204,12 @@ try:
             st.session_state.q_grup = "Tümü"
 
         with col1:
-            # 🎯 ARAMA KUTUSU PLACEHOLDER'I
-            search_placeholder = st.empty()
-            with search_placeholder:
-                v_search = st_keyup(
-                    "📝 Ürün Ara", 
-                    key=f"search_box_{st.session_state.clear_ver}",
-                    placeholder="Yazmaya başlayın...",
-                    debounce=300
-                )
+            v_search = st_keyup(
+                "📝 Ürün Ara", 
+                key=f"search_box_{st.session_state.clear_ver}",
+                placeholder="Yazmaya başlayın...",
+                debounce=300
+            )
 
         with col2:
             v_marka = st.selectbox("🏷️ Marka", marka_ops, key="q_marka")
@@ -229,22 +221,14 @@ try:
             v_stok = st.checkbox("🚫 Tükenenleri Gizle", key="q_stok")
 
         with col5:
-            st.button("🧹 Temizle", on_click=filtreleri_temizle, use_container_width=True)
-
-        # --------------------------------------------------
-        # KPI KARTLARI İSKELETİ (Orta Satır)
-        # --------------------------------------------------
-        k1, k2, k3 = st.columns(3)
-        with k1: metric1_placeholder = st.empty()
-        with k2: metric2_placeholder = st.empty()
-        with k3: metric3_placeholder = st.empty()
-
-        st.markdown("<div style='margin-top:15px;'></div>", unsafe_allow_html=True)
-        
-        # --------------------------------------------------
-        # VERİ TABLOSU PLACEHOLDER'I (Alt Satır)
-        # --------------------------------------------------
-        table_placeholder = st.empty()
+            # 🎯 KESİN ÇÖZÜM: 'on_click' yarış durumunu kaldırıp butona basıldığı an 
+            # akışı kesip st.rerun() ile temiz bir sayfa döngüsü başlatıyoruz.
+            if st.button("🧹 Temizle", use_container_width=True):
+                st.session_state.clear_ver += 1
+                st.session_state.q_grup = "Tümü"
+                st.session_state.q_marka = "Tümü"
+                st.session_state.q_stok = False
+                st.rerun()
 
         # Filtreleme Algoritması işlemleri
         f_df = data_frame.copy()
@@ -269,11 +253,13 @@ try:
             </div>
             """
 
-        # 🎯 ÖNERİNİZ: Metriklerin placeholder üzerinden güncellenmesi
-        metric1_placeholder.markdown(kpi_card("📋 Toplam Çeşit:", f"{t_prod:,}".replace(",", ".") + " Adet", "#1E88E5"), unsafe_allow_html=True)
-        metric2_placeholder.markdown(kpi_card("📦 Toplam Stok:", f"{t_stok:,}".replace(",", ".") + " Adet", "#4CAF50"), unsafe_allow_html=True)
-        metric3_placeholder.markdown(kpi_card("💰 Toplam Maliyet:", f"${t_cost:,.0f}".replace(",", "."), "#FFC107"), unsafe_allow_html=True)
+        k1, k2, k3 = st.columns(3)
+        with k1: st.markdown(kpi_card("📋 Toplam Çeşit:", f"{t_prod:,}".replace(",", ".") + " Adet", "#1E88E5"), unsafe_allow_html=True)
+        with k2: st.markdown(kpi_card("📦 Toplam Stok:", f"{t_stok:,}".replace(",", ".") + " Adet", "#4CAF50"), unsafe_allow_html=True)
+        with k3: st.markdown(kpi_card("💰 Toplam Maliyet:", f"${t_cost:,.0f}".replace(",", "."), "#FFC107"), unsafe_allow_html=True)
         
+        st.markdown("<div style='margin-top:15px;'></div>", unsafe_allow_html=True)
+
         # Veri Tablosu Çıktısı Hazırlığı
         out_df = f_df[[c_kod, c_tanim, c_marka, c_grup, c_stok, c_fiyat, c_maliyet]].copy()
         out_df.columns = ["Ürün Kodu", "Açıklama", "Marka", "Ürün Grubu", "Güncel Stok", "Birim Maliyet", "Toplam Maliyet"]
@@ -290,8 +276,7 @@ try:
                 return ['background-color: rgba(255, 75, 75, 0.08)'] * len(row)
             return [''] * len(row)
 
-        # 🎯 TABLONUN DA PLACEHOLDER ÜZERİNDEN GÜNCELLENMESİ
-        table_placeholder.dataframe(
+        st.dataframe(
             out_df.style.apply(row_style, axis=1), 
             use_container_width=True, 
             hide_index=True,
