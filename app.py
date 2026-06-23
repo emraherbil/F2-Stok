@@ -14,7 +14,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# 🎯 SELECTBOX İLE %100 EŞİTLENMİŞ HİZALAMA CSS'İ
+# 🎯 MİLİMETRİK HİZALAMA VE EZİLMEYİ SIFIRLAYAN CSS
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -65,7 +65,7 @@ st.markdown("""
             width: 100% !important;
         }
 
-        /* 🎯 SABİT ETİKETİN SELECTBOX ETİKETLERİYLE BİREBİR EŞİTLENMESİ */
+        /* 🎯 ASLA DEĞİŞMEYEN SABİT ETİKET STİLİ */
         .sabit-arama-etiketi {
             font-size: 14px !important;
             color: rgb(49, 51, 63) !important;
@@ -74,33 +74,41 @@ st.markdown("""
             margin-bottom: 4px !important;
             height: 20px !important;
             line-height: 20px !important;
+            position: relative;
+            z-index: 10;
         }
 
-        /* 🎯 ARTIK KUTU YÜKSEKLİĞİ VE MARJİNİ SELECTBOX KATMANIYLA EŞİT
-           Bileşenin taşıyıcı alanını tam 40px standardına çekiyoruz ve 
-           Streamlit'in iç selectbox padding farkını kapatmak için marjin sıfırlıyoruz. */
+        /* 🎯 ARAMA KUTUSU TAŞIYICISI: Selectbox'ların saf boyutu olan 40px'e kilitliyoruz. */
         div[data-testid="column"]:first-child div.element-container:has(iframe) {
-            min-height: 40px !important;
             height: 40px !important;
+            min-height: 40px !important;
             max-height: 40px !important;
             margin-top: 0px !important;
             margin-bottom: 0px !important;
+            overflow: visible !important;
         }
 
         div[data-testid="stCustomComponentV1"] {
-            min-height: 40px !important;
             height: 40px !important;
+            min-height: 40px !important;
             margin-top: 0px !important;
             margin-bottom: 0px !important;
             width: 100% !important;
+            overflow: visible !important;
         }
         
+        /* 🎯 İŞTE MUCİZEYİ YARATAN KISIM: 
+           Iframe'e ezilmemesi için 75px bol alan veriyoruz. 
+           Ardından margin-top: -28px ile o içerideki boş etiketi yukarı, 
+           bizim statik etiketin arkasına itip, input kutusunu Selectbox'larla hizalıyoruz! */
         iframe[title*="st_keyup"] {
-            height: 40px !important;
-            min-height: 40px !important;
-            margin-top: 0px !important;
+            height: 75px !important;
+            min-height: 75px !important;
+            margin-top: -28px !important;
             margin-bottom: 0px !important;
             display: block !important;
+            position: relative;
+            z-index: 1;
         }
 
         /* Checkbox dikey hizalaması */
