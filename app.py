@@ -14,7 +14,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# 🎯 EN SEVİLEN HİZALAMA TABANI + NOKTA ATIŞI ALAN KİLİTLEME CSS'İ
+# 🎯 GÖRSELDEKİ DURUMU SABİTLEYEN İSKELET CSS TASARIMI
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -51,7 +51,7 @@ st.markdown("""
         .custom-logo { height: 60px; object-fit: contain; }
         .custom-title-block { display: flex; flex-direction: column; justify-content: center; }
         
-        /* Tüm kolonların içeriğini dikeyde alt tabana kilitler (Sizin sevdiğiniz kusursuz hiza) */
+        /* Tüm kolon içeriğini alta kilitler */
         div[data-testid="column"] {
             display: flex !important;
             flex-direction: column !important;
@@ -66,29 +66,37 @@ st.markdown("""
             width: 100% !important;
         }
 
-        /* 🎯 KESİN ÇÖZÜM: st_keyup bileşenini içeren üst element kapsayıcısını kilitler.
-           Böylece key değişip bileşen silinse dahi altındaki boşluk (iskelet) asla çökmez ve zıplama yapmaz. */
-        div[data-testid="column"]:first-child .element-container {
-            min-height: 68px !important;
-            height: 68px !important;
-            display: flex !important;
-            flex-direction: column !important;
-            justify-content: flex-end !important;
+        /* 🎯 BİZİM SABİT İSKELET KUTUMUZ: 
+           Kutu silindiğinde arkada tam olarak görseldeki gibi temiz gri bir taşıyıcı iskelet kalır. */
+        div[data-testid="column"]:first-child .element-container:has(iframe) {
+            background-color: #f0f2f6 !important;
+            border-radius: 6px !important;
+            min-height: 42px !important;
+            height: 42px !important;
+            box-sizing: border-box !important;
         }
 
         div[data-testid="stCustomComponentV1"] {
-            min-height: 68px !important;
-            height: 68px !important;
+            min-height: 42px !important;
+            height: 42px !important;
             margin-bottom: 0px !important;
-            display: flex !important;
-            flex-direction: column !important;
-            justify-content: flex-end !important;
             width: 100% !important;
         }
+        
         iframe[title*="st_keyup"] {
-            height: 68px !important;
-            min-height: 68px !important;
+            height: 42px !important;
+            min-height: 42px !important;
             margin-bottom: 0px !important;
+            display: block !important;
+            background: transparent !important;
+        }
+
+        /* Sabit Başlık Etiketi Tasarımı */
+        .sabit-etiket {
+            font-size: 14px !important;
+            color: #31333F !important;
+            margin-bottom: 4px !important;
+            font-weight: 400 !important;
             display: block !important;
         }
 
@@ -177,7 +185,7 @@ try:
     """, unsafe_allow_html=True)
 
     # ==========================================
-    # 4. FRAGMENT ALANI (ORİJİNAL SAĞLAM MİMARİ)
+    # 4. FRAGMENT ALANI (AKILLI ILLÜZYON SİSTEMİ)
     # ==========================================
     @st.fragment
     def stok_paneli_icerik(data_frame):
@@ -186,7 +194,6 @@ try:
         if "q_marka" not in st.session_state: st.session_state.q_marka = "Tümü"
         if "q_stok" not in st.session_state: st.session_state.q_stok = False
         
-        # Orijinal tıkır tıkır çalışan on_click temizleme fonksiyonu
         def filtreleri_temizle():
             st.session_state.clear_ver += 1
             st.session_state.q_grup = "Tümü"
@@ -216,9 +223,13 @@ try:
             st.session_state.q_grup = "Tümü"
 
         with col1:
-            # Kararlı çalışan arama kutusu
+            # 🎯 1. ADIM: Asla silinmeyen, zıplamayan sabit HTML etiketimiz
+            st.markdown('<span class="sabit-etiket">📝 Ürün Ara</span>', unsafe_allow_html=True)
+            
+            # 🎯 2. ADIM: İçerideki label'ı boş bırakıyoruz (""). 
+            # Böylece iframe silinse bile sadece içi silinecek, arkadaki gri CSS iskeletimiz alanı koruyacak.
             v_search = st_keyup(
-                "📝 Ürün Ara", 
+                "", 
                 key=f"search_box_{st.session_state.clear_ver}",
                 placeholder="Yazmaya başlayın...",
                 debounce=300
