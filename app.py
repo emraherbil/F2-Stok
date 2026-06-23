@@ -14,7 +14,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# 🎯 ZIPLAMAYI VE KAYMAYI ENGELLEYEN MİLİMETRİK HİZALAMA CSS'İ
+# 🎯 ZIPLAMAYI VE KAYMAYI KÖKTEN ÇÖZEN SABİT ETİKET VE İSKELET CSS'İ
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -51,7 +51,7 @@ st.markdown("""
         .custom-logo { height: 60px; object-fit: contain; }
         .custom-title-block { display: flex; flex-direction: column; justify-content: center; }
         
-        /* 🎯 Kolon yapısını serbest bırakıp eleman bazlı hizalama yapıyoruz */
+        /* Kolon yapısı */
         div[data-testid="column"] {
             display: block !important;
         }
@@ -65,14 +65,25 @@ st.markdown("""
             width: 100% !important;
         }
 
-        /* 🎯 ARAMA KUTUSU ALANINI KİLİTLEME (MİLİMETRİK HİZALAMA): 
-           st_keyup iframe'i silinse bile altındaki taşıyıcı kutuyu selectbox'larla 
-           aynı dikey hizaya (baseline) oturtmak için üstten 2px boşluk verip alanı kilitliyoruz. */
+        /* 🎯 ASLA DEĞİŞMEYEN SABİT ETİKET STİLİ */
+        .sabit-arama-etiketi {
+            font-size: 14px !important;
+            color: #31333F !important;
+            font-weight: 400 !important;
+            display: block !important;
+            margin-bottom: 4px !important;
+            height: 20px !important;
+            line-height: 20px !important;
+        }
+
+        /* 🎯 KUTU ALANINI KİLİTLEME: 
+           Etiketi dışarı aldığımız için artık iframe alanını tam olarak saf inputbox 
+           yüksekliği olan 42px'e çiviliyoruz. iframe silinse de bu 42px asla daralmaz! */
         div[data-testid="column"]:first-child div.element-container:has(iframe) {
             min-height: 42px !important;
             height: 42px !important;
             max-height: 42px !important;
-            margin-top: 2px !important;
+            margin-top: 0px !important;
         }
 
         div[data-testid="stCustomComponentV1"] {
@@ -89,15 +100,15 @@ st.markdown("""
             display: block !important;
         }
 
-        /* Checkbox dikey hizalaması: Diğer kutuların üst çizgisiyle kusursuz hizalanması için */
+        /* Checkbox dikey hizalaması (Selectbox etiket yüksekliğiyle eşitler) */
         div[data-testid="stCheckbox"] { 
-            padding-top: 25px !important;
+            padding-top: 24px !important;
             padding-bottom: 0px !important; 
         }
 
-        /* Temizle Butonunun Dikey Konumu: Üstündeki etiket boşluğunu simüle eder */
+        /* Temizle Butonunun Dikey Konumu */
         div[data-testid="column"]:last-child .stButton {
-            margin-top: 23px !important;
+            margin-top: 24px !important;
         }
 
         /* Temizle Butonunun Tasarımı */
@@ -180,7 +191,7 @@ try:
     """, unsafe_allow_html=True)
 
     # ==========================================
-    # 4. FRAGMENT ALANI (GÜVENLİ VE STABİL)
+    # 4. FRAGMENT ALANI (ZANNETSİZ VE KİLİTLİ YAPI)
     # ==========================================
     @st.fragment
     def stok_paneli_icerik(data_frame):
@@ -218,8 +229,12 @@ try:
             st.session_state.q_grup = "Tümü"
 
         with col1:
+            # 🎯 ÇÖZÜMÜN ANAHTARI: Asla silinmeyen yerel etiketimizi buraya koyuyoruz.
+            st.markdown('<span class="sabit-arama-etiketi">📝 Ürün Ara</span>', unsafe_allow_html=True)
+            
+            # 🎯 ÇÖZÜMÜN ANAHTARI 2: st_keyup'ın kendi label parametresini boş ("") veriyoruz.
             v_search = st_keyup(
-                "📝 Ürün Ara", 
+                "", 
                 key=f"search_box_{st.session_state.clear_ver}",
                 placeholder="Yazmaya başlayın...",
                 debounce=300
@@ -261,7 +276,7 @@ try:
             """
 
         k1, k2, k3 = st.columns(3)
-        with k1: st.markdown(kpi_card("📋 Toplam Çesist:", f"{t_prod:,}".replace(",", ".") + " Adet", "#1E88E5"), unsafe_allow_html=True)
+        with k1: st.markdown(kpi_card("📋 Toplam Çeşit:", f"{t_prod:,}".replace(",", ".") + " Adet", "#1E88E5"), unsafe_allow_html=True)
         with k2: st.markdown(kpi_card("📦 Toplam Stok:", f"{t_stok:,}".replace(",", ".") + " Adet", "#4CAF50"), unsafe_allow_html=True)
         with k3: st.markdown(kpi_card("💰 Toplam Maliyet:", f"${t_cost:,.0f}".replace(",", "."), "#FFC107"), unsafe_allow_html=True)
 
