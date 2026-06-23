@@ -38,7 +38,7 @@ st.markdown("""
             top: 0px !important;
             background-color: white !important;
             z-index: 9999 !important;
-            padding-bottom: 0px !important;
+            padding-bottom: 10px !important;
         }
         
         .custom-header-container { 
