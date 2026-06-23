@@ -35,16 +35,16 @@ st.markdown("""
         /* Üst başlık alanını sabitle */
         div[data-testid="stVerticalBlock"] > div:first-child {
             position: sticky !important;
-            top: 32px !important;
+            top: 0px !important;
             background-color: white !important;
             z-index: 9999 !important;
-            padding-bottom: 32px !important;
+            padding-bottom: 0px !important;
         }
         
         .custom-header-container { 
             display: flex; 
             align-items: center; 
-            gap: 25px; 
+            gap: 50px; 
             padding-top: 15px;
             padding-bottom: 15px;
         }
