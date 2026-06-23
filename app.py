@@ -81,9 +81,9 @@ st.markdown("""
         /* 🎯 ARAMA KUTUSU TAŞIYICISI: Selectbox'ların saf boyutu olan 40px'e kilitliyoruz. */
         div[data-testid="column"]:first-child div.element-container:has(iframe) {
             height: 40px !important;
-            min-height: 40px !important;
-            max-height: 40px !important;
-            margin-top: 0px !important;
+            min-height: 75px !important;
+            max-height: 75px !important;
+            margin-top: -55px !important;
             margin-bottom: 0px !important;
             overflow: visible !important;
         }
