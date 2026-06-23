@@ -224,3 +224,88 @@ try:
             df_for_grup = data_frame[data_frame[c_marka].astype(str) == current_marka]
         else:
             df_for_grup = data_frame
+        grup_ops = ["Tümü"] + sorted([str(x) for x in df_for_grup[c_grup].dropna().unique() if str(x).lower() != 'nan'])
+
+        if current_marka not in marka_ops:
+            st.session_state.q_marka = "Tümü"
+        if current_grup not in grup_ops:
+            st.session_state.q_grup = "Tümü"
+
+        with col1:
+            st.markdown('<span class="sabit-arama-etiketi">📝 Ürün Ara</span>', unsafe_allow_html=True)
+            v_search = st_keyup(
+                "", 
+                key=f"search_box_{st.session_state.clear_ver}",
+                placeholder="Yazmaya başlayın...",
+                debounce=300
+            )
+
+        with col2:
+            v_marka = st.selectbox("🏷️ Marka", marka_ops, key="q_marka")
+
+        with col3:
+            v_grup = st.selectbox("📂 Ürün Grubu", grup_ops, key="q_grup")
+
+        with col4:
+            v_stok = st.checkbox("🚫 Tükenenleri Gizle", key="q_stok")
+
+        with col5:
+            st.button("🧹 Temizle", on_click=filtreleri_temizle, use_container_width=True)
+
+        # Filtreleme Algoritması
+        f_df = data_frame.copy()
+        if v_search:
+            m1 = f_df[c_kod].astype(str).str.contains(v_search, case=False)
+            m2 = f_df[c_tanim].astype(str).str.contains(v_search, case=False)
+            f_df = f_df[m1 | m2]
+        if v_marka != "Tümü": f_df = f_df[f_df[c_marka].astype(str) == v_marka]
+        if v_grup != "Tümü": f_df = f_df[f_df[c_grup].astype(str) == v_grup]
+        if v_stok: f_df = f_df[f_df[c_stok] > 0]
+
+        # KPI Kartları Hesaplamaları
+        t_prod = len(f_df)
+        t_stok = int(f_df[c_stok].sum())
+        t_cost = f_df[c_maliyet].sum()
+        
+        def kpi_card(label, val, color):
+            return f"""
+            <div style='background-color: rgba(28, 31, 46, 0.03); padding: 12px 15px; border-radius: 6px; border-left: 5px solid {color}; display: flex; justify-content: space-between; align-items: center;'>
+                <span style='font-size:13px; color:#555; font-weight:bold;'>{label}</span>
+                <span style='font-size:1.15rem; font-weight: 800; color:#111;'>{val}</span>
+            </div>
+            """
+
+        k1, k2, k3 = st.columns(3)
+        with k1: st.markdown(kpi_card("📋 Toplam Çeşit:", f"{t_prod:,}".replace(",", ".") + " Adet", "#1E88E5"), unsafe_allow_html=True)
+        with k2: st.markdown(kpi_card("📦 Toplam Stok:", f"{t_stok:,}".replace(",", ".") + " Adet", "#4CAF50"), unsafe_allow_html=True)
+        with k3: st.markdown(kpi_card("💰 Toplam Maliyet:", f"${t_cost:,.0f}".replace(",", "."), "#FFC107"), unsafe_allow_html=True)
+
+        st.markdown("<div style='margin-top:15px;'></div>", unsafe_allow_html=True)
+        
+        # Veri Tablosu Çıktısı
+        out_df = f_df[[c_kod, c_tanim, c_marka, c_grup, c_stok, c_fiyat, c_maliyet]].copy()
+        out_df.columns = ["Ürün Kodu", "Açıklama", "Marka", "Ürün Grubu", "Güncel Stok", "Birim Maliyet", "Toplam Maliyet"]
+        
+        out_df = out_df.reset_index(drop=True)
+        raw_stok = out_df["Güncel Stok"].copy()
+
+        out_df["Birim Maliyet"] = out_df["Birim Maliyet"].apply(lambda v: f"${v:,.0f}".replace(",", "."))
+        out_df["Toplam Maliyet"] = out_df["Toplam Maliyet"].apply(lambda v: f"${v:,.0f}".replace(",", "."))
+        out_df["Güncel Stok"] = out_df["Güncel Stok"].apply(lambda v: f"{int(v):,}".replace(",", "."))
+
+        def row_style(row):
+            if raw_stok.loc[row.name] == 0:
+                return ['background-color: rgba(255, 75, 75, 0.08)'] * len(row)
+            return [''] * len(row)
+
+        st.dataframe(
+            out_df.style.apply(row_style, axis=1), 
+            use_container_width=True, 
+            hide_index=True,
+            height=540
+        )
+
+    stok_paneli_icerik(df)
+
+except Exception as e:
+    st.error(f"Hata oluştu: {e}")
