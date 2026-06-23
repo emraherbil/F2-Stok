@@ -27,8 +27,8 @@ st.markdown("""
         
         .block-container { 
             display: block !important;
-            padding-top: 1.5rem !important; 
-            padding-bottom: 1.5rem !important; 
+            padding-top: 2.5rem !important; 
+            padding-bottom: 2.5rem !important; 
             max-width: 100% !important;
         }
         
