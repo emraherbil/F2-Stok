@@ -75,14 +75,14 @@ st.markdown("""
            st_keyup iframe'i silinse bile altındaki taşıyıcı kutunun yüksekliğini 42px'e çiviliyoruz.
            Böylece ne etiket alta kaçabilir ne de yan kolonlar yerinden oynayabilir. */
         div[data-testid="column"]:first-child div.element-container:has(iframe) {
-            min-height: 42px !important;
-            height: 42px !important;
-            max-height: 42px !important;
+            min-height: 32px !important;
+            height: 32px !important;
+            max-height: 32px !important;
         }
 
         div[data-testid="stCustomComponentV1"] {
-            min-height: 42px !important;
-            height: 42px !important;
+            min-height: 32px !important;
+            height: 32px !important;
             margin-bottom: 0px !important;
             width: 100% !important;
         }
