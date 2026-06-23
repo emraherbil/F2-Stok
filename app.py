@@ -71,7 +71,7 @@ st.markdown("""
             color: rgb(49, 51, 63) !important;
             font-weight: 400 !important;
             display: block !important;
-            margin-bottom: 4px !important;
+            margin-bottom: 2px !important;
             height: 10px !important;
             line-height: 10px !important;
             position: relative;
