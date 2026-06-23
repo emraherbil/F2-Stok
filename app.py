@@ -38,7 +38,7 @@ st.markdown("""
             top: 0px !important;
             background-color: white !important;
             z-index: 9999 !important;
-            padding-bottom: 10px !important;
+            padding-bottom: 0px !important;
         }
         
         .custom-header-container { 
@@ -46,7 +46,7 @@ st.markdown("""
             align-items: center; 
             gap: 25px; 
             padding-top: 15px;
-            padding-bottom: 0px;
+            padding-bottom: 15px;
         }
         .custom-logo { height: 60px; object-fit: contain; }
         .custom-title-block { display: flex; flex-direction: column; justify-content: center; }
