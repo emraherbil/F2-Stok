@@ -7,7 +7,7 @@ from pathlib import Path
 # ... (Sayfa yapılandırması ve CSS kısmınız aynı kalabilir, 
 # sadece st.text_input'un render edilme şeklini aşağıda değiştiriyoruz)
 
-    @st.fragment
+@st.fragment
     def stok_paneli_icerik(data_frame):
         # 1. State Yönetimi
         if "q_grup" not in st.session_state: st.session_state.q_grup = "Tümü"
