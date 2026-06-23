@@ -27,18 +27,18 @@ st.markdown("""
         
         .block-container { 
             display: block !important;
-            padding-top: 2.5rem !important; 
-            padding-bottom: 2.5rem !important; 
+            padding-top: 1.5rem !important; 
+            padding-bottom: 1.5rem !important; 
             max-width: 100% !important;
         }
         
         /* Üst başlık alanını sabitle */
         div[data-testid="stVerticalBlock"] > div:first-child {
             position: sticky !important;
-            top: 0px !important;
+            top: 32px !important;
             background-color: white !important;
             z-index: 9999 !important;
-            padding-bottom: 0px !important;
+            padding-bottom: 32px !important;
         }
         
         .custom-header-container { 
