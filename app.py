@@ -70,7 +70,7 @@ st.markdown("""
             font-size: 14px !important;
             color: rgb(49, 51, 63) !important;
             font-weight: 400 !important;
-            display: block !important;
+            display: none !important;
             margin-bottom: -4px 
             height: 10px !important;
             line-height: 10px !important;
