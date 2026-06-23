@@ -45,7 +45,7 @@ st.markdown("""
             display: flex; 
             align-items: center; 
             gap: 25px; 
-            padding-top: 0px;
+            padding-top: 15px;
             padding-bottom: 0px;
         }
         .custom-logo { height: 60px; object-fit: contain; }
