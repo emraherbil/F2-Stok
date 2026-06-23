@@ -14,7 +14,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# 🎯 HAYALET KORUYUCU VE HİZALAMA CSS KİLİDİ
+# 🎯 EN SEVİLEN HİZALAMA TABANI + SABSİTLEŞTİRİLMİŞ KOLON İSKELETİ
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -51,11 +51,16 @@ st.markdown("""
         .custom-logo { height: 60px; object-fit: contain; }
         .custom-title-block { display: flex; flex-direction: column; justify-content: center; }
         
-        /* Kolon dikey sabitlemesi */
+        /* Tüm kolonların içeriğini dikeyde alt tabana kilitler */
         div[data-testid="column"] {
             display: flex !important;
             flex-direction: column !important;
             justify-content: flex-end !important;
+        }
+        
+        /* 🎯 ZIPLAMA ENGELLEYİCİ: İlk kolonun (Arama kutusunun olduğu yer) çökmesini engeller */
+        div[data-testid="column"]:first-child {
+            min-height: 68px !important;
         }
         
         div[data-testid="column"] .stFormSubmitButton, 
@@ -66,7 +71,7 @@ st.markdown("""
             width: 100% !important;
         }
 
-        /* st_keyup için mükemmel hizalanmış iskelet boyutu */
+        /* 🎯 SİZİN EN BEĞENDİĞİNİZ KUSURSUZ BOYUT KİLİDİ */
         div[data-testid="stCustomComponentV1"] {
             min-height: 68px !important;
             height: 68px !important;
@@ -76,21 +81,11 @@ st.markdown("""
             justify-content: flex-end !important;
             width: 100% !important;
         }
-        
         iframe[title*="st_keyup"] {
             height: 68px !important;
             min-height: 68px !important;
             margin-bottom: 0px !important;
             display: block !important;
-        }
-
-        /* 🎯 ZIPLAMAYI ÖNLEYEN HAYALET KONTEYNER KİLİDİ */
-        .ghost-konteyner {
-            height: 68px !important;
-            margin-top: -68px !important;
-            width: 100% !important;
-            display: block !important;
-            pointer-events: none !important;
         }
 
         /* Checkbox dikey hizalama sabitlemesi (42px yüksekliğe ortalar) */
@@ -188,7 +183,7 @@ try:
         if "q_stok" not in st.session_state: st.session_state.q_stok = False
         
         def filtreleri_temizle():
-            st.session_state.clear_ver += 1  # Yeniden oluşturma tetiklenir
+            st.session_state.clear_ver += 1
             st.session_state.q_grup = "Tümü"
             st.session_state.q_marka = "Tümü"
             st.session_state.q_stok = False
@@ -216,15 +211,13 @@ try:
             st.session_state.q_grup = "Tümü"
 
         with col1:
-            # Hem temizlenen hem de asla zıplamayan akıllı konum korumalı kutu
+            # Geri döndürülen kusursuz canlı arama kutusu
             v_search = st_keyup(
                 "📝 Ürün Ara", 
                 key=f"search_box_{st.session_state.clear_ver}",
                 placeholder="Yazmaya başlayın...",
                 debounce=300
             )
-            # 🎯 İŞTE O SİHİRLİ HAYALET ALAN: Üstteki kutu silinse bile kolonu 68px'de sabit tutar.
-            st.markdown('<div class="ghost-konteyner"></div>', unsafe_allow_html=True)
 
         with col2:
             v_marka = st.selectbox("🏷️ Marka", marka_ops, key="q_marka")
