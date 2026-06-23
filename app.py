@@ -8,16 +8,18 @@ from st_keyup import st_keyup
 # 1. SAYFA YAPILANDIRMASI
 st.set_page_config(page_title="F2 ICT - Ofis Stok İzleme Paneli", page_icon="📦", layout="wide")
 
-# 2. CSS STİL VE HİZALAMA (Hata vermeyecek şekilde tırnak içi tanımlama)
+# 2. CSS STİL VE HİZALAMA (Zıplama önleyici kalkanlar dahil)
 st.markdown("""
     <style>
         footer, .viewerBadge_container, [data-testid="stToolbar"], .stDeployButton, header {display: none !important;}
         
-        /* Dikey hizalama ve zıplama önleyici kalkan */
         div[data-testid="column"] { display: flex; align-items: flex-end; }
         
+        /* Zıplamayı engelleyen kalkan */
         div[data-testid="stCustomComponentV1"] {
             min-height: 73px !important;
+            display: flex;
+            align-items: flex-end;
             margin-bottom: 0px !important;
         }
         
@@ -40,7 +42,6 @@ try:
 
     @st.fragment
     def stok_paneli_icerik(data_frame):
-        # State yönetimi
         if "clear_ver" not in st.session_state: st.session_state.clear_ver = 0
         if "q_search" not in st.session_state: st.session_state.q_search = ""
         
@@ -53,10 +54,7 @@ try:
         col1, col2, col3, col4, col5 = st.columns([3, 2, 2, 2, 1], vertical_alignment="bottom")
         
         with col1:
-            # st_keyup kullanımı: key parametresi clear_ver ile güncellenerek temizleme sonrası kutuyu sıfırlar
             v_search = st_keyup("📝 Ürün Ara", value=st.session_state.q_search, key=f"k_{st.session_state.clear_ver}", debounce=300)
-            if v_search: st.session_state.q_search = v_search
-            
         with col2:
             v_marka = st.selectbox("🏷️ Marka", ["Tümü"] + sorted(data_frame[c_marka].astype(str).unique().tolist()), key="q_marka")
         with col3:
@@ -68,10 +66,8 @@ try:
 
         # Filtreleme
         f_df = data_frame.copy()
-        if v_search: 
-            f_df = f_df[f_df[c_kod].astype(str).str.contains(v_search, case=False) | f_df[c_tanim].astype(str).str.contains(v_search, case=False)]
+        if v_search: f_df = f_df[f_df[c_kod].astype(str).str.contains(v_search, case=False) | f_df[c_tanim].astype(str).str.contains(v_search, case=False)]
         if v_marka != "Tümü": f_df = f_df[f_df[c_marka].astype(str) == v_marka]
-        if v_grup != "Tümü": f_df = f_df[f_df[c_grup].astype(str) == v_grup]
         if v_stok: f_df = f_df[pd.to_numeric(f_df[c_stok], errors='coerce') > 0]
         
         st.dataframe(f_df, use_container_width=True, hide_index=True)
