@@ -13,7 +13,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# Görsel temizlik, milimetrik hizalama ve GERÇEK ZAMANLI HARF HARF ARAMA tetikleyicisi
+# Görsel temizlik, milimetrik hizalama ve AKILLI GERÇEK ZAMANLI ODAK KORUMALI ARAMA MOTORU
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -86,31 +86,41 @@ st.markdown("""
     </style>
 
     <script>
-    /* Her harf vuruşunda Streamlit backend mekanizmasını tetikleyen JavaScript kilit alanı */
+    // Streamlit veri yenilerken imleç konumunu ve odağı koruyan küresel hafıza katmanı
+    window.parent.__searchState = window.parent.__searchState || { needsFocus: false, start: 0, end: 0 };
+
     setInterval(function() {
         var parentDoc = window.parent.document;
         var inputEl = parentDoc.querySelector('input[aria-label="📝 Ürün Ara"]');
-        if (inputEl && !inputEl.dataset.listenerBound) {
-            inputEl.dataset.listenerBound = "true";
-            
-            inputEl.addEventListener('input', function() {
-                // 1. Değişimi React state katmanına bildir
-                var changeEvent = new Event('change', { bubbles: true });
-                inputEl.dispatchEvent(changeEvent);
+        
+        if (inputEl) {
+            // Veri yenilendikten sonra hafızadaki konuma geri odaklan ve imleci bozma
+            if (window.parent.__searchState.needsFocus) {
+                window.parent.__searchState.needsFocus = false;
+                inputEl.focus();
+                inputEl.setSelectionRange(window.parent.__searchState.start, window.parent.__searchState.end);
+            }
+
+            if (!inputEl.dataset.listenerBound) {
+                inputEl.dataset.listenerBound = "true";
                 
-                // 2. Sanal bir Enter simüle ederek veriyi anlık olarak Python'a postala
-                var enterEvent = new KeyboardEvent('keydown', {
-                    key: 'Enter',
-                    code: 'Enter',
-                    keyCode: 13,
-                    which: 13,
-                    bubbles: true,
-                    cancelable: true
+                var debounceTimeout;
+                inputEl.addEventListener('input', function() {
+                    clearTimeout(debounceTimeout);
+                    
+                    // 350ms duraklama algılandığında (yazma bitince) otomatik süzme tetikler
+                    debounceTimeout = setTimeout(function() {
+                        window.parent.__searchState.start = inputEl.selectionStart;
+                        window.parent.__searchState.end = inputEl.selectionEnd;
+                        window.parent.__searchState.needsFocus = true;
+                        
+                        // Streamlit'e veri senkronizasyon emri gönder
+                        inputEl.blur();
+                    }, 350);
                 });
-                inputEl.dispatchEvent(enterEvent);
-            });
+            }
         }
-    }, 150);
+    }, 100);
     </script>
 """, unsafe_allow_html=True)
 
@@ -180,7 +190,7 @@ try:
         if "q_marka" not in st.session_state: st.session_state.q_marka = "Tümü"
         if "q_stok" not in st.session_state: st.session_state.q_stok = False
         
-        # Temizle fonksiyonu (Kutuyu ve filtreleri anında sıfırlar)
+        # Temizle fonksiyonu
         def filtreleri_temizle():
             st.session_state.search_text = ""
             st.session_state.real_search_box = ""
