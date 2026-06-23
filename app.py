@@ -3,7 +3,6 @@ import pandas as pd
 import os
 import base64
 from pathlib import Path
-from st_keyup import st_keyup
 
 # ==========================================
 # 1. SAYFA YAPILANDIRMASI VE KÜRESEL STİLLER
@@ -14,7 +13,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# Görsel stabilite, milimetrik hizalama ve ZIPLAMA KİLİDİ CSS kuralları
+# Görsel temizlik, milimetrik hizalama ve global JS enjeksiyonu
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -62,7 +61,7 @@ st.markdown("""
             padding-top: 32px !important; 
         }
 
-        /* Temizle Butonunun Tasarımı */
+        /* Temizle Butonunun Tasarımı (Selectbox yüksekliği olan 42px ile tam eşit) */
         .stButton > button { 
             background-color: #1C355E !important; 
             color: white !important; 
@@ -79,34 +78,30 @@ st.markdown("""
             border: 1px solid #12223c !important;
             color: white !important; 
         }
-
-        /* 🎯 KESİN ÇÖZÜM: ST_KEYUP KUTUSUNUN ZIPLAMASINI FİZİKSEL OLARAK KİLİTLEYEN CSS 🎯 */
-        /* Kutu yüksekliğini tam bir selectbox (etiket+kutu = ~73px) boyutunda betonluyoruz */
-        div[data-testid="element-container"]:has(iframe[title*="st_keyup"]) {
-            min-height: 73px !important;
-            margin-bottom: 0px !important;
-            display: block !important;
-        }
         
-        div[data-testid="stCustomComponentV1"]:has(iframe[title*="st_keyup"]) {
-            min-height: 73px !important;
-            padding: 0 !important;
-        }
-        
-        iframe[title*="st_keyup"] {
-            min-height: 73px !important;
-            border: none !important;
-        }
-        
-        /* Girdi kutularının sınır yarıçapı */
+        /* Tüm girdi kutularının sınır yarıçapı */
         div[data-baseweb="input"] {
             border-radius: 6px !important;
         }
     </style>
+
+    <script>
+    setInterval(function() {
+        var parentDoc = window.parent.document;
+        var inputEl = parentDoc.querySelector('input[aria-label="📝 Ürün Ara"]');
+        if (inputEl && !inputEl.dataset.listenerBound) {
+            inputEl.dataset.listenerBound = "true";
+            inputEl.addEventListener('input', function() {
+                var event = new Event('change', { bubbles: true });
+                inputEl.dispatchEvent(event);
+            });
+        }
+    }, 200);
+    </script>
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 2. LOGO VE VERİ YÜKLEME FONKSİYONLARI
+# 2. LOGO VE VERİ YÜKLEME FONKSİYON LARI
 # ==========================================
 def logo_to_base64(img_path):
     try:
@@ -165,17 +160,16 @@ try:
     # ==========================================
     @st.fragment
     def stok_paneli_icerik(data_frame):
-        # Temizle butonu için versiyon takibi
-        if "clear_version" not in st.session_state: st.session_state.clear_version = 0
-        if "q_search" not in st.session_state: st.session_state.q_search = ""
+        # State Değişkenlerinin Güvenli Tanımlanması
+        if "search_text" not in st.session_state: st.session_state.search_text = ""
         if "q_grup" not in st.session_state: st.session_state.q_grup = "Tümü"
         if "q_marka" not in st.session_state: st.session_state.q_marka = "Tümü"
         if "q_stok" not in st.session_state: st.session_state.q_stok = False
         
-        # Temizle Fonksiyonu
+        # Temizle fonksiyonu (Kutuyu ve filtreleri anında sıfırlar)
         def filtreleri_temizle():
-            st.session_state.clear_version += 1
-            st.session_state.q_search = ""
+            st.session_state.search_text = ""
+            st.session_state.real_search_box = ""
             st.session_state.q_grup = "Tümü"
             st.session_state.q_marka = "Tümü"
             st.session_state.q_stok = False
@@ -203,16 +197,14 @@ try:
             st.session_state.q_grup = "Tümü"
 
         with col1:
-            # 🎯 HARF HARF CANLI ARAMA (PÜRÜZSÜZ & ZIPLAMAZ)
-            # Sahte HTML etiketleri yok. Kendi orijinal etiketini kullanıyoruz, böylece hiza %100 eşitleniyor.
-            # debounce=300 ile sistemin boğulup titremesi önleniyor.
-            v_search = st_keyup(
+            # Saf yerel kutu (Hizayı bozan hiçbir yan element içermez)
+            v_search = st.text_input(
                 "📝 Ürün Ara", 
-                value=st.session_state.q_search,
+                value=st.session_state.search_text,
                 placeholder="Yazmaya başlayın...",
-                key=f"live_search_box_{st.session_state.clear_version}",
-                debounce=300
+                key="real_search_box"
             )
+            st.session_state.search_text = v_search
 
         with col2:
             v_marka = st.selectbox("🏷️ Marka", marka_ops, key="q_marka")
