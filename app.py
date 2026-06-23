@@ -67,7 +67,7 @@ st.markdown("""
         div[data-testid="column"] .stButton,
         div[data-testid="column"] .stTextInput,
         div[data-testid="column"] .stSelectbox {
-            margin-bottom: 10px !important;
+            margin-bottom: 20px !important;
             width: 100% !important;
         }
 
