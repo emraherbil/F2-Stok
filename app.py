@@ -14,7 +14,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# 🎯 TEMİZLE BUTONU SIFIRLAMA VE ZIPLAMA ENGELLEME CSS KİLİDİ
+# Kusursuz konumlandırma için optimize edilmiş temiz CSS
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -66,7 +66,7 @@ st.markdown("""
             width: 100% !important;
         }
 
-        /* 🎯 KESİN ÇÖZÜM: Kutu temizlenirken (silinirken) alanın çökmesini engelleyen statik iskelet kilidi */
+        /* Sabit boyutlu st_keyup konteyner yapısı */
         div[data-testid="stCustomComponentV1"] {
             min-height: 68px !important;
             height: 68px !important;
@@ -75,7 +75,6 @@ st.markdown("""
             flex-direction: column !important;
             justify-content: flex-end !important;
             width: 100% !important;
-            content-visibility: auto; /* Tarayıcı katmanında alan alanını rezerve eder */
         }
         
         iframe[title*="st_keyup"] {
@@ -174,13 +173,15 @@ try:
     # ==========================================
     @st.fragment
     def stok_paneli_icerik(data_frame):
-        if "clear_ver" not in st.session_state: st.session_state.clear_ver = 0
+        # 🎯 Session state durum tanımlamaları (Kutu kalıcı key'e sahip)
+        if "search_input_val" not in st.session_state: st.session_state.search_input_val = ""
         if "q_grup" not in st.session_state: st.session_state.q_grup = "Tümü"
         if "q_marka" not in st.session_state: st.session_state.q_marka = "Tümü"
         if "q_stok" not in st.session_state: st.session_state.q_stok = False
         
+        # 🎯 DOM SILINMESINI ENGELLEYEN TEMIZLEME FONKSIYONU
         def filtreleri_temizle():
-            st.session_state.clear_ver += 1
+            st.session_state.search_input_val = ""  # DOM'u yıkmadan metni sıfırlar
             st.session_state.q_grup = "Tümü"
             st.session_state.q_marka = "Tümü"
             st.session_state.q_stok = False
@@ -208,13 +209,17 @@ try:
             st.session_state.q_grup = "Tümü"
 
         with col1:
-            # Yenilenirken zıplamayan kilitli arama kutusu
+            # Sabit DOM yapısına sahip, asla zıplamayan canlı arama kutusu
             v_search = st_keyup(
                 "📝 Ürün Ara", 
-                key=f"search_box_{st.session_state.clear_ver}",
+                value=st.session_state.search_input_val,
+                key="search_box_fixed",
                 placeholder="Yazmaya başlayın...",
                 debounce=300
             )
+            # Eğer kullanıcı bir şey yazdıysa state değerini güncel tutuyoruz
+            if v_search != st.session_state.search_input_val:
+                st.session_state.search_input_val = v_search
 
         with col2:
             v_marka = st.selectbox("🏷️ Marka", marka_ops, key="q_marka")
