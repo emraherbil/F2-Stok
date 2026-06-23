@@ -14,7 +14,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# 🎯 EŞİT YÜKSEKLİK VE KUTU BOYUTLANDIRMA CSS GÜNCELLEMESİ
+# 🎯 TEMİZLE BUTONU SIFIRLAMA VE ZIPLAMA ENGELLEME CSS KİLİDİ
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -51,7 +51,7 @@ st.markdown("""
         .custom-logo { height: 60px; object-fit: contain; }
         .custom-title-block { display: flex; flex-direction: column; justify-content: center; }
         
-        /* Tüm kolonların içeriğini alt tabanda kusursuz eşitler */
+        /* Kolon dikey sabitlemesi */
         div[data-testid="column"] {
             display: flex !important;
             flex-direction: column !important;
@@ -66,7 +66,7 @@ st.markdown("""
             width: 100% !important;
         }
 
-        /* 🎯 GÜNCELLEME: ST_KEYUP KUTU YÜKSEKLİĞİNİ SELECTBOX (42PX) İLE EŞİTLEME */
+        /* 🎯 KESİN ÇÖZÜM: Kutu temizlenirken (silinirken) alanın çökmesini engelleyen statik iskelet kilidi */
         div[data-testid="stCustomComponentV1"] {
             min-height: 68px !important;
             height: 68px !important;
@@ -75,7 +75,9 @@ st.markdown("""
             flex-direction: column !important;
             justify-content: flex-end !important;
             width: 100% !important;
+            content-visibility: auto; /* Tarayıcı katmanında alan alanını rezerve eder */
         }
+        
         iframe[title*="st_keyup"] {
             height: 68px !important;
             min-height: 68px !important;
@@ -206,7 +208,7 @@ try:
             st.session_state.q_grup = "Tümü"
 
         with col1:
-            # Standart yüksekliğe çekilmiş canlı arama kutusu
+            # Yenilenirken zıplamayan kilitli arama kutusu
             v_search = st_keyup(
                 "📝 Ürün Ara", 
                 key=f"search_box_{st.session_state.clear_ver}",
