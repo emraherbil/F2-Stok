@@ -14,7 +14,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# 🎯 EN SEVİLEN HİZALAMA TABANI + SABSİTLEŞTİRİLMİŞ KOLON İSKELETİ
+# Hizalamanın en kusursuz olduğu o kararlı CSS tabanımız
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -58,11 +58,6 @@ st.markdown("""
             justify-content: flex-end !important;
         }
         
-        /* 🎯 ZIPLAMA ENGELLEYİCİ: İlk kolonun (Arama kutusunun olduğu yer) çökmesini engeller */
-        div[data-testid="column"]:first-child {
-            min-height: 68px !important;
-        }
-        
         div[data-testid="column"] .stFormSubmitButton, 
         div[data-testid="column"] .stButton,
         div[data-testid="column"] .stTextInput,
@@ -71,7 +66,7 @@ st.markdown("""
             width: 100% !important;
         }
 
-        /* 🎯 SİZİN EN BEĞENDİĞİNİZ KUSURSUZ BOYUT KİLİDİ */
+        /* st_keyup bileşeninin yerleştiği konteyner boyutu */
         div[data-testid="stCustomComponentV1"] {
             min-height: 68px !important;
             height: 68px !important;
@@ -211,13 +206,16 @@ try:
             st.session_state.q_grup = "Tümü"
 
         with col1:
-            # Geri döndürülen kusursuz canlı arama kutusu
-            v_search = st_keyup(
-                "📝 Ürün Ara", 
-                key=f"search_box_{st.session_state.clear_ver}",
-                placeholder="Yazmaya başlayın...",
-                debounce=300
-            )
+            # 🎯 KİLİT: Arama kutusunu doğrudan kolona basmak yerine bir placeholder (st.empty) içine alıyoruz.
+            search_placeholder = st.empty()
+            
+            with search_placeholder:
+                v_search = st_keyup(
+                    "📝 Ürün Ara", 
+                    key=f"search_box_{st.session_state.clear_ver}",
+                    placeholder="Yazmaya başlayın...",
+                    debounce=300
+                )
 
         with col2:
             v_marka = st.selectbox("🏷️ Marka", marka_ops, key="q_marka")
