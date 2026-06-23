@@ -13,7 +13,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# Görsel stabilite, hizalama ve buton renkleri için optimize edilmiş CSS
+# Görsel stabilite, hizalama ve zıplama önleyici CSS + Canlı Arama JS Enjeksiyonu
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -50,18 +50,26 @@ st.markdown("""
         .custom-logo { height: 60px; object-fit: contain; }
         .custom-title-block { display: flex; flex-direction: column; justify-content: center; }
         
-        /* Tüm form elemanlarının (input, selectbox) üst hizalamasını eşitler */
+        /* Tüm form elemanlarının ve butonların dikey çizgisini alt tabana kilitler */
+        div[data-testid="column"] {
+            display: flex !important;
+            align-items: flex-end !important;
+        }
+        
         div[data-testid="column"] .stFormSubmitButton, 
-        div[data-testid="column"] .stButton {
-            margin-top: 0px !important;
+        div[data-testid="column"] .stButton,
+        div[data-testid="column"] .stTextInput,
+        div[data-testid="column"] .stSelectbox {
+            margin-bottom: 0px !important;
+            width: 100% !important;
         }
 
         /* Checkbox dikey hizalama sabitlemesi */
         div[data-testid="stCheckbox"] { 
-            padding-top: 32px !important; 
+            padding-bottom: 10px !important; 
         }
 
-        /* Temizle Butonunun Görsel Tasarımı (Görselinizdeki Lacivert Tonu) */
+        /* Temizle Butonunun Görsel Tasarımı */
         .stButton > button { 
             background-color: #1C355E !important; 
             color: white !important; 
@@ -79,11 +87,25 @@ st.markdown("""
             color: white !important; 
         }
         
-        /* Input focus alt çizgi rengini F2 kurumsal mavisine yaklaştırır */
         div[data-baseweb="input"] {
             border-radius: 6px !important;
         }
     </style>
+
+    <script>
+    /* Orijinal input kutusunun her harf vuruşunda tetiklenmesini sağlayan hafif dinleyici */
+    setInterval(function() {
+        var parentDoc = window.parent.document;
+        var inputEl = parentDoc.querySelector('input[aria-label="📝 Ürün Ara"]');
+        if (inputEl && !inputEl.dataset.listenerBound) {
+            inputEl.dataset.listenerBound = "true";
+            inputEl.addEventListener('input', function() {
+                var event = new Event('change', { bubbles: true });
+                inputEl.dispatchEvent(event);
+            });
+        }
+    }, 250);
+    </script>
 """, unsafe_allow_html=True)
 
 # ==========================================
@@ -148,13 +170,14 @@ try:
     @st.fragment
     def stok_paneli_icerik(data_frame):
         # Session State Kontrolleri
-        if "q_search" not in st.session_state: st.session_state.q_search = ""
+        if "search_text" not in st.session_state: st.session_state.search_text = ""
         if "q_grup" not in st.session_state: st.session_state.q_grup = "Tümü"
         if "q_marka" not in st.session_state: st.session_state.q_marka = "Tümü"
         if "q_stok" not in st.session_state: st.session_state.q_stok = False
         
         def filtreleri_temizle():
-            st.session_state.q_search = ""
+            st.session_state.search_text = ""
+            st.session_state.real_search_box = ""
             st.session_state.q_grup = "Tümü"
             st.session_state.q_marka = "Tümü"
             st.session_state.q_stok = False
@@ -186,9 +209,11 @@ try:
         with col1:
             v_search = st.text_input(
                 "📝 Ürün Ara", 
-                key="q_search",
-                placeholder="Kod veya açıklama yazıp Enter'a basın..."
+                value=st.session_state.search_text,
+                key="real_search_box",
+                placeholder="Yazmaya başlayın..."
             )
+            st.session_state.search_text = v_search
 
         with col2:
             v_marka = st.selectbox("🏷️ Marka", marka_ops, key="q_marka")
@@ -226,7 +251,7 @@ try:
             """
 
         k1, k2, k3 = st.columns(3)
-        with k1: st.markdown(kpi_card("📋 Toplam Çeşit:", f"{t_prod:,}".replace(",", ".") + " Adet", "#1E88E5"), unsafe_allow_html=True)
+        with k1: st.markdown(kpi_card("📋 Toplam Çesist:", f"{t_prod:,}".replace(",", ".") + " Adet", "#1E88E5"), unsafe_allow_html=True)
         with k2: st.markdown(kpi_card("📦 Toplam Stok:", f"{t_stok:,}".replace(",", ".") + " Adet", "#4CAF50"), unsafe_allow_html=True)
         with k3: st.markdown(kpi_card("💰 Toplam Maliyet:", f"${t_cost:,.0f}".replace(",", "."), "#FFC107"), unsafe_allow_html=True)
 
@@ -258,4 +283,4 @@ try:
     stok_paneli_icerik(df)
 
 except Exception as e:
-    st.error(f"Hata oluştu: {e}")
+    st.error(f"Hata olustu: {e}")
