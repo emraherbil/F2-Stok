@@ -83,8 +83,8 @@ st.markdown("""
             height: 40px !important;
             min-height: 40px !important;
             max-height: 40px !important;
-            margin-top: 0px !important;
-            margin-bottom: 0px !important;
+            margin-top: -40px !important;
+            margin-bottom: -40px !important;
             overflow: visible !important;
         }
 
