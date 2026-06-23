@@ -14,7 +14,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# Hizalamanın milimetrik oturduğu o kararlı CSS yapısı
+# 🎯 EN SEVİLEN HİZALAMA TABANI + NOKTA ATIŞI ALAN KİLİTLEME CSS'İ
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -51,7 +51,7 @@ st.markdown("""
         .custom-logo { height: 60px; object-fit: contain; }
         .custom-title-block { display: flex; flex-direction: column; justify-content: center; }
         
-        /* Tüm kolonların içeriğini dikeyde alt tabana kilitler */
+        /* Tüm kolonların içeriğini dikeyde alt tabana kilitler (Sizin sevdiğiniz kusursuz hiza) */
         div[data-testid="column"] {
             display: flex !important;
             flex-direction: column !important;
@@ -66,7 +66,16 @@ st.markdown("""
             width: 100% !important;
         }
 
-        /* st_keyup bileşeninin yerleştiği konteyner boyutu */
+        /* 🎯 KESİN ÇÖZÜM: st_keyup bileşenini içeren üst element kapsayıcısını kilitler.
+           Böylece key değişip bileşen silinse dahi altındaki boşluk (iskelet) asla çökmez ve zıplama yapmaz. */
+        div[data-testid="column"]:first-child .element-container {
+            min-height: 68px !important;
+            height: 68px !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: flex-end !important;
+        }
+
         div[data-testid="stCustomComponentV1"] {
             min-height: 68px !important;
             height: 68px !important;
@@ -113,7 +122,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 2. CACHE'LENMİŞ VERİ YÜKLEME FONKSİYONU
+# 2. LOGO VE VERİ YÜKLEME FONKSİYONLARI
 # ==========================================
 def logo_to_base64(img_path):
     try:
@@ -126,7 +135,6 @@ def logo_to_base64(img_path):
 
 logo_data = logo_to_base64("logo.png") or logo_to_base64("logo.jpg")
 
-# Önerdiğiniz gibi veriyi hafızada tutan güçlü cache mekanizması aktif
 @st.cache_data(ttl=600)
 def load_data():
     return pd.read_excel('Stok Sayım Arşivi-v3.1-Web.xlsm', sheet_name='Stok', engine='openpyxl')
@@ -169,7 +177,7 @@ try:
     """, unsafe_allow_html=True)
 
     # ==========================================
-    # 4. FRAGMENT ALANI
+    # 4. FRAGMENT ALANI (ORİJİNAL SAĞLAM MİMARİ)
     # ==========================================
     @st.fragment
     def stok_paneli_icerik(data_frame):
@@ -177,10 +185,14 @@ try:
         if "q_grup" not in st.session_state: st.session_state.q_grup = "Tümü"
         if "q_marka" not in st.session_state: st.session_state.q_marka = "Tümü"
         if "q_stok" not in st.session_state: st.session_state.q_stok = False
+        
+        # Orijinal tıkır tıkır çalışan on_click temizleme fonksiyonu
+        def filtreleri_temizle():
+            st.session_state.clear_ver += 1
+            st.session_state.q_grup = "Tümü"
+            st.session_state.q_marka = "Tümü"
+            st.session_state.q_stok = False
 
-        # --------------------------------------------------
-        # FİLTRE GERÇEKLEŞTİRME VE DÜZEN ALANI
-        # --------------------------------------------------
         col1, col2, col3, col4, col5 = st.columns([3.2, 2.4, 2.4, 2.2, 1.2], vertical_alignment="bottom")
         
         current_marka = st.session_state.q_marka
@@ -204,6 +216,7 @@ try:
             st.session_state.q_grup = "Tümü"
 
         with col1:
+            # Kararlı çalışan arama kutusu
             v_search = st_keyup(
                 "📝 Ürün Ara", 
                 key=f"search_box_{st.session_state.clear_ver}",
@@ -221,16 +234,9 @@ try:
             v_stok = st.checkbox("🚫 Tükenenleri Gizle", key="q_stok")
 
         with col5:
-            # 🎯 KESİN ÇÖZÜM: 'on_click' yarış durumunu kaldırıp butona basıldığı an 
-            # akışı kesip st.rerun() ile temiz bir sayfa döngüsü başlatıyoruz.
-            if st.button("🧹 Temizle", use_container_width=True):
-                st.session_state.clear_ver += 1
-                st.session_state.q_grup = "Tümü"
-                st.session_state.q_marka = "Tümü"
-                st.session_state.q_stok = False
-                st.rerun()
+            st.button("🧹 Temizle", on_click=filtreleri_temizle, use_container_width=True)
 
-        # Filtreleme Algoritması işlemleri
+        # Filtreleme Algoritması
         f_df = data_frame.copy()
         if v_search:
             m1 = f_df[c_kod].astype(str).str.contains(v_search, case=False)
@@ -240,7 +246,7 @@ try:
         if v_grup != "Tümü": f_df = f_df[f_df[c_grup].astype(str) == v_grup]
         if v_stok: f_df = f_df[f_df[c_stok] > 0]
 
-        # KPI Değerleri Hesaplama
+        # KPI Kartları Hesaplamaları
         t_prod = len(f_df)
         t_stok = int(f_df[c_stok].sum())
         t_cost = f_df[c_maliyet].sum()
@@ -257,10 +263,10 @@ try:
         with k1: st.markdown(kpi_card("📋 Toplam Çeşit:", f"{t_prod:,}".replace(",", ".") + " Adet", "#1E88E5"), unsafe_allow_html=True)
         with k2: st.markdown(kpi_card("📦 Toplam Stok:", f"{t_stok:,}".replace(",", ".") + " Adet", "#4CAF50"), unsafe_allow_html=True)
         with k3: st.markdown(kpi_card("💰 Toplam Maliyet:", f"${t_cost:,.0f}".replace(",", "."), "#FFC107"), unsafe_allow_html=True)
-        
-        st.markdown("<div style='margin-top:15px;'></div>", unsafe_allow_html=True)
 
-        # Veri Tablosu Çıktısı Hazırlığı
+        st.markdown("<div style='margin-top:15px;'></div>", unsafe_allow_html=True)
+        
+        # Veri Tablosu Çıktısı
         out_df = f_df[[c_kod, c_tanim, c_marka, c_grup, c_stok, c_fiyat, c_maliyet]].copy()
         out_df.columns = ["Ürün Kodu", "Açıklama", "Marka", "Ürün Grubu", "Güncel Stok", "Birim Maliyet", "Toplam Maliyet"]
         
