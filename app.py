@@ -61,6 +61,13 @@ st.markdown("""
             display: flex !important;
             flex-direction: column !important;
             justify-content: flex-end !important;
+
+            div[data-testid="column"] .stFormSubmitButton, 
+            div[data-testid="column"] .stButton,
+            div[data-testid="column"] .stTextInput,
+            div[data-testid="column"] .stSelectbox {
+                margin-bottom: 0px !important;
+                width: 100% !important;
             
         /* Form elemanlarının genişliklerini eşitle */
         div[data-testid="column"] .stFormSubmitButton, 
