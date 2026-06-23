@@ -44,7 +44,7 @@ st.markdown("""
         .custom-header-container { 
             display: flex; 
             align-items: center; 
-            gap: 50px; 
+            gap: 25px; 
             padding-top: 15px;
             padding-bottom: 15px;
         }
@@ -72,7 +72,7 @@ st.markdown("""
         }
 
         /* 🎯 ARAMA KUTUSU ALANINI KİLİTLEME: 
-           st_keyup iframe'i silinse bile altındaki taşıyıcı kutunun yüksekliğini 42px'e çiviliyoruz.
+           st_keyup iframe'i silinse bile altındaki taşıyıcı kutunun yüksekliğini 32px'e çiviliyoruz.
            Böylece ne etiket alta kaçabilir ne de yan kolonlar yerinden oynayabilir. */
         div[data-testid="column"]:first-child div.element-container:has(iframe) {
             min-height: 32px !important;
