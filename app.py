@@ -14,7 +14,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# 🎯 SELECTBOX KUTULARIYLA %100 MİLİMETRİK EŞİTLENMİŞ CSS
+# 🎯 SELECTBOX KUTULARIYLA %100 MİLİMETRİK VE SABİT SEVİYELİ CSS
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -79,36 +79,34 @@ st.markdown("""
         }
 
         /* 🎯 ARAMA KUTUSU DIŞ TAŞIYICISI: 
-           Selectbox kutularının net yüksekliği olan 42px kalıbına sadık kalıyoruz. */
+           Yüksekliği selectbox ile tamamen aynı (42px) yapıyoruz ve dikey esnemeyi önlüyoruz. */
         div[data-testid="column"]:first-child div.element-container:has(iframe) {
             height: 42px !important;
             min-height: 42px !important;
             max-height: 42px !important;
-            margin-top: 0px !important;
+            margin-top: -14px !important; /* Elementler arası boşluğu (gap) sıfırlayıp selectbox hizasına çeker */
             margin-bottom: 0px !important;
-            overflow: visible !important;
         }
 
         div[data-testid="stCustomComponentV1"] {
             height: 42px !important;
             min-height: 42px !important;
+            max-height: 42px !important;
             margin-top: 0px !important;
             margin-bottom: 0px !important;
             width: 100% !important;
-            overflow: visible !important;
         }
         
-        /* 🎯 KUSURSUZ YATAY ÇİZGİ AYARI (MİLİMETRİK DÜZELTME):
-           margin-top değerini -38px yaparak aradaki 6 piksellik dikey kaymayı 
-           ve Streamlit element boşluğunu tamamen yok ettik. */
+        /* 🎯 IFRAME KALIBI:
+           Yüksekliği tam 42px değerine sabitleyerek kutunun kalınlaşmasını %100 engelliyoruz. */
         iframe[title*="st_keyup"] {
-            height: 84px !important;
-            min-height: 84px !important;
-            margin-top: -38px !important;
+            height: 42px !important;
+            min-height: 42px !important;
+            max-height: 42px !important;
+            margin-top: 0px !important;
             margin-bottom: 0px !important;
             display: block !important;
-            position: relative;
-            z-index: 1;
+            overflow: hidden !important;
         }
 
         /* Checkbox dikey hizalaması */
@@ -202,7 +200,7 @@ try:
     """, unsafe_allow_html=True)
 
     # ==========================================
-    # 4. FRAGMENT ALANI (ZANNETSİZ VE KİLİTLİ YAPI)
+    # 4. FRAGMENT ALANI (BAĞIMSIZ KİLİTLİ YAPI)
     # ==========================================
     @st.fragment
     def stok_paneli_icerik(data_frame):
