@@ -14,7 +14,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# 🎯 ZIPLAMAYI VE KAYMAYI KÖKTEN ÇÖZEN SABİT ETİKET VE İSKELET CSS'İ
+# 🎯 MİLİMETRİK HİZALAMA VE EZİLMEYİ SIFIRLAYAN CSS
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -68,39 +68,50 @@ st.markdown("""
         /* 🎯 ASLA DEĞİŞMEYEN SABİT ETİKET STİLİ */
         .sabit-arama-etiketi {
             font-size: 14px !important;
-            color: #31333F !important;
+            color: rgb(49, 51, 63) !important;
             font-weight: 400 !important;
             display: block !important;
             margin-bottom: 4px !important;
             height: 20px !important;
             line-height: 20px !important;
+            position: relative;
+            z-index: 10;
         }
 
-        /* 🎯 KUTU ALANINI KİLİTLEME: 
-           Etiketi dışarı aldığımız için artık iframe alanını tam olarak saf inputbox 
-           yüksekliği olan 42px'e çiviliyoruz. iframe silinse de bu 42px asla daralmaz! */
+        /* 🎯 ARAMA KUTUSU TAŞIYICISI: Selectbox'ların saf boyutu olan 40px'e kilitliyoruz. */
         div[data-testid="column"]:first-child div.element-container:has(iframe) {
-            min-height: 42px !important;
-            height: 42px !important;
-            max-height: 42px !important;
+            height: 40px !important;
+            min-height: 40px !important;
+            max-height: 40px !important;
             margin-top: 0px !important;
+            margin-bottom: 0px !important;
+            overflow: visible !important;
         }
 
         div[data-testid="stCustomComponentV1"] {
-            min-height: 42px !important;
-            height: 42px !important;
+            height: 40px !important;
+            min-height: 40px !important;
+            margin-top: 0px !important;
             margin-bottom: 0px !important;
             width: 100% !important;
+            overflow: visible !important;
         }
         
+        /* 🎯 İŞTE MUCİZEYİ YARATAN KISIM: 
+           Iframe'e ezilmemesi için 75px bol alan veriyoruz. 
+           Ardından margin-top: -28px ile o içerideki boş etiketi yukarı, 
+           bizim statik etiketin arkasına itip, input kutusunu Selectbox'larla hizalıyoruz! */
         iframe[title*="st_keyup"] {
-            height: 42px !important;
-            min-height: 42px !important;
+            height: 75px !important;
+            min-height: 75px !important;
+            margin-top: -28px !important;
             margin-bottom: 0px !important;
             display: block !important;
+            position: relative;
+            z-index: 1;
         }
 
-        /* Checkbox dikey hizalaması (Selectbox etiket yüksekliğiyle eşitler) */
+        /* Checkbox dikey hizalaması */
         div[data-testid="stCheckbox"] { 
             padding-top: 24px !important;
             padding-bottom: 0px !important; 
@@ -229,10 +240,7 @@ try:
             st.session_state.q_grup = "Tümü"
 
         with col1:
-            # 🎯 ÇÖZÜMÜN ANAHTARI: Asla silinmeyen yerel etiketimizi buraya koyuyoruz.
             st.markdown('<span class="sabit-arama-etiketi">📝 Ürün Ara</span>', unsafe_allow_html=True)
-            
-            # 🎯 ÇÖZÜMÜN ANAHTARI 2: st_keyup'ın kendi label parametresini boş ("") veriyoruz.
             v_search = st_keyup(
                 "", 
                 key=f"search_box_{st.session_state.clear_ver}",
