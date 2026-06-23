@@ -83,8 +83,8 @@ st.markdown("""
             height: 40px !important;
             min-height: 40px !important;
             max-height: 40px !important;
-            margin-top: -40px !important;
-            margin-bottom: -40px !important;
+            margin-top: 0px !important;
+            margin-bottom: 0px !important;
             overflow: visible !important;
         }
 
@@ -104,7 +104,7 @@ st.markdown("""
         iframe[title*="st_keyup"] {
             height: 75px !important;
             min-height: 75px !important;
-            margin-top: -28px !important;
+            margin-top: 0px !important;
             margin-bottom: 0px !important;
             display: block !important;
             position: relative;
