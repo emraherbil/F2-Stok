@@ -73,7 +73,7 @@ st.markdown("""
             display: block !important;
             margin-bottom: -4px 
             height: 2px !important;
-            line-height: 10px !important;
+            line-height: 2px !important;
             position: relative;
             top: -6px !important; /* ✨ EKLENDİ: Etiketi kutudan hafifçe yukarı kaldırır */
             z-index: 10;
