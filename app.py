@@ -56,7 +56,12 @@ st.markdown("""
         div[data-testid="column"] {
             display: block !important;
         }
-        
+        /* Tüm kolonların içeriğini alt tabanda kusursuz eşitler */
+        div[data-testid="column"] {
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: flex-end !important;
+            
         /* Form elemanlarının genişliklerini eşitle */
         div[data-testid="column"] .stFormSubmitButton, 
         div[data-testid="column"] .stButton,
