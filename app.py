@@ -14,7 +14,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# Kusursuz konumlandırma için optimize edilmiş temiz CSS
+# 🎯 HAYALET KORUYUCU VE HİZALAMA CSS KİLİDİ
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -66,7 +66,7 @@ st.markdown("""
             width: 100% !important;
         }
 
-        /* Sabit boyutlu st_keyup konteyner yapısı */
+        /* st_keyup için mükemmel hizalanmış iskelet boyutu */
         div[data-testid="stCustomComponentV1"] {
             min-height: 68px !important;
             height: 68px !important;
@@ -82,6 +82,15 @@ st.markdown("""
             min-height: 68px !important;
             margin-bottom: 0px !important;
             display: block !important;
+        }
+
+        /* 🎯 ZIPLAMAYI ÖNLEYEN HAYALET KONTEYNER KİLİDİ */
+        .ghost-konteyner {
+            height: 68px !important;
+            margin-top: -68px !important;
+            width: 100% !important;
+            display: block !important;
+            pointer-events: none !important;
         }
 
         /* Checkbox dikey hizalama sabitlemesi (42px yüksekliğe ortalar) */
@@ -173,15 +182,13 @@ try:
     # ==========================================
     @st.fragment
     def stok_paneli_icerik(data_frame):
-        # 🎯 Session state durum tanımlamaları (Kutu kalıcı key'e sahip)
-        if "search_input_val" not in st.session_state: st.session_state.search_input_val = ""
+        if "clear_ver" not in st.session_state: st.session_state.clear_ver = 0
         if "q_grup" not in st.session_state: st.session_state.q_grup = "Tümü"
         if "q_marka" not in st.session_state: st.session_state.q_marka = "Tümü"
         if "q_stok" not in st.session_state: st.session_state.q_stok = False
         
-        # 🎯 DOM SILINMESINI ENGELLEYEN TEMIZLEME FONKSIYONU
         def filtreleri_temizle():
-            st.session_state.search_input_val = ""  # DOM'u yıkmadan metni sıfırlar
+            st.session_state.clear_ver += 1  # Yeniden oluşturma tetiklenir
             st.session_state.q_grup = "Tümü"
             st.session_state.q_marka = "Tümü"
             st.session_state.q_stok = False
@@ -209,17 +216,15 @@ try:
             st.session_state.q_grup = "Tümü"
 
         with col1:
-            # Sabit DOM yapısına sahip, asla zıplamayan canlı arama kutusu
+            # Hem temizlenen hem de asla zıplamayan akıllı konum korumalı kutu
             v_search = st_keyup(
                 "📝 Ürün Ara", 
-                value=st.session_state.search_input_val,
-                key="search_box_fixed",
+                key=f"search_box_{st.session_state.clear_ver}",
                 placeholder="Yazmaya başlayın...",
                 debounce=300
             )
-            # Eğer kullanıcı bir şey yazdıysa state değerini güncel tutuyoruz
-            if v_search != st.session_state.search_input_val:
-                st.session_state.search_input_val = v_search
+            # 🎯 İŞTE O SİHİRLİ HAYALET ALAN: Üstteki kutu silinse bile kolonu 68px'de sabit tutar.
+            st.markdown('<div class="ghost-konteyner"></div>', unsafe_allow_html=True)
 
         with col2:
             v_marka = st.selectbox("🏷️ Marka", marka_ops, key="q_marka")
