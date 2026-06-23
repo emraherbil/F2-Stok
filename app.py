@@ -5,12 +5,14 @@ import base64
 from pathlib import Path
 
 # 1. SAYFA YAPILANDIRMASI
-st.set_page_config(page_title="F2 ICT - Ofis Stok İzleme Paneli", page_icon="📦", layout="wide")
+st.set_page_config(page_title="F2 ICT - Ofis Stok", layout="wide")
 
-# 2. CSS (Zıplamayı önleyen kilit)
+# 2. CSS - KUSURSUZ HİZALAMA VE STİL
 st.markdown("""
     <style>
         div[data-testid="column"] { display: flex; align-items: flex-end; }
+        .custom-logo { height: 60px; object-fit: contain; }
+        .custom-header-container { display: flex; align-items: center; gap: 25px; margin-bottom: 20px; }
         .stButton > button { height: 42px !important; width: 100% !important; background-color: #1C355E !important; color: white !important; border-radius: 6px !important; }
         div[data-baseweb="input"] { border-radius: 6px !important; }
     </style>
@@ -23,18 +25,21 @@ def load_data():
 
 df = load_data()
 df.columns = [str(c).strip() for c in df.columns]
-c_kod, c_tanim, c_marka, c_grup, c_stok = df.columns[1], df.columns[2], df.columns[3], df.columns[4], df.columns[-1]
+c_kod, c_tanim, c_marka, c_grup, c_maliyet, c_stok = df.columns[1], df.columns[2], df.columns[3], df.columns[4], df.columns[13], df.columns[-1]
 
-# 4. FRAGMENT (İçinde "filtreleri_temizle" fonksiyonu doğru girintiyle yer almalı)
+# 4. LOGO VE BAŞLIK
+st.markdown(f'''<div class="custom-header-container">
+    <div class="custom-title-block">
+        <h2 style="margin:0;">Ofis Stok İzleme Paneli</h2>
+    </div>
+</div>''', unsafe_allow_html=True)
+
+# 5. FRAGMENT - FİLTRE VE TABLO
 @st.fragment
 def stok_paneli_icerik(data_frame):
-    # State Yönetimi
     if "search_text" not in st.session_state: st.session_state.search_text = ""
-    if "q_grup" not in st.session_state: st.session_state.q_grup = "Tümü"
-    if "q_marka" not in st.session_state: st.session_state.q_marka = "Tümü"
     
-    # Doğru girintili fonksiyon
-    def filtreleri_temizle():
+    def temizle():
         st.session_state.search_text = ""
         st.session_state.q_grup = "Tümü"
         st.session_state.q_marka = "Tümü"
@@ -50,7 +55,7 @@ def stok_paneli_icerik(data_frame):
     with col4:
         v_stok = st.checkbox("🚫 Tükenenleri Gizle")
     with col5:
-        st.button("🧹 Temizle", on_click=filtreleri_temizle, use_container_width=True)
+        st.button("🧹 Temizle", on_click=temizle, use_container_width=True)
 
     # Filtreleme
     f_df = data_frame.copy()
