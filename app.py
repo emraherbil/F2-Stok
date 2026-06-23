@@ -15,11 +15,11 @@ from pathlib import Path
         if "q_stok" not in st.session_state: st.session_state.q_stok = False
         if "search_text" not in st.session_state: st.session_state.search_text = ""
         
-        def filtreleri_temizle():
-            st.session_state.search_text = ""
-            st.session_state.q_grup = "Tümü"
-            st.session_state.q_marka = "Tümü"
-            st.session_state.q_stok = False
+    def filtreleri_temizle():
+        st.session_state.search_text = ""
+        st.session_state.q_grup = "Tümü"
+        st.session_state.q_marka = "Tümü"
+        st.session_state.q_stok = False
 
         # 2. Arayüz ve Hizalama (vertical_alignment="bottom" ile sabit)
         col1, col2, col3, col4, col5 = st.columns([3.2, 2.4, 2.4, 2.2, 1.2], vertical_alignment="bottom")
