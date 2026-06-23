@@ -88,8 +88,8 @@ st.markdown("""
         }
         
         iframe[title*="st_keyup"] {
-            height: 42px !important;
-            min-height: 42px !important;
+            height: 32px !important;
+            min-height: 32px !important;
             margin-bottom: 0px !important;
             display: block !important;
         }
@@ -200,7 +200,7 @@ try:
             st.session_state.q_marka = "Tümü"
             st.session_state.q_stok = False
 
-        col1, col2, col3, col4, col5 = st.columns([2.4, 2.4, 2.4, 2.2, 1.2])
+        col1, col2, col3, col4, col5 = st.columns([3.2, 2.4, 2.4, 2.2, 1.2])
         
         current_marka = st.session_state.q_marka
         current_grup = st.session_state.q_grup
