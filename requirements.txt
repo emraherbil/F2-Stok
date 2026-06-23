@@ -1,4 +1,3 @@
 openpyxl
 xlrd
 streamlit-keyup
-pip install st-keyup
