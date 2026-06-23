@@ -71,11 +71,11 @@ st.markdown("""
             color: rgb(49, 51, 63) !important;
             font-weight: 400 !important;
             display: block !important;
-            margin-bottom: -4px 
-            height: -2px !important;
-            line-height: -2px !important;
+            margin-bottom: 4px 
+            height: 20px !important;
+            line-height: 20px !important;
             position: relative;
-            top: -6px !important; /* ✨ EKLENDİ: Etiketi kutudan hafifçe yukarı kaldırır */
+            top: -18px !important; /* ✨ EKLENDİ: Etiketi kutudan hafifçe yukarı kaldırır */
             z-index: 10;
         }
 
