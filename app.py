@@ -3,6 +3,7 @@ import pandas as pd
 import os
 import base64
 from pathlib import Path
+from st_keyup import st_keyup
 
 # ==========================================
 # 1. SAYFA YAPILANDIRMASI VE KÜRESEL STİLLER
@@ -13,7 +14,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# Görsel temizlik, milimetrik hizalama ve GERÇEK ZAMANLI HARF HARF ARAMA MOTORU
+# Görsel stabilite, hizalama ve ST_KEYUP Zıplama Kilidi
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -50,18 +51,39 @@ st.markdown("""
         .custom-logo { height: 60px; object-fit: contain; }
         .custom-title-block { display: flex; flex-direction: column; justify-content: center; }
         
-        /* Tüm form elemanlarının dikey çizgisini ve buton yüksekliğini eşitler */
+        /* Tüm form elemanlarının dikey çizgisini alt tabana kilitler */
+        div[data-testid="column"] {
+            display: flex !important;
+            align-items: flex-end !important;
+        }
+        
         div[data-testid="column"] .stFormSubmitButton, 
-        div[data-testid="column"] .stButton {
-            margin-top: 0px !important;
+        div[data-testid="column"] .stButton,
+        div[data-testid="column"] .stTextInput,
+        div[data-testid="column"] .stSelectbox {
+            margin-bottom: 0px !important;
+            width: 100% !important;
+        }
+
+        /* 🎯 KESİN ÇÖZÜM: ST_KEYUP Yükseklik ve Hiza Kilidi (Zıplamayı Önler) */
+        div[data-testid="stCustomComponentV1"] {
+            min-height: 73px !important;
+            margin-bottom: 0px !important;
+            display: flex;
+            align-items: flex-end;
+            width: 100% !important;
+        }
+        iframe[title*="st_keyup"] {
+            min-height: 73px !important;
+            margin-bottom: 0px !important;
         }
 
         /* Checkbox dikey hizalama sabitlemesi */
         div[data-testid="stCheckbox"] { 
-            padding-top: 32px !important; 
+            padding-bottom: 10px !important; 
         }
 
-        /* Temizle Butonunun Tasarımı (Selectbox yüksekliği olan 42px ile tam eşit) */
+        /* Temizle Butonunun Tasarımı */
         .stButton > button { 
             background-color: #1C355E !important; 
             color: white !important; 
@@ -79,66 +101,10 @@ st.markdown("""
             color: white !important; 
         }
         
-        /* Tüm girdi kutularının sınır yarıçapı */
         div[data-baseweb="input"] {
             border-radius: 6px !important;
         }
     </style>
-
-    <script>
-    // İmleç konumu ve odağı anlık koruyan küresel hafıza nesnesi
-    window.parent.__searchState = window.parent.__searchState || { needsFocus: false, start: 0, end: 0 };
-
-    setInterval(function() {
-        var parentDoc = window.parent.document;
-        // Streamlit yerel test kimliğine göre girdi kutusu konteynerlerini tara
-        var containers = parentDoc.querySelectorAll('[data-testid="stTextInput"]');
-        var inputEl = null;
-        
-        containers.forEach(function(container) {
-            if (container.innerText && container.innerText.includes("Ürün Ara")) {
-                inputEl = container.querySelector('input');
-            }
-        });
-        
-        if (inputEl) {
-            // Tablo güncellendikten sonra odağı ve imleci anında eski konumuna iade et
-            if (window.parent.__searchState.needsFocus) {
-                inputEl.focus();
-                inputEl.setSelectionRange(window.parent.__searchState.start, window.parent.__searchState.end);
-                window.parent.__searchState.needsFocus = false;
-            }
-
-            if (!inputEl.dataset.listenerBound) {
-                inputEl.dataset.listenerBound = "true";
-                
-                // Her harf girildiğinde veya silindiğinde (input anında) tetiklenir
-                inputEl.addEventListener('input', function() {
-                    window.parent.__searchState.start = inputEl.selectionStart;
-                    window.parent.__searchState.end = inputEl.selectionEnd;
-                    window.parent.__searchState.needsFocus = true;
-                    
-                    // 1. Değişimi React katmanına besle
-                    var changeEvent = new Event('change', { bubbles: true });
-                    inputEl.dispatchEvent(changeEvent);
-                    
-                    // 2. Streamlit backend tetikleyicisi için sanal Enter fırlat
-                    var enterEvent = new KeyboardEvent('keydown', {
-                        key: 'Enter',
-                        code: 'Enter',
-                        keyCode: 13,
-                        which: 13,
-                        bubbles: true
-                    });
-                    inputEl.dispatchEvent(enterEvent);
-                    
-                    // 3. Değişimi kesinleştirmek için mikro düzeyde blur uygula
-                    inputEl.blur();
-                });
-            }
-        }
-    }, 50); // 50ms tarama sıklığı ile ultra hızlı yanıt süresi
-    </script>
 """, unsafe_allow_html=True)
 
 # ==========================================
@@ -201,16 +167,14 @@ try:
     # ==========================================
     @st.fragment
     def stok_paneli_icerik(data_frame):
-        # State Değişkenlerinin Güvenli Tanımlanması
-        if "search_text" not in st.session_state: st.session_state.search_text = ""
+        # Temizle butonu için versiyon takibi (st_keyup'ı sıfırlamanın en sağlıklı yolu)
+        if "clear_ver" not in st.session_state: st.session_state.clear_ver = 0
         if "q_grup" not in st.session_state: st.session_state.q_grup = "Tümü"
         if "q_marka" not in st.session_state: st.session_state.q_marka = "Tümü"
         if "q_stok" not in st.session_state: st.session_state.q_stok = False
         
-        # Temizle fonksiyonu
         def filtreleri_temizle():
-            st.session_state.search_text = ""
-            st.session_state.real_search_box = ""
+            st.session_state.clear_ver += 1
             st.session_state.q_grup = "Tümü"
             st.session_state.q_marka = "Tümü"
             st.session_state.q_stok = False
@@ -238,13 +202,13 @@ try:
             st.session_state.q_grup = "Tümü"
 
         with col1:
-            v_search = st.text_input(
+            # 🎯 Gerçek Harf-Harf Canlı Arama (Debounce ile)
+            v_search = st_keyup(
                 "📝 Ürün Ara", 
-                value=st.session_state.search_text,
+                key=f"search_box_{st.session_state.clear_ver}",
                 placeholder="Yazmaya başlayın...",
-                key="real_search_box"
+                debounce=300
             )
-            st.session_state.search_text = v_search
 
         with col2:
             v_marka = st.selectbox("🏷️ Marka", marka_ops, key="q_marka")
