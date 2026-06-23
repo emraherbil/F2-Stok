@@ -14,7 +14,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# 🎯 MİLİMETRİK CSS HİZALAMA GÜNCELLEMESİ
+# 🎯 EŞİT YÜKSEKLİK VE KUTU BOYUTLANDIRMA CSS GÜNCELLEMESİ
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -66,20 +66,20 @@ st.markdown("""
             width: 100% !important;
         }
 
-        /* 🎯 ULTRA HASSAS AYAR: ST_KEYUP KUTU VE ETİKET TAM ÇİZGİ KİLİDİ */
+        /* 🎯 GÜNCELLEME: ST_KEYUP KUTU YÜKSEKLİĞİNİ SELECTBOX (42PX) İLE EŞİTLEME */
         div[data-testid="stCustomComponentV1"] {
-            min-height: 76px !important;
+            min-height: 68px !important;
+            height: 68px !important;
             margin-bottom: 0px !important;
             display: flex !important;
             flex-direction: column !important;
             justify-content: flex-end !important;
             width: 100% !important;
-            transform: translateY(2px) !important; /* Diğer kutularla yüksekliği pikselsel eşitler */
         }
         iframe[title*="st_keyup"] {
-            height: 76px !important;
-            min-height: 76px !important;
-            margin-bottom: -3px !important;
+            height: 68px !important;
+            min-height: 68px !important;
+            margin-bottom: 0px !important;
             display: block !important;
         }
 
@@ -206,7 +206,7 @@ try:
             st.session_state.q_grup = "Tümü"
 
         with col1:
-            # Milimetrik hizalanmış harf-harf canlı arama kutusu
+            # Standart yüksekliğe çekilmiş canlı arama kutusu
             v_search = st_keyup(
                 "📝 Ürün Ara", 
                 key=f"search_box_{st.session_state.clear_ver}",
