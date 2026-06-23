@@ -75,6 +75,7 @@ st.markdown("""
             height: 20px !important;
             line-height: 20px !important;
             position: relative;
+            top: -6px !important; /* ✨ EKLENDİ: Etiketi kutudan hafifçe yukarı kaldırır */
             z-index: 10;
         }
 
@@ -99,7 +100,7 @@ st.markdown("""
         
         /* 🎯 İŞTE MUCİZEYİ YARATAN KISIM: 
            Iframe'e ezilmemesi için 75px bol alan veriyoruz. 
-           Ardından margin-top: -28px ile o içerideki boş etiketi yukarı, 
+           Ardından margin-top: -55px ile o içerideki boş etiketi yukarı, 
            bizim statik etiketin arkasına itip, input kutusunu Selectbox'larla hizalıyoruz! */
         iframe[title*="st_keyup"] {
             height: 75px !important;
@@ -198,8 +199,7 @@ try:
                 <span style="color:#7d7f87; font-size:0.85rem; margin-top:4px;">📅 <b>Son Güncelleme / Sayım Tarihi:</b> {c_stok}</span>
             </div>
         </div>
-        <div style="margin-top:10px;"></div>
-    """, unsafe_allow_html=True)
+        <div style="margin-top:35px;"></div> """, unsafe_allow_html=True)
 
     # ==========================================
     # 4. FRAGMENT ALANI (ZANNETSİZ VE KİLİTLİ YAPI)
