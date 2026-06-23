@@ -14,7 +14,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# 🎯 SELECTBOX VE BUTONLARLA %100 MİLİMETRİK HİZALANMIŞ GÜNCEL CSS
+# 🎯 SELECTBOX KUTULARIYLA %100 MİLİMETRİK EŞİTLENMİŞ CSS
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -79,7 +79,7 @@ st.markdown("""
         }
 
         /* 🎯 ARAMA KUTUSU DIŞ TAŞIYICISI: 
-           Selectbox ve Temizle butonunun net yüksekliği olan 42px değerine tam eşitlendi. */
+           Selectbox kutularının net yüksekliği olan 42px kalıbına sadık kalıyoruz. */
         div[data-testid="column"]:first-child div.element-container:has(iframe) {
             height: 42px !important;
             min-height: 42px !important;
@@ -98,13 +98,13 @@ st.markdown("""
             overflow: visible !important;
         }
         
-        /* 🎯 İÇERİDEKİ KUTUYU YUKARI ÇEKME AYARI:
-           margin-top değerini -32px yaparak kutuyu tam olarak selectbox'ların 
-           üst çizgisiyle milimetrik olarak eşitledik. */
+        /* 🎯 KUSURSUZ YATAY ÇİZGİ AYARI (MİLİMETRİK DÜZELTME):
+           margin-top değerini -38px yaparak aradaki 6 piksellik dikey kaymayı 
+           ve Streamlit element boşluğunu tamamen yok ettik. */
         iframe[title*="st_keyup"] {
-            height: 78px !important;
-            min-height: 78px !important;
-            margin-top: -32px !important;
+            height: 84px !important;
+            min-height: 84px !important;
+            margin-top: -38px !important;
             margin-bottom: 0px !important;
             display: block !important;
             position: relative;
