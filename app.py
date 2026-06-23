@@ -14,7 +14,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# Görsel stabilite, hizalama ve ST_KEYUP Zıplama Kilidi
+# Görsel stabilite ve MİLİMETRİK HİZALAMA CSS GÜNCELLEMESİ
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -51,10 +51,11 @@ st.markdown("""
         .custom-logo { height: 60px; object-fit: contain; }
         .custom-title-block { display: flex; flex-direction: column; justify-content: center; }
         
-        /* Tüm form elemanlarının dikey çizgisini alt tabana kilitler */
+        /* Tüm kolonların içeriğini alt tabanda kusursuz eşitler */
         div[data-testid="column"] {
             display: flex !important;
-            align-items: flex-end !important;
+            flex-direction: column !important;
+            justify-content: flex-end !important;
         }
         
         div[data-testid="column"] .stFormSubmitButton, 
@@ -65,20 +66,23 @@ st.markdown("""
             width: 100% !important;
         }
 
-        /* 🎯 KESİN ÇÖZÜM: ST_KEYUP Yükseklik ve Hiza Kilidi (Zıplamayı Önler) */
+        /* 🎯 GÜNCELLEME: ST_KEYUP KUTU VE ETİKET HİZALAMA KİLİDİ */
         div[data-testid="stCustomComponentV1"] {
             min-height: 73px !important;
             margin-bottom: 0px !important;
-            display: flex;
-            align-items: flex-end;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: flex-end !important;
             width: 100% !important;
         }
         iframe[title*="st_keyup"] {
+            height: 73px !important;
             min-height: 73px !important;
             margin-bottom: 0px !important;
+            display: block !important;
         }
 
-        /* Checkbox dikey hizalama sabitlemesi */
+        /* Checkbox dikey hizalama sabitlemesi (42px yüksekliğe ortalar) */
         div[data-testid="stCheckbox"] { 
             padding-bottom: 10px !important; 
         }
@@ -167,7 +171,6 @@ try:
     # ==========================================
     @st.fragment
     def stok_paneli_icerik(data_frame):
-        # Temizle butonu için versiyon takibi (st_keyup'ı sıfırlamanın en sağlıklı yolu)
         if "clear_ver" not in st.session_state: st.session_state.clear_ver = 0
         if "q_grup" not in st.session_state: st.session_state.q_grup = "Tümü"
         if "q_marka" not in st.session_state: st.session_state.q_marka = "Tümü"
@@ -202,7 +205,7 @@ try:
             st.session_state.q_grup = "Tümü"
 
         with col1:
-            # 🎯 Gerçek Harf-Harf Canlı Arama (Debounce ile)
+            # Hizalaması CSS ile kusursuzlaştırılmış harf-harf canlı arama kutusu
             v_search = st_keyup(
                 "📝 Ürün Ara", 
                 key=f"search_box_{st.session_state.clear_ver}",
