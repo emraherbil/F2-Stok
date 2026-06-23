@@ -14,7 +14,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# 🎯 SELECTBOX KUTULARIYLA %100 MİLİMETRİK VE SABİT SEVİYELİ CSS
+# 🎯 MİLİMETRİK HİZALAMA VE EZİLMEYİ SIFIRLAYAN CSS
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -78,35 +78,37 @@ st.markdown("""
             z-index: 10;
         }
 
-        /* 🎯 ARAMA KUTUSU DIŞ TAŞIYICISI: 
-           Yüksekliği selectbox ile tamamen aynı (42px) yapıyoruz ve dikey esnemeyi önlüyoruz. */
+        /* 🎯 ARAMA KUTUSU TAŞIYICISI: Selectbox'ların saf boyutu olan 40px'e kilitliyoruz. */
         div[data-testid="column"]:first-child div.element-container:has(iframe) {
-            height: 42px !important;
-            min-height: 42px !important;
-            max-height: 42px !important;
-            margin-top: -14px !important; /* Elementler arası boşluğu (gap) sıfırlayıp selectbox hizasına çeker */
+            height: 40px !important;
+            min-height: 40px !important;
+            max-height: 40px !important;
+            margin-top: 0px !important;
             margin-bottom: 0px !important;
+            overflow: visible !important;
         }
 
         div[data-testid="stCustomComponentV1"] {
-            height: 42px !important;
-            min-height: 42px !important;
-            max-height: 42px !important;
+            height: 40px !important;
+            min-height: 40px !important;
             margin-top: 0px !important;
             margin-bottom: 0px !important;
             width: 100% !important;
+            overflow: visible !important;
         }
         
-        /* 🎯 IFRAME KALIBI:
-           Yüksekliği tam 42px değerine sabitleyerek kutunun kalınlaşmasını %100 engelliyoruz. */
+        /* 🎯 İŞTE MUCİZEYİ YARATAN KISIM: 
+           Iframe'e ezilmemesi için 75px bol alan veriyoruz. 
+           Ardından margin-top: -28px ile o içerideki boş etiketi yukarı, 
+           bizim statik etiketin arkasına itip, input kutusunu Selectbox'larla hizalıyoruz! */
         iframe[title*="st_keyup"] {
-            height: 42px !important;
-            min-height: 42px !important;
-            max-height: 42px !important;
-            margin-top: 0px !important;
+            height: 75px !important;
+            min-height: 75px !important;
+            margin-top: -28px !important;
             margin-bottom: 0px !important;
             display: block !important;
-            overflow: hidden !important;
+            position: relative;
+            z-index: 1;
         }
 
         /* Checkbox dikey hizalaması */
@@ -200,7 +202,7 @@ try:
     """, unsafe_allow_html=True)
 
     # ==========================================
-    # 4. FRAGMENT ALANI (BAĞIMSIZ KİLİTLİ YAPI)
+    # 4. FRAGMENT ALANI (ZANNETSİZ VE KİLİTLİ YAPI)
     # ==========================================
     @st.fragment
     def stok_paneli_icerik(data_frame):
