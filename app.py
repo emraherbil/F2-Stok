@@ -13,7 +13,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# Görsel temizlik, milimetrik hizalama ve AKILLI GERÇEK ZAMANLI ODAK KORUMALI ARAMA MOTORU
+# Görsel temizlik, milimetrik hizalama ve GERÇEK ZAMANLI HARF HARF ARAMA MOTORU
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -86,41 +86,58 @@ st.markdown("""
     </style>
 
     <script>
-    // Streamlit veri yenilerken imleç konumunu ve odağı koruyan küresel hafıza katmanı
+    // İmleç konumu ve odağı anlık koruyan küresel hafıza nesnesi
     window.parent.__searchState = window.parent.__searchState || { needsFocus: false, start: 0, end: 0 };
 
     setInterval(function() {
         var parentDoc = window.parent.document;
-        var inputEl = parentDoc.querySelector('input[aria-label="📝 Ürün Ara"]');
+        // Streamlit yerel test kimliğine göre girdi kutusu konteynerlerini tara
+        var containers = parentDoc.querySelectorAll('[data-testid="stTextInput"]');
+        var inputEl = null;
+        
+        containers.forEach(function(container) {
+            if (container.innerText && container.innerText.includes("Ürün Ara")) {
+                inputEl = container.querySelector('input');
+            }
+        });
         
         if (inputEl) {
-            // Veri yenilendikten sonra hafızadaki konuma geri odaklan ve imleci bozma
+            // Tablo güncellendikten sonra odağı ve imleci anında eski konumuna iade et
             if (window.parent.__searchState.needsFocus) {
-                window.parent.__searchState.needsFocus = false;
                 inputEl.focus();
                 inputEl.setSelectionRange(window.parent.__searchState.start, window.parent.__searchState.end);
+                window.parent.__searchState.needsFocus = false;
             }
 
             if (!inputEl.dataset.listenerBound) {
                 inputEl.dataset.listenerBound = "true";
                 
-                var debounceTimeout;
+                // Her harf girildiğinde veya silindiğinde (input anında) tetiklenir
                 inputEl.addEventListener('input', function() {
-                    clearTimeout(debounceTimeout);
+                    window.parent.__searchState.start = inputEl.selectionStart;
+                    window.parent.__searchState.end = inputEl.selectionEnd;
+                    window.parent.__searchState.needsFocus = true;
                     
-                    // 350ms duraklama algılandığında (yazma bitince) otomatik süzme tetikler
-                    debounceTimeout = setTimeout(function() {
-                        window.parent.__searchState.start = inputEl.selectionStart;
-                        window.parent.__searchState.end = inputEl.selectionEnd;
-                        window.parent.__searchState.needsFocus = true;
-                        
-                        // Streamlit'e veri senkronizasyon emri gönder
-                        inputEl.blur();
-                    }, 350);
+                    // 1. Değişimi React katmanına besle
+                    var changeEvent = new Event('change', { bubbles: true });
+                    inputEl.dispatchEvent(changeEvent);
+                    
+                    // 2. Streamlit backend tetikleyicisi için sanal Enter fırlat
+                    var enterEvent = new KeyboardEvent('keydown', {
+                        key: 'Enter',
+                        code: 'Enter',
+                        keyCode: 13,
+                        which: 13,
+                        bubbles: true
+                    });
+                    inputEl.dispatchEvent(enterEvent);
+                    
+                    // 3. Değişimi kesinleştirmek için mikro düzeyde blur uygula
+                    inputEl.blur();
                 });
             }
         }
-    }, 100);
+    }, 50); // 50ms tarama sıklığı ile ultra hızlı yanıt süresi
     </script>
 """, unsafe_allow_html=True)
 
