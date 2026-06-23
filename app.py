@@ -14,7 +14,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# 🎯 GÖRSELDEKİ DURUMU SABİTLEYEN İSKELET CSS TASARIMI
+# 🎯 ZIPLAMAYI VE KAYMAYI KÖKTEN ÇÖZEN SABİT YÜKSEKLİK CSS'İ
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -51,13 +51,13 @@ st.markdown("""
         .custom-logo { height: 60px; object-fit: contain; }
         .custom-title-block { display: flex; flex-direction: column; justify-content: center; }
         
-        /* Tüm kolon içeriğini alta kilitler */
+        /* 🎯 KRİTİK DEĞİŞİKLİK: Kolon bazlı genel dikey hizalamayı serbest bırakıyoruz.
+           Zıplamanın ana sebebi buydu. Hizalamayı artık eleman bazlı yöneteceğiz. */
         div[data-testid="column"] {
-            display: flex !important;
-            flex-direction: column !important;
-            justify-content: flex-end !important;
+            display: block !important;
         }
         
+        /* Form elemanlarının genişliklerini eşitle */
         div[data-testid="column"] .stFormSubmitButton, 
         div[data-testid="column"] .stButton,
         div[data-testid="column"] .stTextInput,
@@ -66,14 +66,13 @@ st.markdown("""
             width: 100% !important;
         }
 
-        /* 🎯 BİZİM SABİT İSKELET KUTUMUZ: 
-           Kutu silindiğinde arkada tam olarak görseldeki gibi temiz gri bir taşıyıcı iskelet kalır. */
-        div[data-testid="column"]:first-child .element-container:has(iframe) {
-            background-color: #f0f2f6 !important;
-            border-radius: 6px !important;
+        /* 🎯 ARAMA KUTUSU ALANINI KİLİTLEME: 
+           st_keyup iframe'i silinse bile altındaki taşıyıcı kutunun yüksekliğini 42px'e çiviliyoruz.
+           Böylece ne etiket alta kaçabilir ne de yan kolonlar yerinden oynayabilir. */
+        div[data-testid="column"]:first-child div.element-container:has(iframe) {
             min-height: 42px !important;
             height: 42px !important;
-            box-sizing: border-box !important;
+            max-height: 42px !important;
         }
 
         div[data-testid="stCustomComponentV1"] {
@@ -88,21 +87,17 @@ st.markdown("""
             min-height: 42px !important;
             margin-bottom: 0px !important;
             display: block !important;
-            background: transparent !important;
         }
 
-        /* Sabit Başlık Etiketi Tasarımı */
-        .sabit-etiket {
-            font-size: 14px !important;
-            color: #31333F !important;
-            margin-bottom: 4px !important;
-            font-weight: 400 !important;
-            display: block !important;
-        }
-
-        /* Checkbox dikey hizalama sabitlemesi (42px yüksekliğe ortalar) */
+        /* Checkbox dikey hizalaması: Diğer kutularla üst çizgiden hizalanması için boşluk atıyoruz */
         div[data-testid="stCheckbox"] { 
-            padding-bottom: 10px !important; 
+            padding-top: 32px !important;
+            padding-bottom: 0px !important; 
+        }
+
+        /* Temizle Butonunun Dikey Konumu: Üstündeki etiket boşluğunu taklit etmek için üst marjin veriyoruz */
+        div[data-testid="column"]:last-child .stButton {
+            margin-top: 23px !important;
         }
 
         /* Temizle Butonunun Tasarımı */
@@ -185,7 +180,7 @@ try:
     """, unsafe_allow_html=True)
 
     # ==========================================
-    # 4. FRAGMENT ALANI (AKILLI ILLÜZYON SİSTEMİ)
+    # 4. FRAGMENT ALANI (ZANNETSİZ VE KİLİTLİ YAPI)
     # ==========================================
     @st.fragment
     def stok_paneli_icerik(data_frame):
@@ -200,7 +195,7 @@ try:
             st.session_state.q_marka = "Tümü"
             st.session_state.q_stok = False
 
-        col1, col2, col3, col4, col5 = st.columns([3.2, 2.4, 2.4, 2.2, 1.2], vertical_alignment="bottom")
+        col1, col2, col3, col4, col5 = st.columns([3.2, 2.4, 2.4, 2.2, 1.2])
         
         current_marka = st.session_state.q_marka
         current_grup = st.session_state.q_grup
@@ -223,13 +218,9 @@ try:
             st.session_state.q_grup = "Tümü"
 
         with col1:
-            # 🎯 1. ADIM: Asla silinmeyen, zıplamayan sabit HTML etiketimiz
-            st.markdown('<span class="sabit-etiket">📝 Ürün Ara</span>', unsafe_allow_html=True)
-            
-            # 🎯 2. ADIM: İçerideki label'ı boş bırakıyoruz (""). 
-            # Böylece iframe silinse bile sadece içi silinecek, arkadaki gri CSS iskeletimiz alanı koruyacak.
+            # Standart etiketimizi veriyoruz, CSS onun konumunu koruyacak.
             v_search = st_keyup(
-                "", 
+                "📝 Ürün Ara", 
                 key=f"search_box_{st.session_state.clear_ver}",
                 placeholder="Yazmaya başlayın...",
                 debounce=300
