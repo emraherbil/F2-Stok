@@ -66,7 +66,7 @@ st.markdown("""
             div[data-testid="column"] .stButton,
             div[data-testid="column"] .stTextInput,
             div[data-testid="column"] .stSelectbox {
-                margin-bottom: 0px !important;
+                margin-bottom: 5px !important;
                 width: 100% !important;
             
         /* Form elemanlarının genişliklerini eşitle */
