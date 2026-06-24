@@ -92,7 +92,7 @@ st.markdown("""
            Ardından margin-top: -55px ile o içerideki boş etiketi yukarı, 
            bizim statik etiketin arkasına itip, input kutusunu Selectbox'larla hizalıyoruz! */
         iframe[title*="st_keyup"] {
-            height: 60px !important;
+            height: 65px !important;
             margin-top: 0px !important;
         }
 
