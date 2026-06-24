@@ -14,7 +14,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# 🎯 SİMETRİK BLOK DÜZENİ SAĞLAYAN GÜVENLİ CSS
+# 🎯 SIFIR HATA, KESİNTİSİZ DOĞAL HİZALAMA CSS'İ
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -60,40 +60,33 @@ st.markdown("""
             width: 100% !important;
         }
 
-        /* 🎯 NATIVE ETİKETLE BİREBİR AYNI BOYUTTA STATİK ARAMA ETİKETİ */
-        .sabit-arama-etiketi {
-            font-size: 14px !important;
-            color: rgb(49, 51, 63) !important;
-            font-weight: 400 !important;
-            display: block !important;
-            margin-bottom: 8px !important; /* Streamlit orijinal etiket payı */
-            line-height: 1.25 !important;
-        }
-
-        /* 🎯 ST_KEYUP IFRAME - KESİLMEYİ ÖSLEYEN SAF BOYUT */
+        /* 🎯 ST_KEYUP IFRAME - ETİKET İÇERİ ALINDIĞI İÇİN DOĞAL BOYUTUNA AYARLANDI */
         iframe[title*="st_keyup"] {
-            height: 40px !important;
+            height: 70px !important;
             border: none !important;
             display: block !important;
             margin: 0 !important;
             padding: 0 !important;
+            overflow: hidden !important;
         }
 
-        /* 🎯 CHECKBOX DİKEY HİZALAMA */
-        /* Üstünde etiket olmadığı için tam etiket yüksekliği (26px) kadar aşağı itildi */
+        /* 🎯 CHECKBOX DİKEY TABAN HİZALAMASI */
+        /* Üstünde yazı etiketi olmadığı için tam etiket yüksekliği (26px) kadar aşağı ötelendi */
         div[data-testid="stCheckbox"] { 
             margin-top: 26px !important;
             padding-top: 0px !important;
             padding-bottom: 0px !important; 
+            height: 40px !important;
+            display: flex !important;
+            align-items: center !important;
         }
 
-        /* 🎯 TEMİZLE BUTONU DİKEY HİZALAMA */
-        /* Üstünde etiket olmadığı için tam etiket yüksekliği (26px) kadar aşağı itildi */
+        /* 🎯 TEMİZLE BUTONU DİKEY TABAN HİZALAMASI */
         div[data-testid="column"] .stButton {
             margin-top: 26px !important;
         }
 
-        /* Temizle Butonunun Tasarımı (Selectbox kutuları ile tam uyumlu 40px) */
+        /* Temizle Butonunun Tasarımı (Kutularla tam uyumlu 40px yükseklik) */
         .stButton > button { 
             background-color: #1C355E !important; 
             color: white !important; 
@@ -172,7 +165,7 @@ try:
         <div style="margin-top:35px;"></div> """, unsafe_allow_html=True)
 
     # ==========================================
-    # 4. FRAGMENT ALANI (ZANNETSİZ VE KİLİTLİ YAPI)
+    # 4. FRAGMENT ALANI (FİLTRELER VE TABLO)
     # ==========================================
     @st.fragment
     def stok_paneli_icerik(data_frame):
@@ -187,7 +180,6 @@ try:
             st.session_state.q_marka = "Tümü"
             st.session_state.q_stok = False
 
-        # Standart güvenli kolon düzeni (Iframe'leri ezmeyen doğal akış)
         col1, col2, col3, col4, col5 = st.columns([3.2, 2.4, 2.4, 2.2, 1.2])
         
         current_marka = st.session_state.q_marka
@@ -211,9 +203,9 @@ try:
             st.session_state.q_grup = "Tümü"
 
         with col1:
-            st.markdown('<span class="sabit-arama-etiketi">📝 Ürün Ara</span>', unsafe_allow_html=True)
+            # 🎯 Etiketi doğrudan st_keyup bileşenine verdik, böylece kesilme riski sıfırlandı!
             v_search = st_keyup(
-                "", 
+                "📝 Ürün Ara", 
                 key=f"search_box_{st.session_state.clear_ver}",
                 placeholder="Yazmaya başlayın...",
                 debounce=300
@@ -255,7 +247,7 @@ try:
             """
 
         k1, k2, k3 = st.columns(3)
-        with k1: st.markdown(kpi_card("📋 Toplam Çesist:", f"{t_prod:,}".replace(",", ".") + " Adet", "#1E88E5"), unsafe_allow_html=True)
+        with k1: st.markdown(kpi_card("📋 Toplam Çeşit:", f"{t_prod:,}".replace(",", ".") + " Adet", "#1E88E5"), unsafe_allow_html=True)
         with k2: st.markdown(kpi_card("📦 Toplam Stok:", f"{t_stok:,}".replace(",", ".") + " Adet", "#4CAF50"), unsafe_allow_html=True)
         with k3: st.markdown(kpi_card("💰 Toplam Maliyet:", f"${t_cost:,.0f}".replace(",", "."), "#FFC107"), unsafe_allow_html=True)
 
