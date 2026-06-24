@@ -75,7 +75,7 @@ st.markdown("""
             height: 20px !important;
             line-height: 20px !important;
             position: relative;
-            top: -20px !important; /* ✨ EKLENDİ: Etiketi kutudan hafifçe yukarı kaldırır */
+            top: -22px !important; /* ✨ EKLENDİ: Etiketi kutudan hafifçe yukarı kaldırır */
             z-index: 10;
         }
 
