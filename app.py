@@ -85,11 +85,6 @@ st.markdown("""
             z-index: 100 !important;
         }
 
-        div[data-testid="column"]:first-child div.element-container:has(iframe[title*="st_keyup"]) {
-            min-height: 70px !important;
-            max-height: 70px !important;
-        }
-
         /* 🎯 ARAMA KUTUSU TAŞIYICISI: Selectbox'ların saf boyutu olan 40px'e kilitliyoruz. */
         div[data-testid="column"]:first-child div.element-container:has(iframe[title*="st_keyup"]) {
             margin-top: -54px !important; /* Senin hizalamayı başardığın o sihirli ölçü */
@@ -108,8 +103,6 @@ st.markdown("""
            bizim statik etiketin arkasına itip, input kutusunu Selectbox'larla hizalıyoruz! */
         iframe[title*="st_keyup"] {
             height: 70px !important;
-            min-height: 70px !important;
-            max-height: 70px !important;
             margin-top: -54px !important;
             background: transparent !important;
         }
@@ -216,11 +209,9 @@ try:
         if "q_grup" not in st.session_state: st.session_state.q_grup = "Tümü"
         if "q_marka" not in st.session_state: st.session_state.q_marka = "Tümü"
         if "q_stok" not in st.session_state: st.session_state.q_stok = False
-        if "search_reset" not in st.session_state: st.session_state.search_reset = False
         
         def filtreleri_temizle():
-            # st.session_state.clear_ver += 1
-            st.session_state.search_reset = True
+            st.session_state.clear_ver += 1
             st.session_state.q_grup = "Tümü"
             st.session_state.q_marka = "Tümü"
             st.session_state.q_stok = False
@@ -248,18 +239,14 @@ try:
             st.session_state.q_grup = "Tümü"
 
         with col1:
-            if st.session_state.search_reset:
-                search_key = "search_reset"
-                st.session_state.search_reset = False
-            else:
-                search_key = "search_normal"
+            st.markdown('<span class="sabit-arama-etiketi">📝 Ürün Ara</span>', unsafe_allow_html=True)
+            v_search = st_keyup(
+                "", 
+                key=f"search_box_{st.session_state.clear_ver}",
+                placeholder="Yazmaya başlayın...",
+                debounce=300
+            )
 
-        v_search = st_keyup(
-        "",
-        key=search_key,
-        placeholder="Yazmaya başlayın...",
-        debounce=300
-        )
         with col2:
             v_marka = st.selectbox("🏷️ Marka", marka_ops, key="q_marka")
 
