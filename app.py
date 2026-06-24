@@ -77,7 +77,7 @@ st.markdown("""
             color: white !important; 
             border: 1px solid #1C355E !important; 
             border-radius: 6px !important;
-            margin-top: 29px !important; /* Selectbox etiket boşluğuyla milimetrik eşitleme */
+            margin-top: 27px !important; /* Selectbox etiket boşluğuyla milimetrik eşitleme */
             height: 40px !important; /* Streamlit Selectbox'ların net yüksekliğine kilitlendi */
             width: 100% !important; 
             font-weight: 500 !important;
