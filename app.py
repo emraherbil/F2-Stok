@@ -218,17 +218,17 @@ try:
             st.session_state.q_marka = "Tümü"
         if current_grup not in grup_ops:
             st.session_state.q_grup = "Tümü"
-
-       st.markdown("""
+        with col1:
+            st.markdown("""
         <div class="arama-label">
-        📝 Ürün Ara
+            📝 Ürün Ara
         </div>
         """, unsafe_allow_html=True)
-        v_search = st_keyup(
-        "",
-        key=f"search_box_{st.session_state.clear_ver}",
-        placeholder="Yazmaya başlayın...",
-        debounce=300
+            v_search = st_keyup(
+                "",
+                key=f"search_box_{st.session_state.clear_ver}",
+                placeholder="Yazmaya başlayın...",
+                debounce=300
     )
 
         with col2:
