@@ -23,7 +23,7 @@ st.markdown("""
         .stDeployButton {display: none !important;}
         header {visibility: hidden !important; display: none !important;}
         
-        html, body, .stApp { background-color: #ffffff !important; }
+        html, body, .stApp { background-color: transparent !important; }
         
         .block-container { 
             display: block !important;
