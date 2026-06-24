@@ -240,8 +240,8 @@ try:
         if current_grup not in grup_ops:
             st.session_state.q_grup = "Tümü"
 
-        wwith col1:
-    st.markdown(
+        with col1:
+        st.markdown(
         '<span class="sabit-arama-etiketi">📝 Ürün Ara</span>',
         unsafe_allow_html=True
     )
