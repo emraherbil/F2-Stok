@@ -71,7 +71,7 @@ st.markdown("""
             color: rgb(49, 51, 63) !important;
             font-weight: 400 !important;
             display: block !important;
-            margin-bottom: 4px 
+            margin-bottom: 0px 
             position: relative;
             top: 0px !important; /* ✨ EKLENDİ: Etiketi kutudan hafifçe yukarı kaldırır */
             z-index: 10;
@@ -79,7 +79,7 @@ st.markdown("""
 
         /* 🎯 ARAMA KUTUSU TAŞIYICISI: Selectbox'ların saf boyutu olan 40px'e kilitliyoruz. */
         div[data-testid="column"]:first-child div.element-container:has(iframe[title*="st_keyup"]) {
-            margin-top: -28px !important;
+            margin-top: -48px !important;
             overflow: visible !important;
         }
 
@@ -92,7 +92,7 @@ st.markdown("""
            Ardından margin-top: -55px ile o içerideki boş etiketi yukarı, 
            bizim statik etiketin arkasına itip, input kutusunu Selectbox'larla hizalıyoruz! */
         iframe[title*="st_keyup"] {
-            height: 60px !important;
+            height: 44px !important;
             margin-top: 0px !important;
         }
 
