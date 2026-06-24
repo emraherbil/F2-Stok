@@ -251,7 +251,7 @@ try:
             if st.session_state.search_reset:
                 search_key = "search_reset"
                 st.session_state.search_reset = False
-        else:
+            else:
             search_key = "search_normal"
 
         v_search = st_keyup(
