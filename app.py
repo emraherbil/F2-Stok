@@ -248,11 +248,11 @@ try:
             st.session_state.q_grup = "Tümü"
 
         with col1:
-        if st.session_state.search_reset:
-        search_key = "search_reset"
-        st.session_state.search_reset = False
+            if st.session_state.search_reset:
+                search_key = "search_reset"
+                st.session_state.search_reset = False
         else:
-        search_key = "search_normal"
+            search_key = "search_normal"
 
         v_search = st_keyup(
         "",
