@@ -66,18 +66,17 @@ st.markdown("""
 
         /* 🎯 CHECKBOX DİKEY HİZALAMASI */
         div[data-testid="stCheckbox"] { 
-            padding-top: 29px !important;
+            padding-top: 36px !important;
             padding-bottom: 0px !important; 
         }
 
         /* 🎯 TEMİZLE BUTONU TASARIMI, BOYUTU VE SABİT DİKEY HİZALAMASI */
-        /* margin-top doğrudan butona verilerek sayfa yenilenmesindeki dikey zıplamalar tamamen engellendi */
         .stButton > button { 
             background-color: #1C355E !important; 
             color: white !important; 
             border: 1px solid #1C355E !important; 
             border-radius: 6px !important;
-            margin-top: 27px !important; /* Selectbox etiket boşluğuyla milimetrik eşitleme */
+            margin-top: 31px !important; /* Selectbox etiket boşluğuyla milimetrik eşitleme */
             height: 40px !important; /* Streamlit Selectbox'ların net yüksekliğine kilitlendi */
             width: 100% !important; 
             font-weight: 500 !important;
@@ -189,7 +188,6 @@ try:
             st.session_state.q_grup = "Tümü"
 
         with col1:
-            # 🎯 Kararlı ve Enter tetiklemeli Orijinal Arama Kutusu
             v_search = st.text_input(
                 label="📝 Ürün Ara", 
                 key=f"search_box_{st.session_state.clear_ver}",
@@ -232,7 +230,7 @@ try:
             """
 
         k1, k2, k3 = st.columns(3)
-        with k1: st.markdown(kpi_card("📋 Toplam Çeşit:", f"{t_prod:,}".replace(",", ".") + " Adet", "#1E88E5"), unsafe_allow_html=True)
+        with k1: st.markdown(kpi_card("📋 Toplam Çesist:", f"{t_prod:,}".replace(",", ".") + " Adet", "#1E88E5"), unsafe_allow_html=True)
         with k2: st.markdown(kpi_card("📦 Toplam Stok:", f"{t_stok:,}".replace(",", ".") + " Adet", "#4CAF50"), unsafe_allow_html=True)
         with k3: st.markdown(kpi_card("💰 Toplam Maliyet:", f"${t_cost:,.0f}".replace(",", "."), "#FFC107"), unsafe_allow_html=True)
 
@@ -254,14 +252,22 @@ try:
                 return ['background-color: rgba(255, 75, 75, 0.08)'] * len(row)
             return [''] * len(row)
 
+        # 🎯 SÜTUN HİZALAMALARI (st.column_config ile jilet gibi kilitlendi)
         st.dataframe(
             out_df.style.apply(row_style, axis=1), 
             use_container_width=True, 
             hide_index=True,
-            height=540
+            height=540,
+            column_config={
+                "Marka": st.column_config.Column(alignment="center"),
+                "Ürün Grubu": st.column_config.Column(alignment="center"),
+                "Güncel Stok": st.column_config.Column(alignment="center"),
+                "Birim Maliyet": st.column_config.Column(alignment="right"),
+                "Toplam Maliyet": st.column_config.Column(alignment="right")
+            }
         )
 
     stok_paneli_icerik(df)
 
 except Exception as e:
-    st.error(f"Hata oluştu: {e}")
+    st.error(f"Hata olustu: {e}")
