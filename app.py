@@ -36,7 +36,7 @@ st.markdown("""
         div[data-testid="stVerticalBlock"] > div:first-child {
             position: sticky !important;
             top: 0px !important;
-            background-color: white !important;
+            background-color: transparent !important;
             z-index: 9999 !important;
             padding-bottom: 15px !important;
         }
