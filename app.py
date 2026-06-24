@@ -218,7 +218,7 @@ try:
         if "q_stok" not in st.session_state: st.session_state.q_stok = False
         
         def filtreleri_temizle():
-            st.session_state.clear_ver += 1
+            / st.session_state.clear_ver += 1
             st.session_state.q_grup = "Tümü"
             st.session_state.q_marka = "Tümü"
             st.session_state.q_stok = False
