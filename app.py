@@ -96,7 +96,7 @@ st.markdown("""
            bizim statik etiketin arkasına itip, input kutusunu Selectbox'larla hizalıyoruz! */
         iframe[title*="st_keyup"] {
             height: 70px !important;
-            margin-top: -52px !important;
+            margin-top: -54px !important;
         }
 
         /* Checkbox dikey hizalaması */
