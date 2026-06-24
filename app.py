@@ -93,7 +93,6 @@ st.markdown("""
         div[data-testid="stCustomComponentV1"] {
             overflow: visible !important;
             position: relative !important;
-            z-index: 99 !important; 
         }
         
         /* 🎯 İŞTE MUCİZEYİ YARATAN KISIM: 
