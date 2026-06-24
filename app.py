@@ -3,7 +3,6 @@ import pandas as pd
 import os
 import base64
 from pathlib import Path
-from st_keyup import st_keyup
 
 # ==========================================
 # 1. SAYFA YAPILANDIRMASI VE KÜRESEL STİLLER
@@ -14,7 +13,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# 🎯 SIFIR HATA, KESİNTİSİZ DOĞAL HİZALAMA CSS'İ
+# 🎯 MİLİMETRİK HİZALAMA VE NATIVE DÜZENİ SAĞLAYAN CSS
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -51,7 +50,12 @@ st.markdown("""
         .custom-logo { height: 60px; object-fit: contain; }
         .custom-title-block { display: flex; flex-direction: column; justify-content: center; }
         
-        /* Form elemanlarının alt boşluklarını sıfırla */
+        /* Kolon yapısı */
+        div[data-testid="column"] {
+            display: block !important;
+        }
+        
+        /* Form elemanlarının genişliklerini eşitle */
         div[data-testid="column"] .stFormSubmitButton, 
         div[data-testid="column"] .stButton,
         div[data-testid="column"] .stTextInput,
@@ -60,39 +64,24 @@ st.markdown("""
             width: 100% !important;
         }
 
-        /* 🎯 ST_KEYUP IFRAME - ETİKET İÇERİ ALINDIĞI İÇİN DOĞAL BOYUTUNA AYARLANDI */
-        iframe[title*="st_keyup"] {
-            height: 70px !important;
-            border: none !important;
-            display: block !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            overflow: hidden !important;
-        }
-
-        /* 🎯 CHECKBOX DİKEY TABAN HİZALAMASI */
-        /* Üstünde yazı etiketi olmadığı için tam etiket yüksekliği (26px) kadar aşağı ötelendi */
+        /* Checkbox dikey hizalaması - Native etiket yüksekliğine (32px) tam uyum */
         div[data-testid="stCheckbox"] { 
-            margin-top: 26px !important;
-            padding-top: 0px !important;
+            padding-top: 32px !important;
             padding-bottom: 0px !important; 
-            height: 40px !important;
-            display: flex !important;
-            align-items: center !important;
         }
 
-        /* 🎯 TEMİZLE BUTONU DİKEY TABAN HİZALAMASI */
-        div[data-testid="column"] .stButton {
-            margin-top: 26px !important;
+        /* Temizle Butonunun Dikey Konumu - Native etiket yüksekliğine (32px) tam uyum */
+        div[data-testid="column"]:last-child .stButton {
+            margin-top: 32px !important;
         }
 
-        /* Temizle Butonunun Tasarımı (Kutularla tam uyumlu 40px yükseklik) */
+        /* Temizle Butonunun Tasarımı */
         .stButton > button { 
             background-color: #1C355E !important; 
             color: white !important; 
             border: 1px solid #1C355E !important; 
             border-radius: 6px !important;
-            height: 40px !important; 
+            height: 40px !important; /* Girdilerle kusursuz paralellik için 40px yapıldı */
             width: 100% !important; 
             font-weight: 500 !important;
             transition: all 0.2s !important;
@@ -165,7 +154,7 @@ try:
         <div style="margin-top:35px;"></div> """, unsafe_allow_html=True)
 
     # ==========================================
-    # 4. FRAGMENT ALANI (FİLTRELER VE TABLO)
+    # 4. FRAGMENT ALANI (ZANNETSİZ VE KİLİTLİ YAPI)
     # ==========================================
     @st.fragment
     def stok_paneli_icerik(data_frame):
@@ -203,12 +192,11 @@ try:
             st.session_state.q_grup = "Tümü"
 
         with col1:
-            # 🎯 Etiketi doğrudan st_keyup bileşenine verdik, böylece kesilme riski sıfırlandı!
-            v_search = st_keyup(
-                "📝 Ürün Ara", 
+            # Orijinal, zıplamayan ve Enter tetiklemeli arama kutusu
+            v_search = st.text_input(
+                label="📝 Ürün Ara", 
                 key=f"search_box_{st.session_state.clear_ver}",
-                placeholder="Yazmaya başlayın...",
-                debounce=300
+                placeholder="Ürün adı veya kodu yazıp Enter'a basın..."
             )
 
         with col2:
@@ -279,4 +267,4 @@ try:
     stok_paneli_icerik(df)
 
 except Exception as e:
-    st.error(f"Hata olustu: {e}")
+    st.error(f"Hata oluştu: {e}")
