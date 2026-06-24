@@ -69,10 +69,11 @@ st.markdown("""
         /* 🎯 ETİKETİN TAŞIYICISI (KAPSAYICIYI EN ÜSTE ALIYORUZ) */
         div[data-testid="column"]:first-child div.element-container:has(.sabit-arama-etiketi) {
             background: transparent !important; 
-            background-color: transparent !important; /* Beyaz katmanı tamamen yok eder */
+            background-color: rgba(0,0,0,0) !important;
+            border: none !important;
+            padding: 0px !important;
             position: relative !important;
-            z-index: 99 !important; /* Yazı en üstte kalsın */
-            pointer-events: none !important; /* ✨ ÇOK ÖNEMLİ: Etiket taşıyıcısı, altındaki arama kutusuna tıklamanı engellemesin diye tıklamaları aşağı geçirir */
+            
         }
 
         .sabit-arama-etiketi {
@@ -81,14 +82,15 @@ st.markdown("""
             font-weight: 400 !important;
             display: block !important;
             margin-bottom: 0px !important;
+            z-index: 100 !important;
         }
 
         /* 🎯 ARAMA KUTUSU TAŞIYICISI: Selectbox'ların saf boyutu olan 40px'e kilitliyoruz. */
         div[data-testid="column"]:first-child div.element-container:has(iframe[title*="st_keyup"]) {
             margin-top: -54px !important; /* Senin hizalamayı başardığın o sihirli ölçü */
             overflow: visible !important;
-            position: relative !important; 
-            z-index: 10 !important; /* ✨ Etiketten (999999) düşük, arkaplandan yüksek! */
+            background: transparent !important; /* Arka planı tamamen yok ettik */
+            z-index: 50 !important;
         }
         div[data-testid="stCustomComponentV1"] {
             overflow: visible !important;
@@ -102,6 +104,10 @@ st.markdown("""
         iframe[title*="st_keyup"] {
             height: 70px !important;
             margin-top: -54px !important;
+            background: transparent !important;
+        }
+            div[data-testid="stCustomComponentV1"] {
+            background-color: transparent !important;
             background: transparent !important;
         }
 
