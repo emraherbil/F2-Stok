@@ -65,25 +65,20 @@ st.markdown("""
         }
 
         /* 🎯 CHECKBOX DİKEY HİZALAMASI */
-        /* Selectbox kutularının dikey merkez çizgisiyle tam uyum sağlaması için boşluk ayarlandı */
         div[data-testid="stCheckbox"] { 
             padding-top: 36px !important;
             padding-bottom: 0px !important; 
         }
 
-        /* 🎯 TEMİZLE BUTONU DİKEY HİZALAMASI */
-        /* Selectbox ve Input etiketlerinin (Label) kapladığı 28px'lik boşluk kadar butonu aşağı indirir */
-        div[data-testid="column"] .stButton {
-            margin-top: 28px !important;
-        }
-
-        /* 🎯 TEMİZLE BUTONU TASARIMI VE BOYUTU */
+        /* 🎯 TEMİZLE BUTONU TASARIMI, BOYUTU VE SABİT DİKEY HİZALAMASI */
+        /* margin-top doğrudan butona verilerek sayfa yenilenmesindeki dikey zıplamalar tamamen engellendi */
         .stButton > button { 
             background-color: #1C355E !important; 
             color: white !important; 
             border: 1px solid #1C355E !important; 
             border-radius: 6px !important;
-            height: 40px !important; /* Streamlit Selectbox'ların net yüksekliği olan 40px'e tam kilitlendi */
+            margin-top: 31px !important; /* Selectbox etiket boşluğuyla milimetrik eşitleme */
+            height: 40px !important; /* Streamlit Selectbox'ların net yüksekliğine kilitlendi */
             width: 100% !important; 
             font-weight: 500 !important;
             transition: all 0.2s !important;
