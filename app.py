@@ -98,7 +98,7 @@ st.markdown("""
            bizim statik etiketin arkasına itip, input kutusunu Selectbox'larla hizalıyoruz! */
         iframe[title*="st_keyup"] {
             height: 70px !important;
-            margin-top: -48px !important;
+            margin-top: -40px !important;
             position: relative !important;
             z-index: 99 !important; /* 🌟 Arama kutusunun her şeyin üstünde (beyaz katmanın önünde) olmasını sağlar */
         }
