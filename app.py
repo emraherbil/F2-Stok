@@ -74,7 +74,7 @@ st.markdown("""
         /* 🎯 TEMİZLE BUTONU DİKEY HİZALAMASI */
         /* Selectbox ve Input etiketlerinin (Label) kapladığı 28px'lik boşluk kadar butonu aşağı indirir */
         div[data-testid="column"] .stButton {
-            margin-top: 20px !important;
+            margin-top: 40px !important;
         }
 
         /* 🎯 TEMİZLE BUTONU TASARIMI VE BOYUTU */
