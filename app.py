@@ -72,29 +72,18 @@ st.markdown("""
             font-weight: 400 !important;
             display: block !important;
             margin-bottom: 4px 
-            height: 20px !important;
-            line-height: 20px !important;
             position: relative;
             top: 0px !important; /* ✨ EKLENDİ: Etiketi kutudan hafifçe yukarı kaldırır */
             z-index: 10;
         }
 
         /* 🎯 ARAMA KUTUSU TAŞIYICISI: Selectbox'ların saf boyutu olan 40px'e kilitliyoruz. */
-        div[data-testid="column"]:first-child div.element-container:has(iframe) {
-            height: 45px !important;
-            min-height: 45px !important;
-            max-height: 45px !important;
+        div[data-testid="column"]:first-child div.element-container:has(iframe[title*="st_keyup"]) {
             margin-top: -28px !important;
-            margin-bottom: 0px !important;
             overflow: visible !important;
         }
 
         div[data-testid="stCustomComponentV1"] {
-            height: 45px !important;
-            min-height: 45px !important;
-            margin-top: 0px !important;
-            margin-bottom: 0px !important;
-            width: 100% !important;
             overflow: visible !important;
         }
         
@@ -103,13 +92,8 @@ st.markdown("""
            Ardından margin-top: -55px ile o içerideki boş etiketi yukarı, 
            bizim statik etiketin arkasına itip, input kutusunu Selectbox'larla hizalıyoruz! */
         iframe[title*="st_keyup"] {
-            height: 75px !important;
-            min-height: 75px !important;
-            margin-top: -55px !important;
-            margin-bottom: 0px !important;
-            display: block !important;
-            position: relative;
-            z-index: 1;
+            height: 60px !important;
+            margin-top: 0px !important;
         }
 
         /* Checkbox dikey hizalaması */
