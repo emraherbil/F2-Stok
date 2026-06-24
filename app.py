@@ -77,9 +77,6 @@ st.markdown("""
             font-weight: 400 !important;
             display: block !important;
             margin-bottom: 0px 
-            position: relative;
-            top: 0px !important; /* ✨ EKLENDİ: Etiketi kutudan hafifçe yukarı kaldırır */
-            z-index: 99999;
         }
 
         /* 🎯 ARAMA KUTUSU TAŞIYICISI: Selectbox'ların saf boyutu olan 40px'e kilitliyoruz. */
@@ -101,7 +98,7 @@ st.markdown("""
            bizim statik etiketin arkasına itip, input kutusunu Selectbox'larla hizalıyoruz! */
         iframe[title*="st_keyup"] {
             height: 70px !important;
-            margin-top: -54px !important;
+            margin-top: 0px !important;
             position: relative !important;
             z-index: 99 !important; /* 🌟 Arama kutusunun her şeyin üstünde (beyaz katmanın önünde) olmasını sağlar */
         }
