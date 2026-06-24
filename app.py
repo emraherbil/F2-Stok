@@ -245,8 +245,8 @@ try:
             '<span class="sabit-arama-etiketi">📝 Ürün Ara</span>', unsafe_allow_html=True)
             search_placeholder = st.empty()
             with search_placeholder:
-            v_search = st_keyup(
-            "",
+                v_search = st_keyup(
+                "",
             key=f"search_box_{st.session_state.clear_ver}",
             placeholder="Yazmaya başlayın...",
             debounce=300
