@@ -247,19 +247,19 @@ try:
         if current_grup not in grup_ops:
             st.session_state.q_grup = "Tümü"
 
-       with col1:
-    if st.session_state.search_reset:
+        with col1:
+        if st.session_state.search_reset:
         search_key = "search_reset"
         st.session_state.search_reset = False
-    else:
+        else:
         search_key = "search_normal"
 
-    v_search = st_keyup(
+        v_search = st_keyup(
         "",
         key=search_key,
         placeholder="Yazmaya başlayın...",
         debounce=300
-    )
+        )
         with col2:
             v_marka = st.selectbox("🏷️ Marka", marka_ops, key="q_marka")
 
