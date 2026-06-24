@@ -13,7 +13,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# 🎯 MİLİMETRİK HİZALAMA VE TEMİZ NATIVE CSS DÜZENİ
+# 🎯 MİLİMETRİK HİZALAMA VE NATIVE DÜZENİ SAĞLAYAN CSS
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -64,28 +64,24 @@ st.markdown("""
             width: 100% !important;
         }
 
-        /* 🎯 CHECKBOX DİKEY HİZALAMASI */
-        /* Selectbox kutularının dikey merkez çizgisiyle tam uyum sağlaması için boşluk ayarlandı */
+        /* Checkbox dikey hizalaması - Native etiket yüksekliğine (32px) tam uyum */
         div[data-testid="stCheckbox"] { 
-            padding-top: 29px !important;
+            padding-top: 32px !important;
             padding-bottom: 0px !important; 
         }
 
-        /* 🎯 TEMİZLE BUTONU DİKEY HİZALAMASI */
-        /* Selectbox ve Input etiketlerinin (Label) kapladığı 28px'lik boşluk kadar butonu aşağı indirir */
-        div[data-testid="column"] .stButton {
-            padding-top: 49px !important;
-            padding-bottom: 0px !important; 
-            #margin-top: 60px !important;
+        /* Temizle Butonunun Dikey Konumu - Native etiket yüksekliğine (32px) tam uyum */
+        div[data-testid="column"]:last-child .stButton {
+            margin-top: 32px !important;
         }
 
-        /* 🎯 TEMİZLE BUTONU TASARIMI VE BOYUTU */
+        /* Temizle Butonunun Tasarımı */
         .stButton > button { 
             background-color: #1C355E !important; 
             color: white !important; 
             border: 1px solid #1C355E !important; 
             border-radius: 6px !important;
-            height: 40px !important; /* Streamlit Selectbox'ların net yüksekliği olan 40px'e tam kilitlendi */
+            height: 40px !important; /* Girdilerle kusursuz paralellik için 40px yapıldı */
             width: 100% !important; 
             font-weight: 500 !important;
             transition: all 0.2s !important;
@@ -158,7 +154,7 @@ try:
         <div style="margin-top:35px;"></div> """, unsafe_allow_html=True)
 
     # ==========================================
-    # 4. FRAGMENT ALANI (SABİT VE KARARLI DÜZEN)
+    # 4. FRAGMENT ALANI (ZANNETSİZ VE KİLİTLİ YAPI)
     # ==========================================
     @st.fragment
     def stok_paneli_icerik(data_frame):
@@ -196,7 +192,7 @@ try:
             st.session_state.q_grup = "Tümü"
 
         with col1:
-            # 🎯 Kararlı ve Enter tetiklemeli Orijinal Arama Kutusu
+            # Orijinal, zıplamayan ve Enter tetiklemeli arama kutusu
             v_search = st.text_input(
                 label="📝 Ürün Ara", 
                 key=f"search_box_{st.session_state.clear_ver}",
