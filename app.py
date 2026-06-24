@@ -221,7 +221,7 @@ try:
 
         with col1:
 
-        st.markdown("""
+        st.markdown(""
             <div class="arama-label">
             📝 Ürün Ara
             </div>
