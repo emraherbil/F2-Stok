@@ -171,7 +171,7 @@ try:
     else:
         logo_html = '<div style="font-size: 2.5rem;">📦</div>'
 
-    st.markdown(f"""
+    st.markdown("""
         <div class="custom-header-container">
             {logo_html}
             <div class="custom-title-block">
