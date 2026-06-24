@@ -247,10 +247,6 @@ try:
                 key=f"search_box_{st.session_state.clear_ver}",
                 placeholder="Yazmaya başlayın...",
                 debounce=300
-                div[data-testid="column"]:first-child div.element-container:has(iframe[title*="st_keyup"]) {
-        min-height: 70px !important;
-        max-height: 70px !important;
-}
             )
 
         with col2:
