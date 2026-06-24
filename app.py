@@ -15,9 +15,10 @@ st.set_page_config(
 )
 
 # 🎯 MİLİMETRİK HİZALAMA VE EZİLMEYİ SIFIRLAYAN CSS
-div[data-testid="column"]:first-child div.element-container:has(iframe[title*="st_keyup"]) {
-    min-height: 70px !important;
-    max-height: 70px !important;
+    
+    div[data-testid="column"]:first-child div.element-container:has(iframe[title*="st_keyup"]) {
+        min-height: 70px !important;
+        max-height: 70px !important;
 }
 st.markdown("""
     <style>
