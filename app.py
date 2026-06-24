@@ -3,6 +3,7 @@ import pandas as pd
 import os
 import base64
 from pathlib import Path
+from st_keyup import st_keyup
 
 # ==========================================
 # 1. SAYFA YAPILANDIRMASI VE KÜRESEL STİLLER
@@ -13,7 +14,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# 🎯 MİLİMETRİK HİZALAMA VE TEMİZ NATIVE CSS DÜZENİ
+# 🎯 MODERN VE ESNEK NATIVE HİZALAMA CSS DÜZENİ
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -50,12 +51,7 @@ st.markdown("""
         .custom-logo { height: 60px; object-fit: contain; }
         .custom-title-block { display: flex; flex-direction: column; justify-content: center; }
         
-        /* Kolon yapısı */
-        div[data-testid="column"] {
-            display: block !important;
-        }
-        
-        /* Form elemanlarının genişliklerini eşitle */
+        /* Form elemanlarının alt boşluklarını sıfırla */
         div[data-testid="column"] .stFormSubmitButton, 
         div[data-testid="column"] .stButton,
         div[data-testid="column"] .stTextInput,
@@ -64,26 +60,32 @@ st.markdown("""
             width: 100% !important;
         }
 
-        /* 🎯 CHECKBOX DİKEY HİZALAMASI */
-        /* Selectbox kutularının dikey merkez çizgisiyle tam uyum sağlaması için boşluk ayarlandı */
-        div[data-testid="stCheckbox"] { 
-            padding-top: 29px !important;
-            padding-bottom: 0px !important; 
+        /* 🎯 STATİK ARAMA ETİKETİ STİLİ */
+        .sabit-arama-etiketi {
+            font-size: 14px !important;
+            color: rgb(49, 51, 63) !important;
+            font-weight: 400 !important;
+            display: block !important;
+            margin-bottom: 8px !important; /* Orijinal Streamlit etiket boşluğu */
         }
 
-        /* 🎯 TEMİZLE BUTONU DİKEY HİZALAMASI */
-        /* Selectbox ve Input etiketlerinin (Label) kapladığı 28px'lik boşluk kadar butonu aşağı indirir */
-        div[data-testid="column"] .stButton {
-            margin-top: 40px !important;
+        /* 🎯 ST_KEYUP IFRAME BOYUTU VE TEMİZLİĞİ */
+        /* Negatif margin kabusuna son! Sadece kutu yüksekliğini selectbox ile eşliyoruz. */
+        iframe[title*="st_keyup"] {
+            height: 40px !important;
+            border: none !important;
+            display: block !important;
+            overflow: hidden !important;
         }
 
-        /* 🎯 TEMİZLE BUTONU TASARIMI VE BOYUTU */
+        /* 🎯 TEMİZLE BUTONU TASARIMI VE KİLİTLİ BOYUTU */
+        /* Selectbox kutularının net yüksekliği olan 40px'e tam kilitlendi */
         .stButton > button { 
             background-color: #1C355E !important; 
             color: white !important; 
             border: 1px solid #1C355E !important; 
             border-radius: 6px !important;
-            height: 40px !important; /* Streamlit Selectbox'ların net yüksekliği olan 40px'e tam kilitlendi */
+            height: 40px !important; 
             width: 100% !important; 
             font-weight: 500 !important;
             transition: all 0.2s !important;
@@ -97,6 +99,11 @@ st.markdown("""
         
         div[data-baseweb="input"] {
             border-radius: 6px !important;
+        }
+
+        /* Checkbox'ın altındaki gereksiz boşluğu temizle */
+        div[data-testid="stCheckbox"] {
+            margin-bottom: 5px !important;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -156,7 +163,7 @@ try:
         <div style="margin-top:35px;"></div> """, unsafe_allow_html=True)
 
     # ==========================================
-    # 4. FRAGMENT ALANI (SABİT VE KARARLI DÜZEN)
+    # 4. FRAGMENT ALANI (ZANNETSİZ VE KİLİTLİ YAPI)
     # ==========================================
     @st.fragment
     def stok_paneli_icerik(data_frame):
@@ -171,7 +178,8 @@ try:
             st.session_state.q_marka = "Tümü"
             st.session_state.q_stok = False
 
-        col1, col2, col3, col4, col5 = st.columns([3.2, 2.4, 2.4, 2.2, 1.2])
+        # 🎯 MUCİZE PARAMETRE: vertical_alignment="bottom" tüm elemanları taban çizgisine kusursuzca oturtur
+        col1, col2, col3, col4, col5 = st.columns([3.2, 2.4, 2.4, 2.2, 1.2], vertical_alignment="bottom")
         
         current_marka = st.session_state.q_marka
         current_grup = st.session_state.q_grup
@@ -194,11 +202,12 @@ try:
             st.session_state.q_grup = "Tümü"
 
         with col1:
-            # 🎯 Kararlı ve Enter tetiklemeli Orijinal Arama Kutusu
-            v_search = st.text_input(
-                label="📝 Ürün Ara", 
+            st.markdown('<span class="sabit-arama-etiketi">📝 Ürün Ara</span>', unsafe_allow_html=True)
+            v_search = st_keyup(
+                "", 
                 key=f"search_box_{st.session_state.clear_ver}",
-                placeholder="Ürün adı veya kodu yazıp Enter'a basın..."
+                placeholder="Yazmaya başlayın...",
+                debounce=300
             )
 
         with col2:
