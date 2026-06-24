@@ -84,10 +84,14 @@ st.markdown("""
         }
             margin-top: -120px !important;
             overflow: visible !important;
+            position: relative !important; /* 🌟 Z-index'in çalışması için zorunlu */
+            z-index: 999 !important; /* 🌟 Kapsayıcıyı en öne getirir */
         }
 
         div[data-testid="stCustomComponentV1"] {
             overflow: visible !important;
+            position: relative !important;
+            z-index: 999 !important; /* 🌟 Bu taşıyıcıyı da öne alıyoruz */
         }
         
         /* 🎯 İŞTE MUCİZEYİ YARATAN KISIM: 
@@ -97,6 +101,8 @@ st.markdown("""
         iframe[title*="st_keyup"] {
             height: 70px !important;
             margin-top: -54px !important;
+            position: relative !important;
+            z-index: 9999 !important; /* 🌟 Arama kutusunun her şeyin üstünde (beyaz katmanın önünde) olmasını sağlar */
         }
 
         /* Checkbox dikey hizalaması */
