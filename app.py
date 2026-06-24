@@ -74,7 +74,7 @@ st.markdown("""
             margin-bottom: 0px 
             position: relative;
             top: 0px !important; /* ✨ EKLENDİ: Etiketi kutudan hafifçe yukarı kaldırır */
-            z-index: 10;
+            z-index: 99999;
         }
 
         /* 🎯 ARAMA KUTUSU TAŞIYICISI: Selectbox'ların saf boyutu olan 40px'e kilitliyoruz. */
