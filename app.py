@@ -15,6 +15,10 @@ st.set_page_config(
 )
 
 # 🎯 MİLİMETRİK HİZALAMA VE EZİLMEYİ SIFIRLAYAN CSS
+div[data-testid="column"]:first-child div.element-container:has(iframe[title*="st_keyup"]) {
+    min-height: 70px !important;
+    max-height: 70px !important;
+}
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -103,6 +107,8 @@ st.markdown("""
            bizim statik etiketin arkasına itip, input kutusunu Selectbox'larla hizalıyoruz! */
         iframe[title*="st_keyup"] {
             height: 70px !important;
+            min-height: 70px !important;
+            max-height: 70px !important;
             margin-top: -54px !important;
             background: transparent !important;
         }
