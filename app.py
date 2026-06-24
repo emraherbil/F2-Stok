@@ -68,15 +68,19 @@ st.markdown("""
         /* 🎯 ASLA DEĞİŞMEYEN SABİT ETİKET STİLİ */
         /* 🎯 ETİKETİN TAŞIYICISI (KAPSAYICIYI EN ÜSTE ALIYORUZ) */
         div[data-testid="column"]:first-child div.element-container:has(.sabit-arama-etiketi) {
+            background: transparent !important; 
+            background-color: transparent !important; /* Beyaz katmanı tamamen yok eder */
             position: relative !important;
-            z-index: 999999 !important; /* ✨ İşte mucizeyi yaratacak olan komut! Etiketin kutusu her şeyin üstünde. */
+            z-index: 99 !important; /* Yazı en üstte kalsın */
+            pointer-events: none !important; /* ✨ ÇOK ÖNEMLİ: Etiket taşıyıcısı, altındaki arama kutusuna tıklamanı engellemesin diye tıklamaları aşağı geçirir */
         }
+
         .sabit-arama-etiketi {
             font-size: 14px !important;
             color: rgb(49, 51, 63) !important;
             font-weight: 400 !important;
             display: block !important;
-            margin-bottom: 0px 
+            margin-bottom: 0px !important;
         }
 
         /* 🎯 ARAMA KUTUSU TAŞIYICISI: Selectbox'ların saf boyutu olan 40px'e kilitliyoruz. */
@@ -84,7 +88,7 @@ st.markdown("""
             margin-top: -54px !important; /* Senin hizalamayı başardığın o sihirli ölçü */
             overflow: visible !important;
             position: relative !important; 
-            z-index: 99 !important; /* ✨ Etiketten (999999) düşük, arkaplandan yüksek! */
+            z-index: 10 !important; /* ✨ Etiketten (999999) düşük, arkaplandan yüksek! */
         }
         div[data-testid="stCustomComponentV1"] {
             overflow: visible !important;
@@ -98,9 +102,8 @@ st.markdown("""
            bizim statik etiketin arkasına itip, input kutusunu Selectbox'larla hizalıyoruz! */
         iframe[title*="st_keyup"] {
             height: 70px !important;
-            margin-top: -30px !important;
-            position: relative !important;
-            z-index: 99 !important; /* 🌟 Arama kutusunun her şeyin üstünde (beyaz katmanın önünde) olmasını sağlar */
+            margin-top: -54px !important;
+            background: transparent !important;
         }
 
         /* Checkbox dikey hizalaması */
