@@ -79,7 +79,7 @@ st.markdown("""
 
         /* 🎯 ARAMA KUTUSU TAŞIYICISI: Selectbox'ların saf boyutu olan 40px'e kilitliyoruz. */
         div[data-testid="column"]:first-child div.element-container:has(iframe[title*="st_keyup"]) {
-            margin-top: -70px !important;
+            margin-top: -100px !important;
             overflow: visible !important;
         }
 
