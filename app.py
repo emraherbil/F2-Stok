@@ -223,7 +223,7 @@ try:
 
         st.markdown(""
             <div class="arama-label">
-            📝 Ürün Ara
+            "📝 Ürün Ara"
             </div>
             """, unsafe_allow_html=True)
 
