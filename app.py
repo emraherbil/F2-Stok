@@ -99,7 +99,7 @@ st.markdown("""
         
         /* 🎯 İŞTE MUCİZEYİ YARATAN KISIM: 
            Iframe'e ezilmemesi için 75px bol alan veriyoruz. 
-           Ardından margin-top: -55px ile o içerideki boş etiketi yukarı, 
+           Ardından margin-top: -px ile o içerideki boş etiketi yukarı, 
            bizim statik etiketin arkasına itip, input kutusunu Selectbox'larla hizalıyoruz! */
         iframe[title*="st_keyup"] {
             height: 70px !important;
