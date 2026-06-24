@@ -66,6 +66,11 @@ st.markdown("""
         }
 
         /* 🎯 ASLA DEĞİŞMEYEN SABİT ETİKET STİLİ */
+        /* 🎯 ETİKETİN TAŞIYICISI (KAPSAYICIYI EN ÜSTE ALIYORUZ) */
+        div[data-testid="column"]:first-child div.element-container:has(.sabit-arama-etiketi) {
+            position: relative !important;
+            z-index: 999999 !important; /* ✨ İşte mucizeyi yaratacak olan komut! Etiketin kutusu her şeyin üstünde. */
+        }
         .sabit-arama-etiketi {
             font-size: 14px !important;
             color: rgb(49, 51, 63) !important;
@@ -78,20 +83,16 @@ st.markdown("""
         }
 
         /* 🎯 ARAMA KUTUSU TAŞIYICISI: Selectbox'ların saf boyutu olan 40px'e kilitliyoruz. */
-        div[data-testid="column"]:first-child div.element-container,  {
-        div[data-testid="stCustomComponentV1"] {
+        div[data-testid="column"]:first-child div.element-container:has(iframe[title*="st_keyup"]) {
+            margin-top: -54px !important; /* Senin hizalamayı başardığın o sihirli ölçü */
             overflow: visible !important;
+            position: relative !important; 
+            z-index: 99 !important; /* ✨ Etiketten (999999) düşük, arkaplandan yüksek! */
         }
-            margin-top: -120px !important;
-            overflow: visible !important;
-            position: relative !important; /* 🌟 Z-index'in çalışması için zorunlu */
-            z-index: 999 !important; /* 🌟 Kapsayıcıyı en öne getirir */
-        }
-
         div[data-testid="stCustomComponentV1"] {
             overflow: visible !important;
             position: relative !important;
-            z-index: 999 !important; /* 🌟 Bu taşıyıcıyı da öne alıyoruz */
+            z-index: 99 !important; 
         }
         
         /* 🎯 İŞTE MUCİZEYİ YARATAN KISIM: 
@@ -100,9 +101,9 @@ st.markdown("""
            bizim statik etiketin arkasına itip, input kutusunu Selectbox'larla hizalıyoruz! */
         iframe[title*="st_keyup"] {
             height: 70px !important;
-            margin-top: -54px !important;
+            margin-top: 0px !important;
             position: relative !important;
-            z-index: 9999 !important; /* 🌟 Arama kutusunun her şeyin üstünde (beyaz katmanın önünde) olmasını sağlar */
+            z-index: 99 !important; /* 🌟 Arama kutusunun her şeyin üstünde (beyaz katmanın önünde) olmasını sağlar */
         }
 
         /* Checkbox dikey hizalaması */
