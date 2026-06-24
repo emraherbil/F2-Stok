@@ -75,6 +75,7 @@ st.markdown("""
         /* Selectbox ve Input etiketlerinin (Label) kapladığı 28px'lik boşluk kadar butonu aşağı indirir */
         div[data-testid="column"] .stButton {
             padding-top: 49px !important;
+            padding-bottom: 0px !important; 
             #margin-top: 60px !important;
         }
 
