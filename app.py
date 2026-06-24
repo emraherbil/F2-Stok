@@ -216,9 +216,11 @@ try:
         if "q_grup" not in st.session_state: st.session_state.q_grup = "Tümü"
         if "q_marka" not in st.session_state: st.session_state.q_marka = "Tümü"
         if "q_stok" not in st.session_state: st.session_state.q_stok = False
+        if "search_reset" not in st.session_state: st.session_state.search_reset = False
         
         def filtreleri_temizle():
             # st.session_state.clear_ver += 1
+            st.session_state.search_reset = True
             st.session_state.q_grup = "Tümü"
             st.session_state.q_marka = "Tümü"
             st.session_state.q_stok = False
@@ -245,17 +247,19 @@ try:
         if current_grup not in grup_ops:
             st.session_state.q_grup = "Tümü"
 
-        with col1:
-            st.markdown(
-            '<span class="sabit-arama-etiketi">📝 Ürün Ara</span>', unsafe_allow_html=True)
-            search_placeholder = st.empty()
-            with search_placeholder:
-                v_search = st_keyup(
-                "",
-            key=f"search_box_{st.session_state.clear_ver}",
-            placeholder="Yazmaya başlayın...",
-            debounce=300
-        )
+       with col1:
+    if st.session_state.search_reset:
+        search_key = "search_reset"
+        st.session_state.search_reset = False
+    else:
+        search_key = "search_normal"
+
+    v_search = st_keyup(
+        "",
+        key=search_key,
+        placeholder="Yazmaya başlayın...",
+        debounce=300
+    )
         with col2:
             v_marka = st.selectbox("🏷️ Marka", marka_ops, key="q_marka")
 
