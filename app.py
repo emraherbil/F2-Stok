@@ -75,23 +75,23 @@ st.markdown("""
             height: 20px !important;
             line-height: 20px !important;
             position: relative;
-            top: -22px !important; /* ✨ EKLENDİ: Etiketi kutudan hafifçe yukarı kaldırır */
+            top: 0px !important; /* ✨ EKLENDİ: Etiketi kutudan hafifçe yukarı kaldırır */
             z-index: 10;
         }
 
         /* 🎯 ARAMA KUTUSU TAŞIYICISI: Selectbox'ların saf boyutu olan 40px'e kilitliyoruz. */
         div[data-testid="column"]:first-child div.element-container:has(iframe) {
-            height: 40px !important;
-            min-height: 75px !important;
-            max-height: 75px !important;
-            margin-top: -55px !important;
+            height: 45px !important;
+            min-height: 45px !important;
+            max-height: 45px !important;
+            margin-top: -28px !important;
             margin-bottom: 0px !important;
             overflow: visible !important;
         }
 
         div[data-testid="stCustomComponentV1"] {
-            height: 40px !important;
-            min-height: 40px !important;
+            height: 45px !important;
+            min-height: 45px !important;
             margin-top: 0px !important;
             margin-bottom: 0px !important;
             width: 100% !important;
