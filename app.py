@@ -13,7 +13,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# 🎯 GEREKSİZ HACK'LERDEN ARINDIRILMIŞ, MİLİMETRİK NATIVE CSS
+# 🎯 MİLİMETRİK HİZALAMA VE NATIVE DÜZENİ SAĞLAYAN CSS
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -64,15 +64,15 @@ st.markdown("""
             width: 100% !important;
         }
 
-        /* Checkbox dikey hizalaması */
+        /* Checkbox dikey hizalaması - Native etiket yüksekliğine (32px) tam uyum */
         div[data-testid="stCheckbox"] { 
-            padding-top: 24px !important;
+            padding-top: 32px !important;
             padding-bottom: 0px !important; 
         }
 
-        /* Temizle Butonunun Dikey Konumu (Native Etiketlere Tam Hizalama) */
+        /* Temizle Butonunun Dikey Konumu - Native etiket yüksekliğine (32px) tam uyum */
         div[data-testid="column"]:last-child .stButton {
-            margin-top: 24px !important;
+            margin-top: 32px !important;
         }
 
         /* Temizle Butonunun Tasarımı */
@@ -81,7 +81,7 @@ st.markdown("""
             color: white !important; 
             border: 1px solid #1C355E !important; 
             border-radius: 6px !important;
-            height: 42px !important; 
+            height: 40px !important; /* Girdilerle kusursuz paralellik için 40px yapıldı */
             width: 100% !important; 
             font-weight: 500 !important;
             transition: all 0.2s !important;
@@ -154,7 +154,7 @@ try:
         <div style="margin-top:35px;"></div> """, unsafe_allow_html=True)
 
     # ==========================================
-    # 4. FRAGMENT ALANI (STABİL VE KİLİTLİ YAPI)
+    # 4. FRAGMENT ALANI (ZANNETSİZ VE KİLİTLİ YAPI)
     # ==========================================
     @st.fragment
     def stok_paneli_icerik(data_frame):
@@ -192,8 +192,7 @@ try:
             st.session_state.q_grup = "Tümü"
 
         with col1:
-            # 🎯 ORİJİNAL, GÜVENLİ VE ENTEGRE ARAMA KUTUSU
-            # Marka ve Ürün Grubu seçkileriyle otomatik olarak sıfıra sıfır dikey hizada durur.
+            # Orijinal, zıplamayan ve Enter tetiklemeli arama kutusu
             v_search = st.text_input(
                 label="📝 Ürün Ara", 
                 key=f"search_box_{st.session_state.clear_ver}",
@@ -236,7 +235,7 @@ try:
             """
 
         k1, k2, k3 = st.columns(3)
-        with k1: st.markdown(kpi_card("📋 Toplam Çesist:", f"{t_prod:,}".replace(",", ".") + " Adet", "#1E88E5"), unsafe_allow_html=True)
+        with k1: st.markdown(kpi_card("📋 Toplam Çeşit:", f"{t_prod:,}".replace(",", ".") + " Adet", "#1E88E5"), unsafe_allow_html=True)
         with k2: st.markdown(kpi_card("📦 Toplam Stok:", f"{t_stok:,}".replace(",", ".") + " Adet", "#4CAF50"), unsafe_allow_html=True)
         with k3: st.markdown(kpi_card("💰 Toplam Maliyet:", f"${t_cost:,.0f}".replace(",", "."), "#FFC107"), unsafe_allow_html=True)
 
@@ -268,4 +267,4 @@ try:
     stok_paneli_icerik(df)
 
 except Exception as e:
-    st.error(f"Hata olustu: {e}")
+    st.error(f"Hata oluştu: {e}")
