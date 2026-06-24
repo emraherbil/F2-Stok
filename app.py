@@ -65,27 +65,46 @@ st.markdown("""
             width: 100% !important;
         }
 
-               div[data-testid="stCustomComponentV1"] {
+        /* 🎯 ASLA DEĞİŞMEYEN SABİT ETİKET STİLİ */
+        /* 🎯 ETİKETİN TAŞIYICISI (KAPSAYICIYI EN ÜSTE ALIYORUZ) */
+        div[data-testid="column"]:first-child div.element-container:has(.sabit-arama-etiketi) {
+            background: transparent !important; 
+            background-color: rgba(0,0,0,0) !important;
+            border: none !important;
+            padding: 0px !important;
+            position: relative !important;
+            
+        }
+
+        .sabit-arama-etiketi {
+            font-size: 14px !important;
+            color: rgb(49, 51, 63) !important;
+            font-weight: 400 !important;
+            display: block !important;
+            margin-bottom: 0px !important;
+            z-index: 100 !important;
+        }
+
+        /* 🎯 ARAMA KUTUSU TAŞIYICISI: Selectbox'ların saf boyutu olan 40px'e kilitliyoruz. */
+        div[data-testid="column"]:first-child div.element-container:has(iframe[title*="st_keyup"]) {
+            margin-top: -54px !important; /* Senin hizalamayı başardığın o sihirli ölçü */
+            overflow: visible !important;
+            background: transparent !important; /* Arka planı tamamen yok ettik */
+            z-index: 50 !important;
+        }
+        div[data-testid="stCustomComponentV1"] {
             overflow: visible !important;
             position: relative !important;
         }
         
-            .arama-label {
-                font-size: 14px;
-                color: rgb(49,51,63);
-                font-weight: 400;
-                margin-bottom: 2px;
-                line-height: 1.4;
-        }    
-
-            div[data-testid="stCustomComponentV1"] {
-        margin-top: 0 !important;
-        padding-top: 0 !important;
-        }
-
-            iframe[title*="st_keyup"] {
-        height: 70px !important;
-        background: transparent !important;
+        /* 🎯 İŞTE MUCİZEYİ YARATAN KISIM: 
+           Iframe'e ezilmemesi için 75px bol alan veriyoruz. 
+           Ardından margin-top: -55px ile o içerideki boş etiketi yukarı, 
+           bizim statik etiketin arkasına itip, input kutusunu Selectbox'larla hizalıyoruz! */
+        iframe[title*="st_keyup"] {
+            height: 70px !important;
+            margin-top: -54px !important;
+            background: transparent !important;
         }
             div[data-testid="stCustomComponentV1"] {
             background-color: transparent !important;
@@ -171,7 +190,7 @@ try:
     else:
         logo_html = '<div style="font-size: 2.5rem;">📦</div>'
 
-    st.markdown("""
+    st.markdown(f"""
         <div class="custom-header-container">
             {logo_html}
             <div class="custom-title-block">
@@ -218,18 +237,15 @@ try:
             st.session_state.q_marka = "Tümü"
         if current_grup not in grup_ops:
             st.session_state.q_grup = "Tümü"
+
         with col1:
-            st.markdown("""
-        <div class="arama-label">
-            📝 Ürün Ara
-        </div>
-        """, unsafe_allow_html=True)
+            st.markdown('<span class="sabit-arama-etiketi">📝 Ürün Ara</span>', unsafe_allow_html=True)
             v_search = st_keyup(
-                "",
+                "", 
                 key=f"search_box_{st.session_state.clear_ver}",
                 placeholder="Yazmaya başlayın...",
                 debounce=300
-    )
+            )
 
         with col2:
             v_marka = st.selectbox("🏷️ Marka", marka_ops, key="q_marka")
@@ -259,12 +275,12 @@ try:
         t_cost = f_df[c_maliyet].sum()
         
         def kpi_card(label, val, color):
-            return """
+            return f"""
             <div style='background-color: rgba(28, 31, 46, 0.03); padding: 12px 15px; border-radius: 6px; border-left: 5px solid {color}; display: flex; justify-content: space-between; align-items: center;'>
                 <span style='font-size:13px; color:#555; font-weight:bold;'>{label}</span>
                 <span style='font-size:1.15rem; font-weight: 800; color:#111;'>{val}</span>
             </div>
-            ""
+            """
 
         k1, k2, k3 = st.columns(3)
         with k1: st.markdown(kpi_card("📋 Toplam Çeşit:", f"{t_prod:,}".replace(",", ".") + " Adet", "#1E88E5"), unsafe_allow_html=True)
