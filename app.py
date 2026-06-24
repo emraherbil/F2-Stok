@@ -67,7 +67,7 @@ st.markdown("""
         /* 🎯 CHECKBOX DİKEY HİZALAMASI */
         /* Selectbox kutularının dikey merkez çizgisiyle tam uyum sağlaması için boşluk ayarlandı */
         div[data-testid="stCheckbox"] { 
-            padding-top: 36px !important;
+            padding-top: 29px !important;
             padding-bottom: 0px !important; 
         }
 
