@@ -17,10 +17,6 @@ st.set_page_config(
 # 🎯 MİLİMETRİK HİZALAMA VE EZİLMEYİ SIFIRLAYAN CSS
 st.markdown("""
     <style>
-    div[data-testid="column"]:first-child div.element-container:has(iframe[title*="st_keyup"]) {
-        min-height: 70px !important;
-        max-height: 70px !important;
-}
         footer {visibility: hidden !important; display: none !important;}
         .viewerBadge_container {display: none !important;}
         [data-testid="stToolbar"] {display: none !important;}
@@ -90,6 +86,10 @@ st.markdown("""
         }
 
         /* 🎯 ARAMA KUTUSU TAŞIYICISI: Selectbox'ların saf boyutu olan 40px'e kilitliyoruz. */
+        div[data-testid="column"]:first-child div.element-container:has(iframe[title*="st_keyup"]) {
+        min-height: 70px !important;
+        max-height: 70px !important;
+}
         div[data-testid="column"]:first-child div.element-container:has(iframe[title*="st_keyup"]) {
             margin-top: -54px !important; /* Senin hizalamayı başardığın o sihirli ölçü */
             overflow: visible !important;
