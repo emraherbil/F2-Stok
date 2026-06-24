@@ -66,7 +66,7 @@ st.markdown("""
 
         /* 🎯 CHECKBOX DİKEY HİZALAMASI */
         div[data-testid="stCheckbox"] { 
-            padding-top: 36px !important;
+            padding-top: 29px !important;
             padding-bottom: 0px !important; 
         }
 
@@ -77,7 +77,7 @@ st.markdown("""
             color: white !important; 
             border: 1px solid #1C355E !important; 
             border-radius: 6px !important;
-            margin-top: 31px !important; /* Selectbox etiket boşluğuyla milimetrik eşitleme */
+            margin-top: 29px !important; /* Selectbox etiket boşluğuyla milimetrik eşitleme */
             height: 40px !important; /* Streamlit Selectbox'ların net yüksekliğine kilitlendi */
             width: 100% !important; 
             font-weight: 500 !important;
