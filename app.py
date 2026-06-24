@@ -220,7 +220,7 @@ try:
             st.session_state.q_grup = "Tümü"
 
         with col1:
-        st.markdown(""
+            st.markdown(""
             <div class="arama-label">
             "📝 Ürün Ara"
             </div>
