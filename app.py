@@ -259,7 +259,7 @@ try:
         t_cost = f_df[c_maliyet].sum()
         
         def kpi_card(label, val, color):
-            return f"""
+            return """
             <div style='background-color: rgba(28, 31, 46, 0.03); padding: 12px 15px; border-radius: 6px; border-left: 5px solid {color}; display: flex; justify-content: space-between; align-items: center;'>
                 <span style='font-size:13px; color:#555; font-weight:bold;'>{label}</span>
                 <span style='font-size:1.15rem; font-weight: 800; color:#111;'>{val}</span>
