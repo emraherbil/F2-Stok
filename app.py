@@ -81,21 +81,16 @@ st.markdown("""
             color: rgb(49, 51, 63) !important;
             font-weight: 400 !important;
             display: block !important;
-            margin-bottom: 4px !important;
+            margin-bottom: 0px !important;
+            z-index: 100 !important;
         }
-}
 
-        /* 🎯 DİĞER TÜM SÜTUNLARI AŞAĞI KAYDIRMA (Sihirli Kısım) */
-        /* İlk sütun (arama kutusu) hariç, yanındaki diğer tüm sütunları komple aşağı itiyoruz */
-        div[data-testid="column"]:not(:first-child) {
-            margin-top: 18px !important; /* ✨ Yan bileşenleri arama kutusunun hizasına indiren ana ayar */
-        }
         /* 🎯 ARAMA KUTUSU TAŞIYICISI: Selectbox'ların saf boyutu olan 40px'e kilitliyoruz. */
         div[data-testid="column"]:first-child div.element-container:has(iframe[title*="st_keyup"]) {
-            margin-top: 0px !important; /* Senin hizalamayı başardığın o sihirli ölçü */
+            margin-top: -54px !important; /* Senin hizalamayı başardığın o sihirli ölçü */
             overflow: visible !important;
             background: transparent !important; /* Arka planı tamamen yok ettik */
-            z-index: 1 !important;
+            z-index: 50 !important;
         }
         div[data-testid="stCustomComponentV1"] {
             overflow: visible !important;
@@ -108,7 +103,7 @@ st.markdown("""
            bizim statik etiketin arkasına itip, input kutusunu Selectbox'larla hizalıyoruz! */
         iframe[title*="st_keyup"] {
             height: 70px !important;
-            margin-top: 0px !important;
+            margin-top: -54px !important;
             background: transparent !important;
         }
             div[data-testid="stCustomComponentV1"] {
