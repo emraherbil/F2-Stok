@@ -267,7 +267,7 @@ try:
                 <span style='font-size:13px; color:#555; font-weight:bold;'>{label}</span>
                 <span style='font-size:1.15rem; font-weight: 800; color:#111;'>{val}</span>
             </div>
-            """
+            ""
 
         k1, k2, k3 = st.columns(3)
         with k1: st.markdown(kpi_card("📋 Toplam Çeşit:", f"{t_prod:,}".replace(",", ".") + " Adet", "#1E88E5"), unsafe_allow_html=True)
