@@ -14,7 +14,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# 🎯 MODERN VE ESNEK NATIVE HİZALAMA CSS DÜZENİ
+# 🎯 SİMETRİK BLOK DÜZENİ SAĞLAYAN GÜVENLİ CSS
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -60,26 +60,40 @@ st.markdown("""
             width: 100% !important;
         }
 
-        /* 🎯 STATİK ARAMA ETİKETİ STİLİ */
+        /* 🎯 NATIVE ETİKETLE BİREBİR AYNI BOYUTTA STATİK ARAMA ETİKETİ */
         .sabit-arama-etiketi {
             font-size: 14px !important;
             color: rgb(49, 51, 63) !important;
             font-weight: 400 !important;
             display: block !important;
-            margin-bottom: 8px !important; /* Orijinal Streamlit etiket boşluğu */
+            margin-bottom: 8px !important; /* Streamlit orijinal etiket payı */
+            line-height: 1.25 !important;
         }
 
-        /* 🎯 ST_KEYUP IFRAME BOYUTU VE TEMİZLİĞİ */
-        /* Negatif margin kabusuna son! Sadece kutu yüksekliğini selectbox ile eşliyoruz. */
+        /* 🎯 ST_KEYUP IFRAME - KESİLMEYİ ÖSLEYEN SAF BOYUT */
         iframe[title*="st_keyup"] {
             height: 40px !important;
             border: none !important;
             display: block !important;
-            overflow: hidden !important;
+            margin: 0 !important;
+            padding: 0 !important;
         }
 
-        /* 🎯 TEMİZLE BUTONU TASARIMI VE KİLİTLİ BOYUTU */
-        /* Selectbox kutularının net yüksekliği olan 40px'e tam kilitlendi */
+        /* 🎯 CHECKBOX DİKEY HİZALAMA */
+        /* Üstünde etiket olmadığı için tam etiket yüksekliği (26px) kadar aşağı itildi */
+        div[data-testid="stCheckbox"] { 
+            margin-top: 26px !important;
+            padding-top: 0px !important;
+            padding-bottom: 0px !important; 
+        }
+
+        /* 🎯 TEMİZLE BUTONU DİKEY HİZALAMA */
+        /* Üstünde etiket olmadığı için tam etiket yüksekliği (26px) kadar aşağı itildi */
+        div[data-testid="column"] .stButton {
+            margin-top: 26px !important;
+        }
+
+        /* Temizle Butonunun Tasarımı (Selectbox kutuları ile tam uyumlu 40px) */
         .stButton > button { 
             background-color: #1C355E !important; 
             color: white !important; 
@@ -99,11 +113,6 @@ st.markdown("""
         
         div[data-baseweb="input"] {
             border-radius: 6px !important;
-        }
-
-        /* Checkbox'ın altındaki gereksiz boşluğu temizle */
-        div[data-testid="stCheckbox"] {
-            margin-bottom: 5px !important;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -178,8 +187,8 @@ try:
             st.session_state.q_marka = "Tümü"
             st.session_state.q_stok = False
 
-        # 🎯 MUCİZE PARAMETRE: vertical_alignment="bottom" tüm elemanları taban çizgisine kusursuzca oturtur
-        col1, col2, col3, col4, col5 = st.columns([3.2, 2.4, 2.4, 2.2, 1.2], vertical_alignment="bottom")
+        # Standart güvenli kolon düzeni (Iframe'leri ezmeyen doğal akış)
+        col1, col2, col3, col4, col5 = st.columns([3.2, 2.4, 2.4, 2.2, 1.2])
         
         current_marka = st.session_state.q_marka
         current_grup = st.session_state.q_grup
@@ -246,7 +255,7 @@ try:
             """
 
         k1, k2, k3 = st.columns(3)
-        with k1: st.markdown(kpi_card("📋 Toplam Çeşit:", f"{t_prod:,}".replace(",", ".") + " Adet", "#1E88E5"), unsafe_allow_html=True)
+        with k1: st.markdown(kpi_card("📋 Toplam Çesist:", f"{t_prod:,}".replace(",", ".") + " Adet", "#1E88E5"), unsafe_allow_html=True)
         with k2: st.markdown(kpi_card("📦 Toplam Stok:", f"{t_stok:,}".replace(",", ".") + " Adet", "#4CAF50"), unsafe_allow_html=True)
         with k3: st.markdown(kpi_card("💰 Toplam Maliyet:", f"${t_cost:,.0f}".replace(",", "."), "#FFC107"), unsafe_allow_html=True)
 
@@ -278,4 +287,4 @@ try:
     stok_paneli_icerik(df)
 
 except Exception as e:
-    st.error(f"Hata oluştu: {e}")
+    st.error(f"Hata olustu: {e}")
