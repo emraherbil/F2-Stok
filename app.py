@@ -70,23 +70,23 @@ st.markdown("""
             position: relative !important;
         }
         
-        .arama-label {
-    font-size: 14px;
-    color: rgb(49,51,63);
-    font-weight: 400;
-    margin-bottom: 2px;
-    line-height: 1.4;
-}
+            .arama-label {
+                font-size: 14px;
+                color: rgb(49,51,63);
+                font-weight: 400;
+                margin-bottom: 2px;
+                line-height: 1.4;
+        }    
 
-div[data-testid="stCustomComponentV1"] {
-    margin-top: 0 !important;
-    padding-top: 0 !important;
-}
+            div[data-testid="stCustomComponentV1"] {
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+        }
 
-iframe[title*="st_keyup"] {
-    height: 70px !important;
-    background: transparent !important;
-}
+            iframe[title*="st_keyup"] {
+        height: 70px !important;
+        background: transparent !important;
+        }
             div[data-testid="stCustomComponentV1"] {
             background-color: transparent !important;
             background: transparent !important;
