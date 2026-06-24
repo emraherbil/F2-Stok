@@ -65,47 +65,28 @@ st.markdown("""
             width: 100% !important;
         }
 
-        /* 🎯 ASLA DEĞİŞMEYEN SABİT ETİKET STİLİ */
-        /* 🎯 ETİKETİN TAŞIYICISI (KAPSAYICIYI EN ÜSTE ALIYORUZ) */
-        div[data-testid="column"]:first-child div.element-container:has(.sabit-arama-etiketi) {
-            background: transparent !important; 
-            background-color: rgba(0,0,0,0) !important;
-            border: none !important;
-            padding: 0px !important;
-            position: relative !important;
-            
-        }
-
-        .sabit-arama-etiketi {
-            font-size: 14px !important;
-            color: rgb(49, 51, 63) !important;
-            font-weight: 400 !important;
-            display: block !important;
-            margin-bottom: 0px !important;
-            z-index: 100 !important;
-        }
-
-        /* 🎯 ARAMA KUTUSU TAŞIYICISI: Selectbox'ların saf boyutu olan 40px'e kilitliyoruz. */
-        div[data-testid="column"]:first-child div.element-container:has(iframe[title*="st_keyup"]) {
-            margin-top: 0px !important; /* Senin hizalamayı başardığın o sihirli ölçü */
-            overflow: visible !important;
-            background: transparent !important; /* Arka planı tamamen yok ettik */
-            z-index: 50 !important;
-        }
-        div[data-testid="stCustomComponentV1"] {
+               div[data-testid="stCustomComponentV1"] {
             overflow: visible !important;
             position: relative !important;
         }
         
-        /* 🎯 İŞTE MUCİZEYİ YARATAN KISIM: 
-           Iframe'e ezilmemesi için 75px bol alan veriyoruz. 
-           Ardından margin-top: -px ile o içerideki boş etiketi yukarı, 
-           bizim statik etiketin arkasına itip, input kutusunu Selectbox'larla hizalıyoruz! */
-        iframe[title*="st_keyup"] {
-            height: 70px !important;
-            margin-top: -54px !important;
-            background: transparent !important;
-        }
+        .arama-label {
+    font-size: 14px;
+    color: rgb(49,51,63);
+    font-weight: 400;
+    margin-bottom: 2px;
+    line-height: 1.4;
+}
+
+div[data-testid="stCustomComponentV1"] {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+}
+
+iframe[title*="st_keyup"] {
+    height: 70px !important;
+    background: transparent !important;
+}
             div[data-testid="stCustomComponentV1"] {
             background-color: transparent !important;
             background: transparent !important;
@@ -239,13 +220,19 @@ try:
             st.session_state.q_grup = "Tümü"
 
         with col1:
-            st.markdown('<span class="sabit-arama-etiketi">📝 Ürün Ara</span>', unsafe_allow_html=True)
-            v_search = st_keyup(
-                "", 
-                key=f"search_box_{st.session_state.clear_ver}",
-                placeholder="Yazmaya başlayın...",
-                debounce=300
-            )
+
+    st.markdown("""
+    <div class="arama-label">
+        📝 Ürün Ara
+    </div>
+    """, unsafe_allow_html=True)
+
+    v_search = st_keyup(
+        "",
+        key=f"search_box_{st.session_state.clear_ver}",
+        placeholder="Yazmaya başlayın...",
+        debounce=300
+    )
 
         with col2:
             v_marka = st.selectbox("🏷️ Marka", marka_ops, key="q_marka")
