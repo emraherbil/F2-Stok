@@ -43,7 +43,7 @@ st.markdown("""
         .custom-header-container { 
             display: flex; 
             align-items: center; 
-            gap: 10px; 
+            gap: 25px; 
             padding-top: 5px;
             padding-bottom: 5px;
         }
