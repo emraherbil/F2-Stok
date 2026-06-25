@@ -44,8 +44,8 @@ st.markdown("""
             display: flex; 
             align-items: center; 
             gap: 25px; 
-            padding-top: 5px;
-            padding-bottom: 5px;
+            padding-top: 0px;
+            padding-bottom: 0px;
         }
         .custom-logo { height: 60px; object-fit: contain; }
         .custom-title-block { display: flex; flex-direction: column; justify-content: center; }
