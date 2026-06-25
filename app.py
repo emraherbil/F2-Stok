@@ -66,7 +66,7 @@ st.markdown("""
 
         /* 🎯 CHECKBOX DİKEY HİZALAMASI */
         div[data-testid="stCheckbox"] { 
-            padding-top: 36px !important;
+            padding-top: 29px !important;
             padding-bottom: 0px !important; 
         }
 
