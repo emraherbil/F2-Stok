@@ -89,15 +89,44 @@ st.markdown("""
             color: white !important; 
         }
         
-        /* 🎯 TEXTBOX VE SELECTBOX KUTULARININ RENGİNİ #68A2B9 YAPMA */
-        div[data-baseweb="input"], div[data-baseweb="select"] {
-            background-color: #68A2B9 !important;
+        #div[data-baseweb="input"] {
             border-radius: 6px !important;
         }
-        
-        /* Kutuların içindeki yazıların veya ikonların renk uyumu için (isteğe bağlı) */
-        div[data-baseweb="input"] input, div[data-baseweb="select"] div {
-            color: #262730 !important; /* Koyu renk yazı okunurluğu sağlar */
+
+        /* 🎯 TEXTBOX VE SELECTBOX ARKA PLAN RENKLERİ (#68A2B9) */
+        /* Normal (Seçilmemiş) ve Tıklandığı/Açıldığı (Focus/Active) tüm katmanları kilitler */
+        div[data-baseweb="input"],
+        div[data-baseweb="input"] > div,
+        div[data-baseweb="select"],
+        div[data-baseweb="select"] > div,
+        div[data-baseweb="select"] [role="combobox"] {
+            background-color: #68A2B9 !important;
+            border-color: transparent !important;
+        }
+
+        /* Tıklama anında ve odaklanıldığında arka planın değişmesini kesin olarak engeller */
+        div[data-baseweb="input"] > div:focus-within,
+        div[data-baseweb="select"] > div:focus-within,
+        div[data-baseweb="select"] > div:active {
+            background-color: #68A2B9 !important;
+            border-color: #1C355E !important; /* İsteğe bağlı odaklanma çerçeve çizgisi */
+        }
+
+        /* İçerideki metinlerin, arama girdisinin ve seçili değerlerin rengini jilet gibi siyah yapar */
+        div[data-baseweb="input"] input,
+        div[data-baseweb="select"] [data-testid="stSelectboxValue"] {
+            background-color: transparent !important;
+            color: #111111 !important;
+        }
+
+        /* Arama kutusu placeholder (ipucu) metni rengi */
+        div[data-baseweb="input"] input::placeholder {
+            color: #444444 !important;
+        }
+
+        /* Sağdaki aşağı açılır ok ikonunun rengini koyulaştırır */
+        div[data-baseweb="select"] svg {
+            fill: #111111 !important;
         }
     </style>
 """, unsafe_allow_html=True)
