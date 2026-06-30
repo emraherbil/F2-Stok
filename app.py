@@ -3,7 +3,6 @@ import pandas as pd
 import os
 import base64
 from pathlib import Path
-from st_keyup import st_keyup
 
 # ==========================================
 # 1. SAYFA YAPILANDIRMASI VE KÜRESEL STİLLER
@@ -14,7 +13,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# 🎯 MİLİMETRİK HİZALAMA VE EZİLMEYİ SIFIRLAYAN CSS
+# 🎯 MİLİMETRİK HİZALAMA VE TEMİZ NATIVE CSS DÜZENİ
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -38,15 +37,15 @@ st.markdown("""
             top: 0px !important;
             background-color: transparent !important;
             z-index: 9999 !important;
-            padding-bottom: 15px !important;
+            padding-bottom: 10px !important;
         }
         
         .custom-header-container { 
             display: flex; 
             align-items: center; 
             gap: 25px; 
-            padding-top: 5px;
-            padding-bottom: 5px;
+            padding-top: 0px;
+            padding-bottom: 0px;
         }
         .custom-logo { height: 60px; object-fit: contain; }
         .custom-title-block { display: flex; flex-direction: column; justify-content: center; }
@@ -65,69 +64,20 @@ st.markdown("""
             width: 100% !important;
         }
 
-        /* 🎯 ASLA DEĞİŞMEYEN SABİT ETİKET STİLİ */
-        /* 🎯 ETİKETİN TAŞIYICISI (KAPSAYICIYI EN ÜSTE ALIYORUZ) */
-        div[data-testid="column"]:first-child div.element-container:has(.sabit-arama-etiketi) {
-            background: transparent !important; 
-            background-color: rgba(0,0,0,0) !important;
-            border: none !important;
-            padding: 0px !important;
-            position: relative !important;
-            
-        }
-
-        .sabit-arama-etiketi {
-            font-size: 14px !important;
-            color: rgb(49, 51, 63) !important;
-            font-weight: 400 !important;
-            display: block !important;
-            margin-bottom: 0px !important;
-            z-index: 100 !important;
-        }
-
-        /* 🎯 ARAMA KUTUSU TAŞIYICISI: Selectbox'ların saf boyutu olan 40px'e kilitliyoruz. */
-        div[data-testid="column"]:first-child div.element-container:has(iframe[title*="st_keyup"]) {
-            margin-top: -54px !important; /* Hizalamayı başaran sihirli ölçü */
-            overflow: visible !important;
-            background: transparent !important; /* Arka planı tamamen yok ettik */
-            z-index: 50 !important;
-        }
-        div[data-testid="stCustomComponentV1"] {
-            overflow: visible !important;
-            position: relative !important;
-        }
-        
-        /* 🎯 Iframe'e ezilmemesi için 75px bol alan veriyoruz. 
-           Ardından margin-top: -55px ile o içerideki boş etiketi yukarı, 
-           bizim statik etiketin arkasına itip, input kutusunu Selectbox'larla hizalıyoruz! */
-        iframe[title*="st_keyup"] {
-            height: 70px !important;
-            margin-top: -54px !important;
-            background: transparent !important;
-        }
-            div[data-testid="stCustomComponentV1"] {
-            background-color: transparent !important;
-            background: transparent !important;
-        }
-
-        /* Checkbox dikey hizalaması */
+        /* 🎯 CHECKBOX DİKEY HİZALAMASI */
         div[data-testid="stCheckbox"] { 
-            padding-top: 24px !important;
+            padding-top: 29px !important;
             padding-bottom: 0px !important; 
         }
 
-        /* Temizle Butonunun Dikey Konumu */
-        div[data-testid="column"]:last-child .stButton {
-            margin-top: 24px !important;
-        }
-
-        /* Temizle Butonunun Tasarımı */
+        /* 🎯 TEMİZLE BUTONU TASARIMI, BOYUTU VE SABİT DİKEY HİZALAMASI */
         .stButton > button { 
             background-color: #1C355E !important; 
             color: white !important; 
             border: 1px solid #1C355E !important; 
             border-radius: 6px !important;
-            height: 42px !important; 
+            margin-top: 31px !important; /* Selectbox etiket boşluğuyla milimetrik eşitleme */
+            height: 40px !important; /* Streamlit Selectbox'ların net yüksekliğine kilitlendi */
             width: 100% !important; 
             font-weight: 500 !important;
             transition: all 0.2s !important;
@@ -200,7 +150,7 @@ try:
         <div style="margin-top:35px;"></div> """, unsafe_allow_html=True)
 
     # ==========================================
-    # 4. FRAGMENT ALANI (ZANNETSİZ VE KİLİTLİ YAPI)
+    # 4. FRAGMENT ALANI (SABİT VE KARARLI DÜZEN)
     # ==========================================
     @st.fragment
     def stok_paneli_icerik(data_frame):
@@ -238,12 +188,10 @@ try:
             st.session_state.q_grup = "Tümü"
 
         with col1:
-            st.markdown('<span class="sabit-arama-etiketi">📝 Ürün Ara</span>', unsafe_allow_html=True)
-            v_search = st_keyup(
-                "", 
+            v_search = st.text_input(
+                label="📝 Ürün Ara", 
                 key=f"search_box_{st.session_state.clear_ver}",
-                placeholder="Yazmaya başlayın...",
-                debounce=300
+                placeholder="Ürün adı veya kodu yazıp Enter'a basın..."
             )
 
         with col2:
@@ -282,7 +230,7 @@ try:
             """
 
         k1, k2, k3 = st.columns(3)
-        with k1: st.markdown(kpi_card("📋 Toplam Çeşit:", f"{t_prod:,}".replace(",", ".") + " Adet", "#1E88E5"), unsafe_allow_html=True)
+        with k1: st.markdown(kpi_card("📋 Toplam Çesit:", f"{t_prod:,}".replace(",", ".") + " Adet", "#1E88E5"), unsafe_allow_html=True)
         with k2: st.markdown(kpi_card("📦 Toplam Stok:", f"{t_stok:,}".replace(",", ".") + " Adet", "#4CAF50"), unsafe_allow_html=True)
         with k3: st.markdown(kpi_card("💰 Toplam Maliyet:", f"${t_cost:,.0f}".replace(",", "."), "#FFC107"), unsafe_allow_html=True)
 
@@ -304,14 +252,22 @@ try:
                 return ['background-color: rgba(255, 75, 75, 0.08)'] * len(row)
             return [''] * len(row)
 
+        # 🎯 SÜTUN HİZALAMALARI (st.column_config ile jilet gibi kilitlendi)
         st.dataframe(
             out_df.style.apply(row_style, axis=1), 
             use_container_width=True, 
             hide_index=True,
-            height=540
+            height=540,
+            column_config={
+                "Marka": st.column_config.Column(alignment="center"),
+                "Ürün Grubu": st.column_config.Column(alignment="center"),
+                "Güncel Stok": st.column_config.Column(alignment="center"),
+                "Birim Maliyet": st.column_config.Column(alignment="right"),
+                "Toplam Maliyet": st.column_config.Column(alignment="right")
+            }
         )
 
     stok_paneli_icerik(df)
 
 except Exception as e:
-    st.error(f"Hata oluştu: {e}")
+    st.error(f"Hata olustu: {e}")
