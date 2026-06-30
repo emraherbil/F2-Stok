@@ -3,6 +3,7 @@ import pandas as pd
 import os
 import base64
 from pathlib import Path
+from st_keyup import st_keyup
 
 # ==========================================
 # 1. SAYFA YAPILANDIRMASI VE KÜRESEL STİLLER
@@ -13,7 +14,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# 🎯 MİLİMETRİK HİZALAMA VE ÖZELLEŞTİRİLMİŞ RENK CSS DÜZENİ
+# 🎯 MİLİMETRİK HİZALAMA VE EZİLMEYİ SIFIRLAYAN CSS
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -64,20 +65,69 @@ st.markdown("""
             width: 100% !important;
         }
 
-        /* 🎯 CHECKBOX DİKEY HİZALAMASI */
+        /* 🎯 ASLA DEĞİŞMEYEN SABİT ETİKET STİLİ */
+        /* 🎯 ETİKETİN TAŞIYICISI (KAPSAYICIYI EN ÜSTE ALIYORUZ) */
+        div[data-testid="column"]:first-child div.element-container:has(.sabit-arama-etiketi) {
+            background: transparent !important; 
+            background-color: rgba(0,0,0,0) !important;
+            border: none !important;
+            padding: 0px !important;
+            position: relative !important;
+            
+        }
+
+        .sabit-arama-etiketi {
+            font-size: 14px !important;
+            color: rgb(49, 51, 63) !important;
+            font-weight: 400 !important;
+            display: block !important;
+            margin-bottom: 0px !important;
+            z-index: 100 !important;
+        }
+
+        /* 🎯 ARAMA KUTUSU TAŞIYICISI: Selectbox'ların saf boyutu olan 40px'e kilitliyoruz. */
+        div[data-testid="column"]:first-child div.element-container:has(iframe[title*="st_keyup"]) {
+            margin-top: -54px !important; /* Hizalamayı başaran sihirli ölçü */
+            overflow: visible !important;
+            background: transparent !important; /* Arka planı tamamen yok ettik */
+            z-index: 50 !important;
+        }
+        div[data-testid="stCustomComponentV1"] {
+            overflow: visible !important;
+            position: relative !important;
+        }
+        
+        /* 🎯 Iframe'e ezilmemesi için 75px bol alan veriyoruz. 
+           Ardından margin-top: -55px ile o içerideki boş etiketi yukarı, 
+           bizim statik etiketin arkasına itip, input kutusunu Selectbox'larla hizalıyoruz! */
+        iframe[title*="st_keyup"] {
+            height: 70px !important;
+            margin-top: -54px !important;
+            background: transparent !important;
+        }
+            div[data-testid="stCustomComponentV1"] {
+            background-color: transparent !important;
+            background: transparent !important;
+        }
+
+        /* Checkbox dikey hizalaması */
         div[data-testid="stCheckbox"] { 
-            padding-top: 36px !important;
+            padding-top: 24px !important;
             padding-bottom: 0px !important; 
         }
 
-        /* 🎯 TEMİZLE BUTONU TASARIMI, BOYUTU VE SABİT DİKEY HİZALAMASI */
+        /* Temizle Butonunun Dikey Konumu */
+        div[data-testid="column"]:last-child .stButton {
+            margin-top: 24px !important;
+        }
+
+        /* Temizle Butonunun Tasarımı */
         .stButton > button { 
             background-color: #1C355E !important; 
             color: white !important; 
             border: 1px solid #1C355E !important; 
             border-radius: 6px !important;
-            margin-top: 31px !important; /* Selectbox etiket boşluğuyla milimetrik eşitleme */
-            height: 40px !important; /* Streamlit Selectbox'ların net yüksekliğine kilitlendi */
+            height: 42px !important; 
             width: 100% !important; 
             font-weight: 500 !important;
             transition: all 0.2s !important;
@@ -89,44 +139,8 @@ st.markdown("""
             color: white !important; 
         }
         
-        #div[data-baseweb="input"] {
+        div[data-baseweb="input"] {
             border-radius: 6px !important;
-        }
-
-        /* 🎯 TEXTBOX VE SELECTBOX ARKA PLAN RENKLERİ (#68A2B9) */
-        /* Normal (Seçilmemiş) ve Tıklandığı/Açıldığı (Focus/Active) tüm katmanları kilitler */
-        div[data-baseweb="input"],
-        div[data-baseweb="input"] > div,
-        div[data-baseweb="select"],
-        div[data-baseweb="select"] > div,
-        div[data-baseweb="select"] [role="combobox"] {
-            background-color: #68A2B9 !important;
-            border-color: transparent !important;
-        }
-
-        /* Tıklama anında ve odaklanıldığında arka planın değişmesini kesin olarak engeller */
-        div[data-baseweb="input"] > div:focus-within,
-        div[data-baseweb="select"] > div:focus-within,
-        div[data-baseweb="select"] > div:active {
-            background-color: #68A2B9 !important;
-            border-color: #1C355E !important; /* İsteğe bağlı odaklanma çerçeve çizgisi */
-        }
-
-        /* İçerideki metinlerin, arama girdisinin ve seçili değerlerin rengini jilet gibi siyah yapar */
-        div[data-baseweb="input"] input,
-        div[data-baseweb="select"] [data-testid="stSelectboxValue"] {
-            background-color: transparent !important;
-            color: #111111 !important;
-        }
-
-        /* Arama kutusu placeholder (ipucu) metni rengi */
-        div[data-baseweb="input"] input::placeholder {
-            color: #444444 !important;
-        }
-
-        /* Sağdaki aşağı açılır ok ikonunun rengini koyulaştırır */
-        div[data-baseweb="select"] svg {
-            fill: #111111 !important;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -186,7 +200,7 @@ try:
         <div style="margin-top:35px;"></div> """, unsafe_allow_html=True)
 
     # ==========================================
-    # 4. FRAGMENT ALANI (SABİT VE KARARLI DÜZEN)
+    # 4. FRAGMENT ALANI (ZANNETSİZ VE KİLİTLİ YAPI)
     # ==========================================
     @st.fragment
     def stok_paneli_icerik(data_frame):
@@ -224,10 +238,12 @@ try:
             st.session_state.q_grup = "Tümü"
 
         with col1:
-            v_search = st.text_input(
-                label="📝 Ürün Ara", 
+            st.markdown('<span class="sabit-arama-etiketi">📝 Ürün Ara</span>', unsafe_allow_html=True)
+            v_search = st_keyup(
+                "", 
                 key=f"search_box_{st.session_state.clear_ver}",
-                placeholder="Ürün adı veya kodu yazıp Enter'a basın..."
+                placeholder="Yazmaya başlayın...",
+                debounce=300
             )
 
         with col2:
@@ -288,19 +304,11 @@ try:
                 return ['background-color: rgba(255, 75, 75, 0.08)'] * len(row)
             return [''] * len(row)
 
-        # 🎯 SÜTUN HİZALAMALARI
         st.dataframe(
             out_df.style.apply(row_style, axis=1), 
             use_container_width=True, 
             hide_index=True,
-            height=540,
-            column_config={
-                "Marka": st.column_config.Column(alignment="center"),
-                "Ürün Grubu": st.column_config.Column(alignment="center"),
-                "Güncel Stok": st.column_config.Column(alignment="center"),
-                "Birim Maliyet": st.column_config.Column(alignment="right"),
-                "Toplam Maliyet": st.column_config.Column(alignment="right")
-            }
+            height=540
         )
 
     stok_paneli_icerik(df)
