@@ -8,349 +8,267 @@ from pathlib import Path
 # 1. SAYFA YAPILANDIRMASI VE KÜRESEL STİLLER
 # ==========================================
 st.set_page_config(
-    page_title="F2 ICT - Ofis Stok İzleme Paneli", 
-    page_icon="📦",
-    layout="wide"
+    page_title="F2 ICT - Ofis Stok İzleme Paneli", 
+    page_icon="📦",
+    layout="wide"
 )
 
 # 🎯 MİLİMETRİK HİZALAMA VE TEMİZ NATIVE CSS DÜZENİ
 st.markdown("""
-    <style>
-        footer {visibility: hidden !important; display: none !important;}
-        .viewerBadge_container {display: none !important;}
-        [data-testid="stToolbar"] {display: none !important;}
-        .stDeployButton {display: none !important;}
-        header {visibility: hidden !important; display: none !important;}
-        
-        html, body, .stApp { background-color: transparent !important; }
-        
-        .block-container { 
-            display: block !important;
-            padding-top: 1.5rem !important; 
-            padding-bottom: 1.5rem !important; 
-            max-width: 100% !important;
-        }
-        
-        /* Üst başlık alanını sabitle */
-        div[data-testid="stVerticalBlock"] > div:first-child {
-            position: sticky !important;
-            top: 0px !important;
-            background-color: transparent !important;
-            z-index: 9999 !important;
-            padding-bottom: 15px !important;
-        }
-        
-        .custom-header-container { 
-            display: flex; 
-            align-items: center; 
-            gap: 25px; 
-            padding-top: 5px;
-            padding-bottom: 5px;
-        }
-        .custom-logo { height: 60px; object-fit: contain; }
-        .custom-title-block { display: flex; flex-direction: column; justify-content: center; }
-        
-        /* Kolon yapısı */
-        div[data-testid="column"] {
-            display: block !important;
-        }
-        
-        /* Form elemanlarının genişliklerini eşitle */
-        div[data-testid="column"] .stFormSubmitButton, 
-        div[data-testid="column"] .stButton,
-        div[data-testid="column"] .stTextInput,
-        div[data-testid="column"] .stSelectbox {
-            margin-bottom: 0px !important;
-            width: 100% !important;
-        }
+    <style>
+        footer {visibility: hidden !important; display: none !important;}
+        .viewerBadge_container {display: none !important;}
+        [data-testid="stToolbar"] {display: none !important;}
+        .stDeployButton {display: none !important;}
+        header {visibility: hidden !important; display: none !important;}
+        
+        html, body, .stApp { background-color: transparent !important; }
+        
+        .block-container { 
+            display: block !important;
+            padding-top: 1.5rem !important; 
+            padding-bottom: 1.5rem !important; 
+            max-width: 100% !important;
+        }
+        
+        /* Üst başlık alanını sabitle */
+        div[data-testid="stVerticalBlock"] > div:first-child {
+            position: sticky !important;
+            top: 0px !important;
+            background-color: transparent !important;
+            z-index: 9999 !important;
+            padding-bottom: 15px !important;
+        }
+        
+        .custom-header-container { 
+            display: flex; 
+            align-items: center; 
+            gap: 25px; 
+            padding-top: 5px;
+            padding-bottom: 5px;
+        }
+        .custom-logo { height: 60px; object-fit: contain; }
+        .custom-title-block { display: flex; flex-direction: column; justify-content: center; }
+        
+        /* Kolon yapısı */
+        div[data-testid="column"] {
+            display: block !important;
+        }
+        
+        /* Form elemanlarının genişliklerini eşitle */
+        div[data-testid="column"] .stFormSubmitButton, 
+        div[data-testid="column"] .stButton,
+        div[data-testid="column"] .stTextInput,
+        div[data-testid="column"] .stSelectbox {
+            margin-bottom: 0px !important;
+            width: 100% !important;
+        }
 
-        /* 🎯 CHECKBOX DİKEY HİZALAMASI */
-        div[data-testid="stCheckbox"] { 
-            padding-top: 36px !important;
-            padding-bottom: 0px !important; 
-        }
+        /* 🎯 CHECKBOX DİKEY HİZALAMASI */
+        div[data-testid="stCheckbox"] { 
+            padding-top: 36px !important;
+            padding-bottom: 0px !important; 
+        }
 
-        /* 🎯 TEMİZLE BUTONU TASARIMI, BOYUTU VE SABİT DİKEY HİZALAMASI */
-        .stButton > button { 
-            background-color: #1C355E !important; 
-            color: white !important; 
-            border: 1px solid #1C355E !important; 
-            border-radius: 6px !important;
-            margin-top: 31px !important; /* Selectbox etiket boşluğuyla milimetrik eşitleme */
-            height: 40px !important; /* Streamlit Selectbox'ların net yüksekliğine kilitlendi */
-            width: 100% !important; 
-            font-weight: 500 !important;
-            transition: all 0.2s !important;
-        }
-        
-        .stButton > button:hover { 
-            background-color: #12223c !important;
-            border: 1px solid #12223c !important;
-            color: white !important; 
-        }
-        
-        div[data-baseweb="input"] {
-            border-radius: 6px !important;
-        }
-    </style>
+        /* 🎯 TEMİZLE BUTONU TASARIMI, BOYUTU VE SABİT DİKEY HİZALAMASI */
+        .stButton > button { 
+            background-color: #1C355E !important; 
+            color: white !important; 
+            border: 1px solid #1C355E !important; 
+            border-radius: 6px !important;
+            margin-top: 31px !important; /* Selectbox etiket boşluğuyla milimetrik eşitleme */
+            height: 40px !important; /* Streamlit Selectbox'ların net yüksekliğine kilitlendi */
+            width: 100% !important; 
+            font-weight: 500 !important;
+            transition: all 0.2s !important;
+        }
+        
+        .stButton > button:hover { 
+            background-color: #12223c !important;
+            border: 1px solid #12223c !important;
+            color: white !important; 
+        }
+        
+        div[data-baseweb="input"] {
+            border-radius: 6px !important;
+        }
+    </style>
 """, unsafe_allow_html=True)
 
 # ==========================================
 # 2. LOGO VE VERİ YÜKLEME FONKSİYONLARI
 # ==========================================
 def logo_to_base64(img_path):
-    try:
-        if os.path.exists(img_path):
-            img_bytes = Path(img_path).read_bytes()
-            return base64.b64encode(img_bytes).decode()
-    except Exception:
-        pass
-    return None
+    try:
+        if os.path.exists(img_path):
+            img_bytes = Path(img_path).read_bytes()
+            return base64.b64encode(img_bytes).decode()
+    except Exception:
+        pass
+    return None
 
 logo_data = logo_to_base64("logo.png") or logo_to_base64("logo.jpg")
 
 @st.cache_data(ttl=600)
 def load_data():
-    return pd.read_excel('Stok Sayım Arşivi-v3.1-Web.xlsm', sheet_name='Stok', engine='openpyxl')
+    return pd.read_excel('Stok Sayım Arşivi-v3.1-Web.xlsm', sheet_name='Stok', engine='openpyxl')
 
 # ==========================================
-# 3. ANA PANEL DÜZENİ VE SAYFA YÖNLENDİRME
+# 3. ANA PANEL DÜZENİ
 # ==========================================
 try:
-    df = load_data()
-    df.columns = [str(c).strip() for c in df.columns]
-    
-    c_kod = df.columns[1]     
-    c_tanim = df.columns[2] 
-    c_marka = df.columns[3]         
-    c_grup = df.columns[4]          
-    c_fiyat = df.columns[12]        
-    c_maliyet = df.columns[13]      
-    
-    sayim_cols = list(df.columns[14:]) 
-    c_stok = sayim_cols[-1] if sayim_cols else df.columns[-1]
+    df = load_data()
+    df.columns = [str(c).strip() for c in df.columns]
+    
+    c_kod = df.columns[1]     
+    c_tanim = df.columns[2] 
+    c_marka = df.columns[3]         
+    c_grup = df.columns[4]          
+    c_fiyat = df.columns[12]        
+    c_maliyet = df.columns[13]      
+    
+    sayim_cols = list(df.columns[14:]) 
+    c_stok = sayim_cols[-1] if sayim_cols else df.columns[-1]
 
-    df[c_stok] = pd.to_numeric(df[c_stok], errors='coerce').fillna(0)
-    df[c_maliyet] = pd.to_numeric(df[c_maliyet], errors='coerce').fillna(0)
-    df[c_fiyat] = pd.to_numeric(df[c_fiyat], errors='coerce').fillna(0)
+    df[c_stok] = pd.to_numeric(df[c_stok], errors='coerce').fillna(0)
+    df[c_maliyet] = pd.to_numeric(df[c_maliyet], errors='coerce').fillna(0)
+    df[c_fiyat] = pd.to_numeric(df[c_fiyat], errors='coerce').fillna(0)
 
-    # Sayfa Durumu Kontrolü (Gezinti için)
-    if "current_page" not in st.session_state:
-        st.session_state.current_page = "main"
+    if logo_data:
+        logo_html = f'<img src="data:image/png;base64,{logo_data}" class="custom-logo">'
+    else:
+        logo_html = '<div style="font-size: 2.5rem;">📦</div>'
 
-    if logo_data:
-        logo_html = f'<img src="data:image/png;base64,{logo_data}" class="custom-logo">'
-    else:
-        logo_html = '<div style="font-size: 2.5rem;">📦</div>'
+    st.markdown(f"""
+        <div class="custom-header-container">
+            {logo_html}
+            <div class="custom-title-block">
+                <h2 style="margin:0; padding:0; font-size:1.85rem; color:#262730; font-weight:700; line-height:1.2;">Ofis Stok İzleme Paneli</h2>
+                <span style="color:#7d7f87; font-size:0.85rem; margin-top:4px;">📅 <b>Son Güncelleme / Sayım Tarihi:</b> {c_stok}</span>
+            </div>
+        </div>
+        <div style="margin-top:35px;"></div> """, unsafe_allow_html=True)
 
-    # Üst Başlık Bloğu Yerleşimi
-    st.markdown(f"""
-        <div class="custom-header-container">
-            {logo_html}
-            <div class="custom-title-block">
-                <h2 style="margin:0; padding:0; font-size:1.85rem; color:#262730; font-weight:700; line-height:1.2;">Ofis Stok İzleme Paneli</h2>
-                <span style="color:#7d7f87; font-size:0.85rem; margin-top:4px;">📅 <b>Son Güncelleme / Sayım Tarihi:</b> {c_stok}</span>
-            </div>
-        </div>
-        <div style="margin-top:35px;"></div> """, unsafe_allow_html=True)
+    # ==========================================
+    # 4. FRAGMENT ALANI (SABİT VE KARARLI DÜZEN)
+    # ==========================================
+    @st.fragment
+    def stok_paneli_icerik(data_frame):
+        if "clear_ver" not in st.session_state: st.session_state.clear_ver = 0
+        if "q_grup" not in st.session_state: st.session_state.q_grup = "Tümü"
+        if "q_marka" not in st.session_state: st.session_state.q_marka = "Tümü"
+        if "q_stok" not in st.session_state: st.session_state.q_stok = False
+        
+        def filtreleri_temizle():
+            st.session_state.clear_ver += 1
+            st.session_state.q_grup = "Tümü"
+            st.session_state.q_marka = "Tümü"
+            st.session_state.q_stok = False
 
-    # ==========================================
-    # 4. FRAGMENT ALANI (ANA SAYFA İÇERİĞİ)
-    # ==========================================
-    @st.fragment
-    def stok_paneli_icerik(data_frame):
-        if "clear_ver" not in st.session_state: st.session_state.clear_ver = 0
-        if "q_grup" not in st.session_state: st.session_state.q_grup = "Tümü"
-        if "q_marka" not in st.session_state: st.session_state.q_marka = "Tümü"
-        if "q_stok" not in st.session_state: st.session_state.q_stok = False
-        
-        def filtreleri_temizle():
-            st.session_state.clear_ver += 1
-            st.session_state.q_grup = "Tümü"
-            st.session_state.q_marka = "Tümü"
-            st.session_state.q_stok = False
+        col1, col2, col3, col4, col5 = st.columns([3.2, 2.4, 2.4, 2.2, 1.2])
+        
+        current_marka = st.session_state.q_marka
+        current_grup = st.session_state.q_grup
 
-        col1, col2, col3, col4, col5 = st.columns([3.2, 2.4, 2.4, 2.2, 1.2])
-        
-        current_marka = st.session_state.q_marka
-        current_grup = st.session_state.q_grup
+        if current_grup != "Tümü":
+            df_for_marka = data_frame[data_frame[c_grup].astype(str) == current_grup]
+        else:
+            df_for_marka = data_frame
+        marka_ops = ["Tümü"] + sorted([str(x) for x in df_for_marka[c_marka].dropna().unique() if str(x).lower() != 'nan'])
 
-        if current_grup != "Tümü":
-            df_for_marka = data_frame[data_frame[c_grup].astype(str) == current_grup]
-        else:
-            df_for_marka = data_frame
-        marka_ops = ["Tümü"] + sorted([str(x) for x in df_for_marka[c_marka].dropna().unique() if str(x).lower() != 'nan'])
+        if current_marka != "Tümü":
+            df_for_grup = data_frame[data_frame[c_marka].astype(str) == current_marka]
+        else:
+            df_for_grup = data_frame
+        grup_ops = ["Tümü"] + sorted([str(x) for x in df_for_grup[c_grup].dropna().unique() if str(x).lower() != 'nan'])
 
-        if current_marka != "Tümü":
-            df_for_grup = data_frame[data_frame[c_marka].astype(str) == current_marka]
-        else:
-            df_for_grup = data_frame
-        grup_ops = ["Tümü"] + sorted([str(x) for x in df_for_grup[c_grup].dropna().unique() if str(x).lower() != 'nan'])
+        if current_marka not in marka_ops:
+            st.session_state.q_marka = "Tümü"
+        if current_grup not in grup_ops:
+            st.session_state.q_grup = "Tümü"
 
-        if current_marka not in marka_ops:
-            st.session_state.q_marka = "Tümü"
-        if current_grup not in grup_ops:
-            st.session_state.q_grup = "Tümü"
+        with col1:
+            v_search = st.text_input(
+                label="📝 Ürün Ara", 
+                key=f"search_box_{st.session_state.clear_ver}",
+                placeholder="Ürün adı veya kodu yazıp Enter'a basın..."
+            )
 
-        with col1:
-            v_search = st.text_input(
-                label="📝 Ürün Ara", 
-                key=f"search_box_{st.session_state.clear_ver}",
-                placeholder="Ürün adı veya kodu yazıp Enter'a basın..."
-            )
+        with col2:
+            v_marka = st.selectbox("🏷️ Marka", marka_ops, key="q_marka")
 
-        with col2:
-            v_marka = st.selectbox("🏷️ Marka", marka_ops, key="q_marka")
+        with col3:
+            v_grup = st.selectbox("📂 Ürün Grubu", grup_ops, key="q_grup")
 
-        with col3:
-            v_grup = st.selectbox("📂 Ürün Grubu", grup_ops, key="q_grup")
+        with col4:
+            v_stok = st.checkbox("🚫 Tükenenleri Gizle", key="q_stok")
 
-        with col4:
-            v_stok = st.checkbox("🚫 Tükenenleri Gizle", key="q_stok")
+        with col5:
+            st.button("🧹 Temizle", on_click=filtreleri_temizle, use_container_width=True)
 
-        with col5:
-            st.button("🧹 Temizle", on_click=filtreleri_temizle, use_container_width=True)
+        # Filtreleme Algoritması
+        f_df = data_frame.copy()
+        if v_search:
+            m1 = f_df[c_kod].astype(str).str.contains(v_search, case=False)
+            m2 = f_df[c_tanim].astype(str).str.contains(v_search, case=False)
+            f_df = f_df[m1 | m2]
+        if v_marka != "Tümü": f_df = f_df[f_df[c_marka].astype(str) == v_marka]
+        if v_grup != "Tümü": f_df = f_df[f_df[c_grup].astype(str) == v_grup]
+        if v_stok: f_df = f_df[f_df[c_stok] > 0]
 
-        # Filtreleme Algoritması
-        f_df = data_frame.copy()
-        if v_search:
-            m1 = f_df[c_kod].astype(str).str.contains(v_search, case=False)
-            m2 = f_df[c_tanim].astype(str).str.contains(v_search, case=False)
-            f_df = f_df[m1 | m2]
-        if v_marka != "Tümü": f_df = f_df[f_df[c_marka].astype(str) == v_marka]
-        if v_grup != "Tümü": f_df = f_df[f_df[c_grup].astype(str) == v_grup]
-        if v_stok: f_df = f_df[f_df[c_stok] > 0]
+        # KPI Kartları Hesaplamaları
+        t_prod = len(f_df)
+        t_stok = int(f_df[c_stok].sum())
+        t_cost = f_df[c_maliyet].sum()
+        
+        def kpi_card(label, val, color):
+            return f"""
+            <div style='background-color: rgba(28, 31, 46, 0.03); padding: 12px 15px; border-radius: 6px; border-left: 5px solid {color}; display: flex; justify-content: space-between; align-items: center;'>
+                <span style='font-size:13px; color:#555; font-weight:bold;'>{label}</span>
+                <span style='font-size:1.15rem; font-weight: 800; color:#111;'>{val}</span>
+            </div>
+            """
 
-        # KPI Kartları Hesaplamaları
-        t_prod = len(f_df)
-        t_stok = int(f_df[c_stok].sum())
-        t_cost = f_df[c_maliyet].sum()
-        
-        def kpi_card(label, val, color):
-            return f"""
-            <div style='background-color: rgba(28, 31, 46, 0.03); padding: 12px 15px; border-radius: 6px; border-left: 5px solid {color}; display: flex; justify-content: space-between; align-items: center;'>
-                <span style='font-size:13px; color:#555; font-weight:bold;'>{label}</span>
-                <span style='font-size:1.15rem; font-weight: 800; color:#111;'>{val}</span>
-            </div>
-            """
+        k1, k2, k3 = st.columns(3)
+        with k1: st.markdown(kpi_card("📋 Toplam Çesist:", f"{t_prod:,}".replace(",", ".") + " Adet", "#1E88E5"), unsafe_allow_html=True)
+        with k2: st.markdown(kpi_card("📦 Toplam Stok:", f"{t_stok:,}".replace(",", ".") + " Adet", "#4CAF50"), unsafe_allow_html=True)
+        with k3: st.markdown(kpi_card("💰 Toplam Maliyet:", f"${t_cost:,.0f}".replace(",", "."), "#FFC107"), unsafe_allow_html=True)
 
-        k1, k2, k3 = st.columns(3)
-        with k1: st.markdown(kpi_card("📋 Toplam Çeşit:", f"{t_prod:,}".replace(",", ".") + " Adet", "#1E88E5"), unsafe_allow_html=True)
-        with k2: st.markdown(kpi_card("📦 Toplam Stok:", f"{t_stok:,}".replace(",", ".") + " Adet", "#4CAF50"), unsafe_allow_html=True)
-        with k3: st.markdown(kpi_card("💰 Toplam Maliyet:", f"${t_cost:,.0f}".replace(",", "."), "#FFC107"), unsafe_allow_html=True)
+        st.markdown("<div style='margin-top:15px;'></div>", unsafe_allow_html=True)
+        
+        # Veri Tablosu Çıktısı
+        out_df = f_df[[c_kod, c_tanim, c_marka, c_grup, c_stok, c_fiyat, c_maliyet]].copy()
+        out_df.columns = ["Ürün Kodu", "Açıklama", "Marka", "Ürün Grubu", "Güncel Stok", "Birim Maliyet", "Toplam Maliyet"]
+        
+        out_df = out_df.reset_index(drop=True)
+        raw_stok = out_df["Güncel Stok"].copy()
 
-        st.markdown("<div style='margin-top:15px;'></div>", unsafe_allow_html=True)
-        
-        # Veri Tablosu Çıktısı
-        out_df = f_df[[c_kod, c_tanim, c_marka, c_grup, c_stok, c_fiyat, c_maliyet]].copy()
-        out_df.columns = ["Ürün Kodu", "Açıklama", "Marka", "Ürün Grubu", "Güncel Stok", "Birim Maliyet", "Toplam Maliyet"]
-        
-        out_df = out_df.reset_index(drop=True)
-        raw_stok = out_df["Güncel Stok"].copy()
+        out_df["Birim Maliyet"] = out_df["Birim Maliyet"].apply(lambda v: f"${v:,.0f}".replace(",", "."))
+        out_df["Toplam Maliyet"] = out_df["Toplam Maliyet"].apply(lambda v: f"${v:,.0f}".replace(",", "."))
+        out_df["Güncel Stok"] = out_df["Güncel Stok"].apply(lambda v: f"{int(v):,}".replace(",", "."))
 
-        out_df["Birim Maliyet"] = out_df["Birim Maliyet"].apply(lambda v: f"${v:,.0f}".replace(",", "."))
-        out_df["Toplam Maliyet"] = out_df["Toplam Maliyet"].apply(lambda v: f"${v:,.0f}".replace(",", "."))
-        out_df["Güncel Stok"] = out_df["Güncel Stok"].apply(lambda v: f"{int(v):,}".replace(",", "."))
+        def row_style(row):
+            if raw_stok.loc[row.name] == 0:
+                return ['background-color: rgba(255, 75, 75, 0.08)'] * len(row)
+            return [''] * len(row)
 
-        def row_style(row):
-            if raw_stok.loc[row.name] == 0:
-                return ['background-color: rgba(255, 75, 75, 0.08)'] * len(row)
-            return [''] * len(row)
+        # 🎯 SÜTUN HİZALAMALARI (st.column_config ile jilet gibi kilitlendi)
+        st.dataframe(
+            out_df.style.apply(row_style, axis=1), 
+            use_container_width=True, 
+            hide_index=True,
+            height=540,
+            column_config={
+                "Marka": st.column_config.Column(alignment="center"),
+                "Ürün Grubu": st.column_config.Column(alignment="center"),
+                "Güncel Stok": st.column_config.Column(alignment="center"),
+                "Birim Maliyet": st.column_config.Column(alignment="right"),
+                "Toplam Maliyet": st.column_config.Column(alignment="right")
+            }
+        )
 
-        # 🎯 TALEBİNİZ: SÜTUN VE BAŞLIK HİZALAMALARI TAM KİLİTLİ
-        st.dataframe(
-            out_df.style.apply(row_style, axis=1), 
-            use_container_width=True, 
-            hide_index=True,
-            height=540,
-            column_config={
-                "Marka": st.column_config.Column(alignment="center"),
-                "Ürün Grubu": st.column_config.Column(alignment="center"),
-                "Güncel Stok": st.column_config.Column(alignment="center"),
-                "Birim Maliyet": st.column_config.Column(alignment="right"),
-                "Toplam Maliyet": st.column_config.Column(alignment="right")
-            }
-        )
-
-    # ==========================================
-    # 5. SAYFA ROUTING (YÖNLENDİRME) YÖNETİMİ
-    # ==========================================
-    if st.session_state.current_page == "main":
-        # Sağ Üst Köşeye Geçiş Butonu Yerleşimi
-        nav_space, nav_col = st.columns([8.2, 1.8])
-        with nav_col:
-            if st.button("📈 Ürün Hareket Analizi", use_container_width=True):
-                st.session_state.current_page = "analiz"
-                st.rerun()
-        
-        # Ana Dashboard İçeriğini Çağır
-        stok_paneli_icerik(df)
-
-    elif st.session_state.current_page == "analiz":
-        # Geri Dönüş Butonu
-        back_col, back_space = st.columns([1.8, 8.2])
-        with back_col:
-            if st.button("⬅️ Ana Stok Paneline Dön", use_container_width=True):
-                st.session_state.current_page = "main"
-                st.rerun()
-                
-        st.markdown("### 📈 Ürün Hareket Analizi")
-        
-        # Analiz için Ürün Seçim Kutusu
-        product_options = df[c_kod].astype(str) + " - " + df[c_tanim].astype(str)
-        selected_prod_str = st.selectbox("🔍 Analiz Edilecek Ürünü Seçin:", product_options)
-        
-        if selected_prod_str:
-            # Seçilen satırı bulma
-            selected_idx = df[df[c_kod].astype(str) + " - " + df[c_tanim].astype(str) == selected_prod_str].index[0]
-            selected_row = df.loc[selected_idx]
-            
-            # Ürün Kartı Özeti Bilgisi
-            st.info(f"**Seçilen Ürün Bilgisi:** {selected_row[c_tanim]} | **Marka:** {selected_row[c_marka]} | **Grup:** {selected_row[c_grup]}")
-            
-            # Geçmiş Sayım Sütunları Varsa Veriyi Yapılandır
-            if len(sayim_cols) > 0:
-                history_data = []
-                for col in sayim_cols:
-                    val = pd.to_numeric(selected_row[col], errors='coerce')
-                    history_data.append({
-                        "Dönem/Tarih": str(col),
-                        "Stok Miktarı": int(val) if not pd.isna(val) else 0
-                    })
-                
-                history_df = pd.DataFrame(history_data)
-                
-                # 🎯 TALEBİNİZ: ZAMAN ARALIĞI FİLTRESİ
-                period = st.radio("🕒 Zaman Aralığı Seçin:", ["Aylık (Tümü)", "3 Aylık", "6 Aylık", "12 Aylık"], horizontal=True)
-                
-                filtered_history = history_df.copy()
-                if period == "3 Aylık":
-                    filtered_history = history_df.tail(3)
-                elif period == "6 Aylık":
-                    filtered_history = history_df.tail(6)
-                elif period == "12 Aylık":
-                    filtered_history = history_df.tail(12)
-                
-                # Yan yana Grafik ve Tablo Düzeni
-                v_col1, v_col2 = st.columns([6, 4])
-                
-                with v_col1:
-                    st.markdown("**📉 Stok Değişim Trend Çizgisi**")
-                    st.line_chart(filtered_history.set_index("Dönem/Tarih")["Stok Miktarı"], color="#1C355E")
-                    
-                with v_col2:
-                    st.markdown("**📋 Dönemsel Stok Hareket Tablosu**")
-                    st.dataframe(
-                        filtered_history, 
-                        use_container_width=True, 
-                        hide_index=True,
-                        column_config={
-                            "Dönem/Tarih": st.column_config.Column(alignment="center"),
-                            "Stok Miktarı": st.column_config.Column(alignment="center")
-                        }
-                    )
-            else:
-                st.warning("Bu ürüne ait geçmiş stok hareket/sayım geçmişi veri tabanında bulunamadı.")
+    stok_paneli_icerik(df)
 
 except Exception as e:
-    st.error(f"Hata olustu: {e}")
+    st.error(f"Hata olustu: {e}") 
+Bu koda geri döndüm. Talep edeceğim ilk geliştirme taleplerimi bu versiyon üzerinden yapalım.
