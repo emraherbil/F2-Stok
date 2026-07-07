@@ -1,4 +1,4 @@
-import streamlit as st
+import streamlit st
 import pandas as pd
 import os
 import base64
@@ -37,15 +37,15 @@ st.markdown("""
             top: 0px !important;
             background-color: transparent !important;
             z-index: 9999 !important;
-            padding-bottom: 10px !important;
+            padding-bottom: 15px !important;
         }
         
         .custom-header-container { 
             display: flex; 
             align-items: center; 
             gap: 25px; 
-            padding-top: 0px;
-            padding-bottom: 0px;
+            padding-top: 5px;
+            padding-bottom: 5px;
         }
         .custom-logo { height: 60px; object-fit: contain; }
         .custom-title-block { display: flex; flex-direction: column; justify-content: center; }
@@ -66,7 +66,7 @@ st.markdown("""
 
         /* 🎯 CHECKBOX DİKEY HİZALAMASI */
         div[data-testid="stCheckbox"] { 
-            padding-top: 29px !important;
+            padding-top: 36px !important;
             padding-bottom: 0px !important; 
         }
 
@@ -230,7 +230,7 @@ try:
             """
 
         k1, k2, k3 = st.columns(3)
-        with k1: st.markdown(kpi_card("📋 Toplam Çesit:", f"{t_prod:,}".replace(",", ".") + " Adet", "#1E88E5"), unsafe_allow_html=True)
+        with k1: st.markdown(kpi_card("📋 Toplam Çeşit:", f"{t_prod:,}".replace(",", ".") + " Adet", "#1E88E5"), unsafe_allow_html=True)
         with k2: st.markdown(kpi_card("📦 Toplam Stok:", f"{t_stok:,}".replace(",", ".") + " Adet", "#4CAF50"), unsafe_allow_html=True)
         with k3: st.markdown(kpi_card("💰 Toplam Maliyet:", f"${t_cost:,.0f}".replace(",", "."), "#FFC107"), unsafe_allow_html=True)
 
@@ -252,7 +252,7 @@ try:
                 return ['background-color: rgba(255, 75, 75, 0.08)'] * len(row)
             return [''] * len(row)
 
-        # 🎯 SÜTUN HİZALAMALARI (st.column_config ile jilet gibi kilitlendi)
+        # 🎯 TALEBİNİZ: SÜTUN VE BAŞLIK HİZALAMALARI (st.column_config ile jilet gibi sabitlendi)
         st.dataframe(
             out_df.style.apply(row_style, axis=1), 
             use_container_width=True, 
