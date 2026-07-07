@@ -1,4 +1,4 @@
-import streamlit st
+import streamlit as st
 import pandas as pd
 import os
 import base64
@@ -252,7 +252,7 @@ try:
                 return ['background-color: rgba(255, 75, 75, 0.08)'] * len(row)
             return [''] * len(row)
 
-        # 🎯 TALEBİNİZ: SÜTUN VE BAŞLIK HİZALAMALARI (st.column_config ile jilet gibi sabitlendi)
+        # 🎯 SÜTUN VE BAŞLIK HİZALAMALARI
         st.dataframe(
             out_df.style.apply(row_style, axis=1), 
             use_container_width=True, 
