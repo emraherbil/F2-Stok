@@ -37,15 +37,15 @@ st.markdown("""
             top: 0px !important;
             background-color: transparent !important;
             z-index: 9999 !important;
-            padding-bottom: 10px !important;
+            padding-bottom: 15px !important;
         }
         
         .custom-header-container { 
             display: flex; 
             align-items: center; 
             gap: 25px; 
-            padding-top: 0px;
-            padding-bottom: 0px;
+            padding-top: 5px;
+            padding-bottom: 5px;
         }
         .custom-logo { height: 60px; object-fit: contain; }
         .custom-title-block { display: flex; flex-direction: column; justify-content: center; }
@@ -66,7 +66,7 @@ st.markdown("""
 
         /* 🎯 CHECKBOX DİKEY HİZALAMASI */
         div[data-testid="stCheckbox"] { 
-            padding-top: 29px !important;
+            padding-top: 36px !important;
             padding-bottom: 0px !important; 
         }
 
@@ -114,7 +114,7 @@ def load_data():
     return pd.read_excel('Stok Sayım Arşivi-v3.1-Web.xlsm', sheet_name='Stok', engine='openpyxl')
 
 # ==========================================
-# 3. ANA PANEL DÜZENİ
+# 3. ANA PANEL DÜZENİ VE SAYFA YÖNLENDİRME
 # ==========================================
 try:
     df = load_data()
@@ -134,11 +134,16 @@ try:
     df[c_maliyet] = pd.to_numeric(df[c_maliyet], errors='coerce').fillna(0)
     df[c_fiyat] = pd.to_numeric(df[c_fiyat], errors='coerce').fillna(0)
 
+    # Sayfa Durumu Kontrolü (Gezinti için)
+    if "current_page" not in st.session_state:
+        st.session_state.current_page = "main"
+
     if logo_data:
         logo_html = f'<img src="data:image/png;base64,{logo_data}" class="custom-logo">'
     else:
         logo_html = '<div style="font-size: 2.5rem;">📦</div>'
 
+    # Üst Başlık Bloğu Yerleşimi
     st.markdown(f"""
         <div class="custom-header-container">
             {logo_html}
@@ -150,7 +155,7 @@ try:
         <div style="margin-top:35px;"></div> """, unsafe_allow_html=True)
 
     # ==========================================
-    # 4. FRAGMENT ALANI (SABİT VE KARARLI DÜZEN)
+    # 4. FRAGMENT ALANI (ANA SAYFA İÇERİĞİ)
     # ==========================================
     @st.fragment
     def stok_paneli_icerik(data_frame):
@@ -230,7 +235,7 @@ try:
             """
 
         k1, k2, k3 = st.columns(3)
-        with k1: st.markdown(kpi_card("📋 Toplam Çesit:", f"{t_prod:,}".replace(",", ".") + " Adet", "#1E88E5"), unsafe_allow_html=True)
+        with k1: st.markdown(kpi_card("📋 Toplam Çeşit:", f"{t_prod:,}".replace(",", ".") + " Adet", "#1E88E5"), unsafe_allow_html=True)
         with k2: st.markdown(kpi_card("📦 Toplam Stok:", f"{t_stok:,}".replace(",", ".") + " Adet", "#4CAF50"), unsafe_allow_html=True)
         with k3: st.markdown(kpi_card("💰 Toplam Maliyet:", f"${t_cost:,.0f}".replace(",", "."), "#FFC107"), unsafe_allow_html=True)
 
@@ -252,7 +257,7 @@ try:
                 return ['background-color: rgba(255, 75, 75, 0.08)'] * len(row)
             return [''] * len(row)
 
-        # 🎯 SÜTUN HİZALAMALARI (st.column_config ile jilet gibi kilitlendi)
+        # 🎯 TALEBİNİZ: SÜTUN VE BAŞLIK HİZALAMALARI TAM KİLİTLİ
         st.dataframe(
             out_df.style.apply(row_style, axis=1), 
             use_container_width=True, 
@@ -267,7 +272,85 @@ try:
             }
         )
 
-    stok_paneli_icerik(df)
+    # ==========================================
+    # 5. SAYFA ROUTING (YÖNLENDİRME) YÖNETİMİ
+    # ==========================================
+    if st.session_state.current_page == "main":
+        # Sağ Üst Köşeye Geçiş Butonu Yerleşimi
+        nav_space, nav_col = st.columns([8.2, 1.8])
+        with nav_col:
+            if st.button("📈 Ürün Hareket Analizi", use_container_width=True):
+                st.session_state.current_page = "analiz"
+                st.rerun()
+        
+        # Ana Dashboard İçeriğini Çağır
+        stok_paneli_icerik(df)
+
+    elif st.session_state.current_page == "analiz":
+        # Geri Dönüş Butonu
+        back_col, back_space = st.columns([1.8, 8.2])
+        with back_col:
+            if st.button("⬅️ Ana Stok Paneline Dön", use_container_width=True):
+                st.session_state.current_page = "main"
+                st.rerun()
+                
+        st.markdown("### 📈 Ürün Hareket Analizi")
+        
+        # Analiz için Ürün Seçim Kutusu
+        product_options = df[c_kod].astype(str) + " - " + df[c_tanim].astype(str)
+        selected_prod_str = st.selectbox("🔍 Analiz Edilecek Ürünü Seçin:", product_options)
+        
+        if selected_prod_str:
+            # Seçilen satırı bulma
+            selected_idx = df[df[c_kod].astype(str) + " - " + df[c_tanim].astype(str) == selected_prod_str].index[0]
+            selected_row = df.loc[selected_idx]
+            
+            # Ürün Kartı Özeti Bilgisi
+            st.info(f"**Seçilen Ürün Bilgisi:** {selected_row[c_tanim]} | **Marka:** {selected_row[c_marka]} | **Grup:** {selected_row[c_grup]}")
+            
+            # Geçmiş Sayım Sütunları Varsa Veriyi Yapılandır
+            if len(sayim_cols) > 0:
+                history_data = []
+                for col in sayim_cols:
+                    val = pd.to_numeric(selected_row[col], errors='coerce')
+                    history_data.append({
+                        "Dönem/Tarih": str(col),
+                        "Stok Miktarı": int(val) if not pd.isna(val) else 0
+                    })
+                
+                history_df = pd.DataFrame(history_data)
+                
+                # 🎯 TALEBİNİZ: ZAMAN ARALIĞI FİLTRESİ
+                period = st.radio("🕒 Zaman Aralığı Seçin:", ["Aylık (Tümü)", "3 Aylık", "6 Aylık", "12 Aylık"], horizontal=True)
+                
+                filtered_history = history_df.copy()
+                if period == "3 Aylık":
+                    filtered_history = history_df.tail(3)
+                elif period == "6 Aylık":
+                    filtered_history = history_df.tail(6)
+                elif period == "12 Aylık":
+                    filtered_history = history_df.tail(12)
+                
+                # Yan yana Grafik ve Tablo Düzeni
+                v_col1, v_col2 = st.columns([6, 4])
+                
+                with v_col1:
+                    st.markdown("**📉 Stok Değişim Trend Çizgisi**")
+                    st.line_chart(filtered_history.set_index("Dönem/Tarih")["Stok Miktarı"], color="#1C355E")
+                    
+                with v_col2:
+                    st.markdown("**📋 Dönemsel Stok Hareket Tablosu**")
+                    st.dataframe(
+                        filtered_history, 
+                        use_container_width=True, 
+                        hide_index=True,
+                        column_config={
+                            "Dönem/Tarih": st.column_config.Column(alignment="center"),
+                            "Stok Miktarı": st.column_config.Column(alignment="center")
+                        }
+                    )
+            else:
+                st.warning("Bu ürüne ait geçmiş stok hareket/sayım geçmişi veri tabanında bulunamadı.")
 
 except Exception as e:
     st.error(f"Hata olustu: {e}")
