@@ -240,6 +240,9 @@ try:
         out_df = f_df[[c_kod, c_tanim, c_marka, c_grup, c_stok, c_fiyat, c_maliyet]].copy()
         out_df.columns = ["Ürün Kodu", "Açıklama", "Marka", "Ürün Grubu", "Güncel Stok", "Birim Maliyet", "Toplam Maliyet"]
         
+        # 🎯 ARROW HATASINI ÇÖZEN KRİTİK DOKUNUŞ: Ürün Kodu verilerini string yapısına zorluyoruz
+        out_df["Ürün Kodu"] = out_df["Ürün Kodu"].astype(str)
+        
         out_df = out_df.reset_index(drop=True)
         raw_stok = out_df["Güncel Stok"].copy()
 
@@ -252,7 +255,7 @@ try:
                 return ['background-color: rgba(255, 75, 75, 0.08)'] * len(row)
             return [''] * len(row)
 
-        # 🎯 SÜTUN HİZALAMALARI (st.column_config ile jilet gibi kilitlendi)
+        # 🎯 SÜTUN HİZALAMALARI (st.column_config ile kilitli)
         st.dataframe(
             out_df.style.apply(row_style, axis=1), 
             use_container_width=True, 
