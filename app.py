@@ -72,7 +72,7 @@ st.markdown("""
         
         /* 1. Checkbox: Form elemanlarının label'ı kadar (31px) aşağı iterek Input'ların hizasına getir */
         div[data-testid="column"] div[data-testid="stVerticalBlock"] > div:nth-child(1) div[data-testid="stCheckbox"] {
-            margin-top: 51px !important;
+            margin-top: 81px !important;
         }
         
         /* 2. Checkbox: Streamlit'in boşluğunu (-16px) silerek birinciye yapıştır */
