@@ -13,7 +13,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# 🎯 KUSURSUZ CSS GRID HİZALAMA DÜZENİ
+# 🎯 KUSURSUZ ÜST HİZALAMA STİLLERİ
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -50,16 +50,6 @@ st.markdown("""
         .custom-logo { height: 60px; object-fit: contain; }
         .custom-title-block { display: flex; flex-direction: column; justify-content: center; }
         
-        /* 🎯 SÜTUNLARI CSS GRID İLE SABİTLEME */
-        div[data-testid="stHorizontalBlock"]:has(div[data-testid="column"]) {
-            align-items: flex-end !important;
-            gap: 1rem !important;
-        }
-
-        div[data-testid="column"] {
-            margin-bottom: 0px !important;
-        }
-        
         /* Form elemanlarının alt boşluklarını sıfırla */
         div[data-testid="column"] .stFormSubmitButton, 
         div[data-testid="column"] .stButton,
@@ -69,18 +59,24 @@ st.markdown("""
             width: 100% !important;
         }
 
-        /* Checkbox'ları dikeyde ortala ve hizala */
+        /* Checkbox alanını yukarıdaki etiket hizasına çekmek için boşluk ayarı */
         div[data-testid="stCheckbox"] {
             padding: 0px !important;
-            margin: 2px 0px !important;
+            margin: 0px !important;
         }
-        
+        div[data-testid="stCheckbox"]:first-of-type {
+            margin-top: 2px !important;
+        }
         div[data-testid="stCheckbox"] label {
-            padding-top: 0px !important;
-            padding-bottom: 0px !important;
+            padding-top: 2px !important;
+            padding-bottom: 2px !important;
         }
 
-        /* 🎯 TEMİZLE BUTONU TASARIMI */
+        /* 🎯 TEMİZLE BUTONU HİZALAMASI (Girdi kutularının üst çizgisiyle birebir) */
+        .stButton {
+            margin-top: 30px !important; /* Input etiket yüksekliği kadar aşağı itilir */
+        }
+        
         .stButton > button { 
             background-color: #1C355E !important; 
             color: white !important; 
@@ -212,10 +208,13 @@ try:
             v_grup = st.selectbox("📂 Ürün Grubu", grup_ops, key="q_grup")
 
         with col4:
+            # Checkboxlar için üst etiket boşluğu kadar HTML boşluk
+            st.markdown('<div style="height: 30px;"></div>', unsafe_allow_html=True)
             v_stok = st.checkbox("🚫 Tükenenleri Gizle", key="q_stok")
             v_sifir_stok = st.checkbox("⚠️ Sadece Tükenenleri Listele", key="q_sifir_stok")
 
         with col5:
+            # Temizle butonu CSS ile yukarıdaki input çizgisine eşitleniyor
             st.button("🧹 Temizle", on_click=filtreleri_temizle, use_container_width=True)
 
         # Filtreleme Algoritması
