@@ -209,7 +209,7 @@ try:
 
         with col4:
             # Checkboxlar için üst etiket boşluğu kadar HTML boşluk
-            st.markdown('<div style="height:00px;"></div>', unsafe_allow_html=True)
+            st.markdown('<div style="height:-10px;"></div>', unsafe_allow_html=True)
             v_stok = st.checkbox("🚫 Tükenenleri Gizle", key="q_stok")
             v_sifir_stok = st.checkbox("⚠️ Sadece Tükenenleri Listele", key="q_sifir_stok")
 
