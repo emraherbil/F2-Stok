@@ -13,7 +13,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# 🎯 KUSURSUZ ÜST HİZALAMA STİLLERİ
+# 🎯 MİLİMETRİK HİZALAMA VE TEMİZ NATIVE CSS DÜZENİ
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -50,7 +50,12 @@ st.markdown("""
         .custom-logo { height: 60px; object-fit: contain; }
         .custom-title-block { display: flex; flex-direction: column; justify-content: center; }
         
-        /* Form elemanlarının alt boşluklarını sıfırla */
+        /* Kolon yapısı */
+        div[data-testid="column"] {
+            display: block !important;
+        }
+        
+        /* Form elemanlarının genişliklerini eşitle */
         div[data-testid="column"] .stFormSubmitButton, 
         div[data-testid="column"] .stButton,
         div[data-testid="column"] .stTextInput,
@@ -59,30 +64,25 @@ st.markdown("""
             width: 100% !important;
         }
 
-        /* Checkbox alanını yukarıdaki etiket hizasına çekmek için boşluk ayarı */
-        div[data-testid="stCheckbox"] {
-            padding: 0px !important;
-            margin: 0px !important;
+        /* 🎯 CHECKBOX DİKEY HİZALAMASI (İki kutucuğu birbirine yaklaştırdık) */
+        div[data-testid="stCheckbox"] { 
+            padding-bottom: 0px !important; 
+            margin-top: -12px !important; /* İkinci checkbox'ı yukarı çeker */
         }
-        div[data-testid="stCheckbox"]:first-of-type {
-            margin-top: 2px !important;
-        }
-        div[data-testid="stCheckbox"] label {
-            padding-top: 2px !important;
-            padding-bottom: 2px !important;
+        /* Sadece kolondaki ilk checkbox'ı hizalamak için üstten boşluk ver ve negatif margini sıfırla */
+        div[data-testid="column"] div[data-testid="stVerticalBlock"] > div:first-child div[data-testid="stCheckbox"] {
+            padding-top: 29px !important;
+            margin-top: 0px !important;
         }
 
-        /* 🎯 TEMİZLE BUTONU HİZALAMASI (Girdi kutularının üst çizgisiyle birebir) */
-        .stButton {
-            margin-top: 30px !important; /* Input etiket yüksekliği kadar aşağı itilir */
-        }
-        
+        /* 🎯 TEMİZLE BUTONU TASARIMI, BOYUTU VE SABİT DİKEY HİZALAMASI */
         .stButton > button { 
             background-color: #1C355E !important; 
             color: white !important; 
             border: 1px solid #1C355E !important; 
             border-radius: 6px !important;
-            height: 40px !important; /* Input kutularıyla birebir aynı yükseklik */
+            margin-top: 31px !important; /* Selectbox etiket boşluğuyla milimetrik eşitleme */
+            height: 40px !important; /* Streamlit Selectbox'ların net yüksekliğine kilitlendi */
             width: 100% !important; 
             font-weight: 500 !important;
             transition: all 0.2s !important;
@@ -208,13 +208,10 @@ try:
             v_grup = st.selectbox("📂 Ürün Grubu", grup_ops, key="q_grup")
 
         with col4:
-            # Checkboxlar için üst etiket boşluğu kadar HTML boşluk
-            st.markdown('<div style="height:-30px;"></div>', unsafe_allow_html=True)
             v_stok = st.checkbox("🚫 Tükenenleri Gizle", key="q_stok")
             v_sifir_stok = st.checkbox("⚠️ Sadece Tükenenleri Listele", key="q_sifir_stok")
 
         with col5:
-            # Temizle butonu CSS ile yukarıdaki input çizgisine eşitleniyor
             st.button("🧹 Temizle", on_click=filtreleri_temizle, use_container_width=True)
 
         # Filtreleme Algoritması
@@ -254,6 +251,7 @@ try:
         out_df = f_df[[c_kod, c_tanim, c_marka, c_grup, c_stok, c_fiyat, c_maliyet]].copy()
         out_df.columns = ["Ürün Kodu", "Açıklama", "Marka", "Ürün Grubu", "Güncel Stok", "Birim Maliyet", "Toplam Maliyet"]
         
+        # 🎯 ARROW HATASINI ÇÖZEN KRİTİK DOKUNUŞ: Ürün Kodu verilerini string yapısına zorluyoruz
         out_df["Ürün Kodu"] = out_df["Ürün Kodu"].astype(str)
         
         out_df = out_df.reset_index(drop=True)
@@ -268,6 +266,7 @@ try:
                 return ['background-color: rgba(255, 75, 75, 0.08)'] * len(row)
             return [''] * len(row)
 
+        # 🎯 SÜTUN HİZALAMALARI (st.column_config ile kilitli)
         st.dataframe(
             out_df.style.apply(row_style, axis=1), 
             use_container_width=True, 
