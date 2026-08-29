@@ -55,7 +55,7 @@ st.markdown("""
             display: block !important;
         }
         
-        /* Form elemanlarının genişliklerini eşitle */
+        /* Form elemanlarının alt boşluklarını eşitle */
         div[data-testid="column"] .stFormSubmitButton, 
         div[data-testid="column"] .stButton,
         div[data-testid="column"] .stTextInput,
@@ -64,25 +64,27 @@ st.markdown("""
             width: 100% !important;
         }
 
-        /* 🎯 YENİ VE KESİN ÇÖZÜM: STREAMLIT FLEX YAPISINA MÜDAHALE */
+        /* 🎯 CHECKBOX KUSURSUZ HİZALAMA (ELEMENT-CONTAINER YÖNTEMİ) */
         
-        /* 4. Kolonu (Checkbox'ların olduğu kolon) hedef alıp elemanlar arası boşluğu sıfırlıyoruz */
-        div[data-testid="column"]:nth-child(4) div[data-testid="stVerticalBlock"] {
-            padding-top: 31px !important; /* Üstteki etiketlerin (Label) hizasına indirmek için */
-            gap: 0rem !important; /* İki checkbox aralığını tamamen kapatıyoruz! */
-        }
-        
-        /* Checkbox'ların kendi varsayılan iç genişliklerini siliyoruz */
+        /* Checkbox'ların kendi iç boşluklarını sıfırla */
         div[data-testid="stCheckbox"] {
-            padding: 0px !important; 
-            margin: 0px !important;
+            padding: 0 !important;
+            margin: 0 !important;
         }
-        
-        /* Checkbox metinlerinin satır yüksekliğini daraltıp birbirine yaklaştırıyoruz */
         div[data-testid="stCheckbox"] label {
-            min-height: 0px !important;
+            min-height: auto !important;
             padding-top: 3px !important;
             padding-bottom: 3px !important;
+        }
+
+        /* 4. Kolon - Birinci Checkbox Kapsayıcısı: Input kutularının başlangıcına (31px) indir */
+        div[data-testid="column"]:nth-of-type(4) .element-container:nth-of-type(1) {
+            margin-top: 31px !important; 
+        }
+
+        /* 4. Kolon - İkinci Checkbox Kapsayıcısı: Aradaki Streamlit boşluğunu (-12px) yok et */
+        div[data-testid="column"]:nth-of-type(4) .element-container:nth-of-type(2) {
+            margin-top: -12px !important; 
         }
 
         /* 🎯 TEMİZLE BUTONU TASARIMI VE HİZALAMASI */
@@ -91,8 +93,8 @@ st.markdown("""
             color: white !important; 
             border: 1px solid #1C355E !important; 
             border-radius: 6px !important;
-            margin-top: 31px !important; /* Input kutuları ve Checkbox başlangıcı ile aynı hizada */
-            height: 42px !important; /* Selectbox / Input net yüksekliğine kilitlendi */
+            margin-top: 31px !important; /* Input ve 1. Checkbox ile aynı hizada başlat */
+            height: 40px !important; /* Input kutularıyla aynı yükseklik */
             width: 100% !important; 
             font-weight: 500 !important;
             transition: all 0.2s !important;
@@ -261,7 +263,6 @@ try:
         out_df = f_df[[c_kod, c_tanim, c_marka, c_grup, c_stok, c_fiyat, c_maliyet]].copy()
         out_df.columns = ["Ürün Kodu", "Açıklama", "Marka", "Ürün Grubu", "Güncel Stok", "Birim Maliyet", "Toplam Maliyet"]
         
-        # Ürün Kodu verilerini string yapısına zorluyoruz
         out_df["Ürün Kodu"] = out_df["Ürün Kodu"].astype(str)
         
         out_df = out_df.reset_index(drop=True)
@@ -276,7 +277,6 @@ try:
                 return ['background-color: rgba(255, 75, 75, 0.08)'] * len(row)
             return [''] * len(row)
 
-        # Sütun Hizalamaları
         st.dataframe(
             out_df.style.apply(row_style, axis=1), 
             use_container_width=True, 
