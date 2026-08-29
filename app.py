@@ -64,30 +64,25 @@ st.markdown("""
             width: 100% !important;
         }
 
-        /* 🎯 CHECKBOX (GÖRSELDEKİ KUSURSUZ HİZALAMA İÇİN REVİZE EDİLDİ) */
+        /* 🎯 CHECKBOX DİKEY HİZALAMASI (İki kutucuğu birbirine yaklaştırdık) */
         div[data-testid="stCheckbox"] { 
-            padding-top: 0px !important;
             padding-bottom: 0px !important; 
+            margin-top: -12px !important; /* İkinci checkbox'ı yukarı çeker */
         }
-        
-        /* 1. Checkbox: Form elemanlarının label'ı kadar (31px) aşağı iterek Input'ların hizasına getir */
-        div[data-testid="column"] div[data-testid="stVerticalBlock"] > div:nth-child(1) div[data-testid="stCheckbox"] {
-            margin-top: 31px !important;
-        }
-        
-        /* 2. Checkbox: Streamlit'in boşluğunu (-16px) silerek birinciye yapıştır */
-        div[data-testid="column"] div[data-testid="stVerticalBlock"] > div:nth-child(2) div[data-testid="stCheckbox"] {
-            margin-top: -16px !important; 
+        /* Sadece kolondaki ilk checkbox'ı hizalamak için üstten boşluk ver ve negatif margini sıfırla */
+        div[data-testid="column"] div[data-testid="stVerticalBlock"] > div:first-child div[data-testid="stCheckbox"] {
+            padding-top: 29px !important;
+            margin-top: 0px !important;
         }
 
-        /* 🎯 TEMİZLE BUTONU TASARIMI VE HİZALAMASI */
+        /* 🎯 TEMİZLE BUTONU TASARIMI, BOYUTU VE SABİT DİKEY HİZALAMASI */
         .stButton > button { 
             background-color: #1C355E !important; 
             color: white !important; 
             border: 1px solid #1C355E !important; 
             border-radius: 6px !important;
-            margin-top: 31px !important; /* Input ve 1. Checkbox ile milimetrik başlama noktası */
-            height: 40px !important; /* Streamlit Input'larının net yüksekliğine kilitlendi */
+            margin-top: 31px !important; /* Selectbox etiket boşluğuyla milimetrik eşitleme */
+            height: 40px !important; /* Streamlit Selectbox'ların net yüksekliğine kilitlendi */
             width: 100% !important; 
             font-weight: 500 !important;
             transition: all 0.2s !important;
@@ -256,7 +251,7 @@ try:
         out_df = f_df[[c_kod, c_tanim, c_marka, c_grup, c_stok, c_fiyat, c_maliyet]].copy()
         out_df.columns = ["Ürün Kodu", "Açıklama", "Marka", "Ürün Grubu", "Güncel Stok", "Birim Maliyet", "Toplam Maliyet"]
         
-        # Ürün Kodu verilerini string yapısına zorluyoruz
+        # 🎯 ARROW HATASINI ÇÖZEN KRİTİK DOKUNUŞ: Ürün Kodu verilerini string yapısına zorluyoruz
         out_df["Ürün Kodu"] = out_df["Ürün Kodu"].astype(str)
         
         out_df = out_df.reset_index(drop=True)
@@ -271,7 +266,7 @@ try:
                 return ['background-color: rgba(255, 75, 75, 0.08)'] * len(row)
             return [''] * len(row)
 
-        # Sütun Hizalamaları (st.column_config ile kilitli)
+        # 🎯 SÜTUN HİZALAMALARI (st.column_config ile kilitli)
         st.dataframe(
             out_df.style.apply(row_style, axis=1), 
             use_container_width=True, 
