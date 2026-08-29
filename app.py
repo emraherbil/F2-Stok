@@ -64,10 +64,13 @@ st.markdown("""
             width: 100% !important;
         }
 
-        /* 🎯 CHECKBOX DİKEY HİZALAMASI */
+        /* 🎯 CHECKBOX DİKEY HİZALAMASI (İki checkbox için optimize edildi) */
         div[data-testid="stCheckbox"] { 
-            padding-top: 29px !important;
             padding-bottom: 0px !important; 
+        }
+        /* Sadece kolondaki ilk checkbox'ı hizalamak için boşluk ver */
+        div[data-testid="column"] div[data-testid="stVerticalBlock"] > div:first-child div[data-testid="stCheckbox"] {
+            padding-top: 29px !important;
         }
 
         /* 🎯 TEMİZLE BUTONU TASARIMI, BOYUTU VE SABİT DİKEY HİZALAMASI */
@@ -158,12 +161,14 @@ try:
         if "q_grup" not in st.session_state: st.session_state.q_grup = "Tümü"
         if "q_marka" not in st.session_state: st.session_state.q_marka = "Tümü"
         if "q_stok" not in st.session_state: st.session_state.q_stok = False
+        if "q_sifir_stok" not in st.session_state: st.session_state.q_sifir_stok = False
         
         def filtreleri_temizle():
             st.session_state.clear_ver += 1
             st.session_state.q_grup = "Tümü"
             st.session_state.q_marka = "Tümü"
             st.session_state.q_stok = False
+            st.session_state.q_sifir_stok = False
 
         col1, col2, col3, col4, col5 = st.columns([3.2, 2.4, 2.4, 2.2, 1.2])
         
@@ -202,6 +207,7 @@ try:
 
         with col4:
             v_stok = st.checkbox("🚫 Tükenenleri Gizle", key="q_stok")
+            v_sifir_stok = st.checkbox("⚠️ Sadece Tükenenleri Listele", key="q_sifir_stok")
 
         with col5:
             st.button("🧹 Temizle", on_click=filtreleri_temizle, use_container_width=True)
@@ -214,7 +220,10 @@ try:
             f_df = f_df[m1 | m2]
         if v_marka != "Tümü": f_df = f_df[f_df[c_marka].astype(str) == v_marka]
         if v_grup != "Tümü": f_df = f_df[f_df[c_grup].astype(str) == v_grup]
+        
+        # Stok Durumu Filtreleri
         if v_stok: f_df = f_df[f_df[c_stok] > 0]
+        if v_sifir_stok: f_df = f_df[f_df[c_stok] == 0]
 
         # KPI Kartları Hesaplamaları
         t_prod = len(f_df)
