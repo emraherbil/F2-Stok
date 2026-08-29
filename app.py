@@ -64,20 +64,25 @@ st.markdown("""
             width: 100% !important;
         }
 
-        /* 🎯 CHECKBOX (GÖRSELDEKİ KUSURSUZ HİZALAMA İÇİN REVİZE EDİLDİ) */
-        div[data-testid="stCheckbox"] { 
-            padding-top: 0px !important;
-            padding-bottom: 0px !important; 
+        /* 🎯 YENİ VE KESİN ÇÖZÜM: STREAMLIT FLEX YAPISINA MÜDAHALE */
+        
+        /* 4. Kolonu (Checkbox'ların olduğu kolon) hedef alıp elemanlar arası boşluğu sıfırlıyoruz */
+        div[data-testid="column"]:nth-child(4) div[data-testid="stVerticalBlock"] {
+            padding-top: 31px !important; /* Üstteki etiketlerin (Label) hizasına indirmek için */
+            gap: 0rem !important; /* İki checkbox aralığını tamamen kapatıyoruz! */
         }
         
-        /* 1. Checkbox: Form elemanlarının label'ı kadar (31px) aşağı iterek Input'ların hizasına getir */
-        div[data-testid="column"] div[data-testid="stVerticalBlock"] > div:nth-child(1) div[data-testid="stCheckbox"] {
-            margin-top: 31px !important;
+        /* Checkbox'ların kendi varsayılan iç genişliklerini siliyoruz */
+        div[data-testid="stCheckbox"] {
+            padding: 0px !important; 
+            margin: 0px !important;
         }
         
-        /* 2. Checkbox: Streamlit'in boşluğunu (-16px) silerek birinciye yapıştır */
-        div[data-testid="column"] div[data-testid="stVerticalBlock"] > div:nth-child(2) div[data-testid="stCheckbox"] {
-            margin-top: -16px !important; 
+        /* Checkbox metinlerinin satır yüksekliğini daraltıp birbirine yaklaştırıyoruz */
+        div[data-testid="stCheckbox"] label {
+            min-height: 0px !important;
+            padding-top: 3px !important;
+            padding-bottom: 3px !important;
         }
 
         /* 🎯 TEMİZLE BUTONU TASARIMI VE HİZALAMASI */
@@ -86,8 +91,8 @@ st.markdown("""
             color: white !important; 
             border: 1px solid #1C355E !important; 
             border-radius: 6px !important;
-            margin-top: 31px !important; /* Input ve 1. Checkbox ile milimetrik başlama noktası */
-            height: 40px !important; /* Streamlit Input'larının net yüksekliğine kilitlendi */
+            margin-top: 31px !important; /* Input kutuları ve Checkbox başlangıcı ile aynı hizada */
+            height: 42px !important; /* Selectbox / Input net yüksekliğine kilitlendi */
             width: 100% !important; 
             font-weight: 500 !important;
             transition: all 0.2s !important;
@@ -271,7 +276,7 @@ try:
                 return ['background-color: rgba(255, 75, 75, 0.08)'] * len(row)
             return [''] * len(row)
 
-        # Sütun Hizalamaları (st.column_config ile kilitli)
+        # Sütun Hizalamaları
         st.dataframe(
             out_df.style.apply(row_style, axis=1), 
             use_container_width=True, 
