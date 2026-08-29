@@ -77,7 +77,7 @@ st.markdown("""
         
         /* 2. Checkbox: Streamlit'in boşluğunu (-16px) silerek birinciye yapıştır */
         div[data-testid="column"] div[data-testid="stVerticalBlock"] > div:nth-child(2) div[data-testid="stCheckbox"] {
-            margin-top: -16px !important; 
+            margin-top: -30px !important; 
         }
 
         /* 🎯 TEMİZLE BUTONU TASARIMI VE HİZALAMASI */
