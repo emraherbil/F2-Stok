@@ -64,13 +64,15 @@ st.markdown("""
             width: 100% !important;
         }
 
-        /* 🎯 CHECKBOX DİKEY HİZALAMASI (İki checkbox için optimize edildi) */
+        /* 🎯 CHECKBOX DİKEY HİZALAMASI (İki kutucuğu birbirine yaklaştırdık) */
         div[data-testid="stCheckbox"] { 
             padding-bottom: 0px !important; 
+            margin-top: -12px !important; /* İkinci checkbox'ı yukarı çeker */
         }
-        /* Sadece kolondaki ilk checkbox'ı hizalamak için boşluk ver */
+        /* Sadece kolondaki ilk checkbox'ı hizalamak için üstten boşluk ver ve negatif margini sıfırla */
         div[data-testid="column"] div[data-testid="stVerticalBlock"] > div:first-child div[data-testid="stCheckbox"] {
             padding-top: 29px !important;
+            margin-top: 0px !important;
         }
 
         /* 🎯 TEMİZLE BUTONU TASARIMI, BOYUTU VE SABİT DİKEY HİZALAMASI */
