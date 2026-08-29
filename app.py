@@ -13,7 +13,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# 🎯 MİLİMETRİK HİZALAMA VE TEMİZ NATIVE CSS DÜZENİ
+# 🎯 TEMİZ VE KARARLI STİLLER (SEÇİCİ BAĞIMSIZ)
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -50,12 +50,7 @@ st.markdown("""
         .custom-logo { height: 60px; object-fit: contain; }
         .custom-title-block { display: flex; flex-direction: column; justify-content: center; }
         
-        /* Kolon yapısı */
-        div[data-testid="column"] {
-            display: block !important;
-        }
-        
-        /* Form elemanlarının alt boşluklarını eşitle */
+        /* Form elemanlarının alt boşluklarını sıfırla */
         div[data-testid="column"] .stFormSubmitButton, 
         div[data-testid="column"] .stButton,
         div[data-testid="column"] .stTextInput,
@@ -64,37 +59,25 @@ st.markdown("""
             width: 100% !important;
         }
 
-        /* 🎯 CHECKBOX KUSURSUZ HİZALAMA (ELEMENT-CONTAINER YÖNTEMİ) */
-        
-        /* Checkbox'ların kendi iç boşluklarını sıfırla */
+        /* Checkbox stilleri */
         div[data-testid="stCheckbox"] {
-            padding: 0 !important;
-            margin: 0 !important;
+            padding: 0px !important;
+            margin: 0px !important;
+            min-height: 22px !important;
         }
+        
         div[data-testid="stCheckbox"] label {
-            min-height: auto !important;
-            padding-top: 3px !important;
-            padding-bottom: 3px !important;
+            padding-top: 2px !important;
+            padding-bottom: 2px !important;
         }
 
-        /* 4. Kolon - Birinci Checkbox Kapsayıcısı: Input kutularının başlangıcına (31px) indir */
-        div[data-testid="column"]:nth-of-type(4) .element-container:nth-of-type(1) {
-            margin-top: 31px !important; 
-        }
-
-        /* 4. Kolon - İkinci Checkbox Kapsayıcısı: Aradaki Streamlit boşluğunu (-12px) yok et */
-        div[data-testid="column"]:nth-of-type(4) .element-container:nth-of-type(2) {
-            margin-top: -12px !important; 
-        }
-
-        /* 🎯 TEMİZLE BUTONU TASARIMI VE HİZALAMASI */
+        /* 🎯 TEMİZLE BUTONU TASARIMI */
         .stButton > button { 
             background-color: #1C355E !important; 
             color: white !important; 
             border: 1px solid #1C355E !important; 
             border-radius: 6px !important;
-            margin-top: 31px !important; /* Input ve 1. Checkbox ile aynı hizada başlat */
-            height: 40px !important; /* Input kutularıyla aynı yükseklik */
+            height: 40px !important; /* Input kutularıyla birebir aynı yükseklik */
             width: 100% !important; 
             font-weight: 500 !important;
             transition: all 0.2s !important;
@@ -220,10 +203,14 @@ try:
             v_grup = st.selectbox("📂 Ürün Grubu", grup_ops, key="q_grup")
 
         with col4:
+            # 🎯 HİZALAMA ÇÖZÜMÜ: Diğer kolonlardaki etiket yüksekliği kadar (28px) boşluk bırakıyoruz
+            st.markdown('<div style="height: 28px;"></div>', unsafe_allow_html=True)
             v_stok = st.checkbox("🚫 Tükenenleri Gizle", key="q_stok")
             v_sifir_stok = st.checkbox("⚠️ Sadece Tükenenleri Listele", key="q_sifir_stok")
 
         with col5:
+            # 🎯 HİZALAMA ÇÖZÜMÜ: Butonu da aynı yükseklikte başlatıyoruz
+            st.markdown('<div style="height: 28px;"></div>', unsafe_allow_html=True)
             st.button("🧹 Temizle", on_click=filtreleri_temizle, use_container_width=True)
 
         # Filtreleme Algoritması
