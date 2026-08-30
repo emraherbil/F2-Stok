@@ -13,7 +13,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# 🎯 GÜÇLENDİRİLMİŞ CSS SEÇİCİLERİ
+# 🎯 TEMİZ VE KARARLI CSS (Buton CSS'i hariç karmaşık itmeler temizlendi)
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -49,24 +49,9 @@ st.markdown("""
         .custom-logo { height: 60px; object-fit: contain; }
         .custom-title-block { display: flex; flex-direction: column; justify-content: center; }
         
-        /* Tüm ana kolonları yukarıdan başlat (Tükenenleri Gizle ve Ürün Grubu etiketi aynı hizada) */
+        /* Tüm ana kolonları yukarıdan başlat */
         div[data-testid="stHorizontalBlock"] {
             align-items: flex-start !important; 
-        }
-
-        /* 4. Kolon: 1. Checkbox (Tükenenleri Gizle) - En üstte etiket hizasında */
-        div[data-testid="column"]:nth-of-type(4) div[data-testid="stCheckbox"]:nth-of-type(1) {
-            margin-top: 0px !important; 
-        }
-        
-        /* 4. Kolon: 2. Checkbox (Sadece Tükenenleri Listele) - Input kutusu hizasında */
-        div[data-testid="column"]:nth-of-type(4) div[data-testid="stCheckbox"]:nth-of-type(2) {
-            margin-top: 28px !important; 
-        }
-
-        /* 5. Kolon: Temizle Butonu - Doğrudan stButton nesnesini hedefleyerek input kutusuyla hizalandı */
-        div[data-testid="column"]:nth-of-type(5) [data-testid="stButton"] {
-            margin-top: 28px !important;
         }
 
         /* Checkbox boşluklarını daraltma */
@@ -217,6 +202,8 @@ try:
             v_sifir_stok = st.checkbox("⚠️ Sadece Tükenenleri Listele", key="q_sifir_stok")
 
         with col5:
+            # 🎯 ÇÖZÜM: Listbox (input) alanının yüksekliği kadar boşluk bırakılarak buton tam hizaya getirildi
+            st.markdown("<div style='height: 28px;'></div>", unsafe_allow_html=True)
             st.button("🧹 Temizle", on_click=filtreleri_temizle, use_container_width=True)
 
         # Filtreleme Algoritması
