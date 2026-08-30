@@ -16,12 +16,10 @@ st.set_page_config(
 # 🎯 TEMİZ, GÜVENLİ VE SİSTEMİ BOZMAYAN CSS
 st.markdown("""
     <style>
-        /* Gereksiz Streamlit araçlarını gizle */
         footer {visibility: hidden !important; display: none !important;}
         .viewerBadge_container {display: none !important;}
         header {visibility: hidden !important; display: none !important;}
         
-        /* Arka planı şeffaf yap */
         html, body, .stApp { background-color: transparent !important; }
         
         .block-container { 
@@ -30,7 +28,6 @@ st.markdown("""
             max-width: 100% !important;
         }
         
-        /* Üst Bilgi (Header) Tasarımı */
         .custom-header-container { 
             display: flex; 
             align-items: center; 
@@ -42,8 +39,6 @@ st.markdown("""
         .custom-logo { height: 60px; object-fit: contain; }
         .custom-title-block { display: flex; flex-direction: column; justify-content: center; }
         
-        /* 🎯 CHECKBOX BOŞLUK KONTROLÜ (GÜVENLİ YÖNTEM) */
-        /* Streamlit ızgarasını bozmadan sadece checkbox elemanının alt boşluğunu kısaltır */
         div[data-testid="stCheckbox"] {
             margin-bottom: -15px !important;
         }
@@ -51,7 +46,6 @@ st.markdown("""
             font-size: 0.9rem !important;
         }
 
-        /* Temizle Butonu Tasarımı */
         .stButton > button { 
             background-color: #1C355E !important; 
             color: white !important; 
@@ -142,7 +136,6 @@ try:
             st.session_state.q_stok = False
             st.session_state.q_sifir_stok = False
 
-        # Kolon genişlikleri düzenlendi
         col1, col2, col3, col4, col5 = st.columns([3.2, 2.4, 2.4, 2.2, 1.2])
         
         current_marka = st.session_state.q_marka
@@ -179,14 +172,11 @@ try:
             v_grup = st.selectbox("📂 Ürün Grubu", grup_ops, key="q_grup")
 
         with col4:
-            # 🎯 Buradaki yüksekliği 28px'den 25px'e düşürdük. 
-            # Dilerseniz bu değeri 24px veya 26px yaparak milimetrik oynamalar yapabilirsiniz.
-            st.markdown("<div style='height: 22px;'></div>", unsafe_allow_html=True)
+            st.markdown("<div style='height: 25px;'></div>", unsafe_allow_html=True)
             v_stok = st.checkbox("🚫 Tükenenleri Gizle", key="q_stok")
             v_sifir_stok = st.checkbox("⚠️ Sadece Tükenenleri Listele", key="q_sifir_stok")
 
         with col5:
-            # Buton hizalaması
             st.markdown("<div style='height: 28px;'></div>", unsafe_allow_html=True)
             st.button("🧹 Temizle", on_click=filtreleri_temizle, use_container_width=True)
 
@@ -228,8 +218,14 @@ try:
         out_df = out_df.reset_index(drop=True)
         raw_stok = out_df["Güncel Stok"].copy()
 
-        out_df["Birim Maliyet"] = out_df["Birim Maliyet"].apply(lambda v: f"${v:,.0f}".replace(",", "."))
-        out_df["Toplam Maliyet"] = out_df["Toplam Maliyet"].apply(lambda v: f"${v:,.0f}".replace(",", "."))
+        # 🎯 Fiyat Formatlaması (Ondalıklı ve Doğru Ayırıcılar İle)
+        out_df["Birim Maliyet"] = out_df["Birim Maliyet"].apply(
+            lambda v: f"${v:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+        )
+        out_df["Toplam Maliyet"] = out_df["Toplam Maliyet"].apply(
+            lambda v: f"${v:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+        )
+        
         out_df["Güncel Stok"] = out_df["Güncel Stok"].apply(lambda v: f"{int(v):,}".replace(",", "."))
 
         def row_style(row):
@@ -243,6 +239,7 @@ try:
             hide_index=True,
             height=540,
             column_config={
+                "Ürün Kodu": st.column_config.Column(alignment="center"),
                 "Marka": st.column_config.Column(alignment="center"),
                 "Ürün Grubu": st.column_config.Column(alignment="center"),
                 "Güncel Stok": st.column_config.Column(alignment="center"),
