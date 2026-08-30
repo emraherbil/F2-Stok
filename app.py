@@ -13,7 +13,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# 🎯 İKİNCİ CHECKBOX İÇİN NEGATİF MARGİN İLE YAKLAŞTIRMA STİLİ
+# 🎯 TRANSFORM YÖNTEMİ İLE KESİN HİZALAMA STİLLERİ
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -78,10 +78,9 @@ st.markdown("""
             width: 100% !important;
         }
 
-        /* 🎯 2. Checkbox ("Sadece Tükenenleri Listele"): Negatif margin ile birinciye yaklaştırma */
+        /* 🎯 2. Checkbox ("Sadece Tükenenleri Listele"): Transform ile garantili yukarı taşıma */
         div[data-testid="column"]:nth-child(4) div[data-testid="stCheckbox"]:nth-of-type(2) {
-            position: relative !important;
-            margin-top: -12px !important; /* Birinciye yaklaşması için yukarı çekildi */
+            transform: translateY(-8px) !important; /* İhtiyacınıza göre -6px ile -10px arasında ayarlayabilirsiniz */
         }
 
         /* Temizle Butonu Özel Hizalaması */
