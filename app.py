@@ -13,7 +13,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# 🎯 İSTENEN HASSAS HİZALAMA STİLLERİ
+# 🎯 KOLON 4 İÇİN PİKSEL HASSASİYETİNDE MUTLAK HİZALAMA STİLLERİ
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -54,7 +54,7 @@ st.markdown("""
             align-items: flex-start !important; 
         }
 
-        /* Checkbox boşluklarını daraltma */
+        /* Checkbox boşluklarını sıfırlama */
         div[data-testid="stCheckbox"] {
             padding: 0px !important;
             margin: 0px !important;
@@ -65,14 +65,25 @@ st.markdown("""
             font-size: 0.9rem !important;
         }
 
-        /* 🎯 1. CHECKBOX: "Tükenenleri Gizle" (Ürün Grubu etiketi hizası için hafif yukarı) */
-        .checkbox-top-box {
-            margin-top: -6px !important;
+        /* 🎯 4. Kolonu (Col4) bağımsız konumlandırma alanı yapıyoruz */
+        div[data-testid="column"]:nth-child(4) {
+            position: relative !important;
         }
 
-        /* 🎯 2. CHECKBOX: "Sadece Tükenenleri Listele" (Alt alta dengeli duruş için) */
-        .checkbox-bottom-box {
-            margin-top: 10px !important;
+        /* 🎯 1. Checkbox ("Tükenenleri Gizle"): Ürün Grubu etiket hizası */
+        div[data-testid="column"]:nth-child(4) div[data-testid="stCheckbox"]:nth-of-type(1) {
+            position: absolute !important;
+            top: -30px !important;
+            left: 0px !important;
+            width: 100% !important;
+        }
+
+        /* 🎯 2. Checkbox ("Sadece Tükenenleri Listele"): Temizle butonunun alt kenar hizası */
+        div[data-testid="column"]:nth-child(4) div[data-testid="stCheckbox"]:nth-of-type(2) {
+            position: absolute !important;
+            top: 28px !important;
+            left: 0px !important;
+            width: 100% !important;
         }
 
         /* Temizle Butonu Özel Hizalaması */
@@ -213,13 +224,8 @@ try:
             v_grup = st.selectbox("📂 Ürün Grubu", grup_ops, key="q_grup")
 
         with col4:
-            st.markdown("<div class='checkbox-top-box'>", unsafe_allow_html=True)
             v_stok = st.checkbox("🚫 Tükenenleri Gizle", key="q_stok")
-            st.markdown("</div>", unsafe_allow_html=True)
-            
-            st.markdown("<div class='checkbox-bottom-box'>", unsafe_allow_html=True)
             v_sifir_stok = st.checkbox("⚠️ Sadece Tükenenleri Listele", key="q_sifir_stok")
-            st.markdown("</div>", unsafe_allow_html=True)
 
         with col5:
             st.markdown("<div class='custom-align-box'>", unsafe_allow_html=True)
