@@ -13,7 +13,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# 🎯 ADIM ADIM HİZALAMA (-8px ile input kutusuna yaklaştırma)
+# 🎯 KESİN ÇÖZÜM: Özel Sınıf Tabanlı Hizalama (-16px İle Orta Nokta)
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -65,9 +65,9 @@ st.markdown("""
             font-size: 0.9rem !important;
         }
 
-        /* 🎯 DENEME: -28px çok yukarı (etikete) çıkardığı için -8px ile input kutusuna indiriyoruz */
-        div[data-testid="column"]:nth-of-type(5) [data-testid="stButton"] {
-            margin-top: -8px !important;
+        /* 🎯 ÖZEL KUTU KONTROLÜ: Listbox ile tam hizalamak için -16px */
+        .custom-align-box {
+            margin-top: -16px !important;
         }
 
         /* Temizle Butonu Tasarımı */
@@ -96,7 +96,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 2. LOGO AND DATA LOADING
+# 2. LOGO VE VERİ YÜKLEME FONKSİYONLARI
 # ==========================================
 def logo_to_base64(img_path):
     try:
@@ -114,7 +114,7 @@ def load_data():
     return pd.read_excel('Stok Sayım Arşivi-v3.1-Web.xlsm', sheet_name='Stok', engine='openpyxl')
 
 # ==========================================
-# 3. MAIN PANEL LAYOUT
+# 3. ANA PANEL DÜZENİ
 # ==========================================
 try:
     df = load_data()
@@ -150,7 +150,7 @@ try:
         <div style="margin-top:35px;"></div> """, unsafe_allow_html=True)
 
     # ==========================================
-    # 4. FRAGMENT AREA 
+    # 4. FRAGMENT ALANI 
     # ==========================================
     @st.fragment
     def stok_paneli_icerik(data_frame):
@@ -207,7 +207,10 @@ try:
             v_sifir_stok = st.checkbox("⚠️ Sadece Tükenenleri Listele", key="q_sifir_stok")
 
         with col5:
+            # 🎯 KESİN ÇÖZÜM: Butonu özel HTML div içerisine sararak doğrudan hedefliyoruz
+            st.markdown("<div class='custom-align-box'>", unsafe_allow_html=True)
             st.button("🧹 Temizle", on_click=filtreleri_temizle, use_container_width=True)
+            st.markdown("</div>", unsafe_allow_html=True)
 
         # Filtreleme Algoritması
         f_df = data_frame.copy()
