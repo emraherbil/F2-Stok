@@ -13,7 +13,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# 🎯 İKİNCİ CHECKBOX VE TEMİZLE BUTONU İÇİN EŞİT HİZALAMA CSS'İ
+# 🎯 GÜÇLENDİRİLMİŞ CSS SEÇİCİLERİ
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -49,24 +49,24 @@ st.markdown("""
         .custom-logo { height: 60px; object-fit: contain; }
         .custom-title-block { display: flex; flex-direction: column; justify-content: center; }
         
-        /* Tüm ana kolonları yukarıdan başlat */
+        /* Tüm ana kolonları yukarıdan başlat (Tükenenleri Gizle ve Ürün Grubu etiketi aynı hizada) */
         div[data-testid="stHorizontalBlock"] {
             align-items: flex-start !important; 
         }
 
         /* 4. Kolon: 1. Checkbox (Tükenenleri Gizle) - En üstte etiket hizasında */
-        div[data-testid="column"]:nth-of-type(4) .element-container:nth-of-type(1) {
+        div[data-testid="column"]:nth-of-type(4) div[data-testid="stCheckbox"]:nth-of-type(1) {
             margin-top: 0px !important; 
         }
         
         /* 4. Kolon: 2. Checkbox (Sadece Tükenenleri Listele) - Input kutusu hizasında */
-        div[data-testid="column"]:nth-of-type(4) .element-container:nth-of-type(2) {
+        div[data-testid="column"]:nth-of-type(4) div[data-testid="stCheckbox"]:nth-of-type(2) {
             margin-top: 28px !important; 
         }
 
-        /* 5. Kolon: Temizle Butonu - 2. Checkbox ile birebir aynı yükseklikte (aynı hizada) */
-        div[data-testid="column"]:nth-of-type(5) .element-container:nth-of-type(1) {
-            margin-top: 28px !important; 
+        /* 5. Kolon: Temizle Butonu - Doğrudan stButton nesnesini hedefleyerek input kutusuyla hizalandı */
+        div[data-testid="column"]:nth-of-type(5) [data-testid="stButton"] {
+            margin-top: 28px !important;
         }
 
         /* Checkbox boşluklarını daraltma */
