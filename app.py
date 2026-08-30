@@ -13,7 +13,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# 🎯 İSTEDİĞİNİZ KUSURSUZ ASİMETRİK HİZALAMA
+# 🎯 DEDICATED FRAME VE MİLİMETRİK HİZALAMA CSS'İ
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -49,40 +49,32 @@ st.markdown("""
         .custom-logo { height: 60px; object-fit: contain; }
         .custom-title-block { display: flex; flex-direction: column; justify-content: center; }
         
-        /* Tüm kolonları üstten başlat (Doğal akış) */
+        /* 🚀 FRAME ALANI VE HİZALAMALAR */
+        /* Kolonların taban çizgisini sabitle */
         div[data-testid="stHorizontalBlock"] {
-            align-items: flex-start !important; 
+            align-items: flex-end !important;
         }
 
-        /* 4. Kolon: Checkboxlar */
-        /* İlk Checkbox: Ürün Grubu etiketiyle milimetrik hiza */
-        div[data-testid="column"]:nth-of-type(4) .element-container:nth-of-type(1) {
-            margin-top: 4px !important; 
-            padding-top: 0px !important;
-        }
-        
-        /* İkinci Checkbox: Yukarı çekmek için margin değeri küçültüldü (İnce ayar için bu sayıyı değiştirebilirsiniz) */
-        div[data-testid="column"]:nth-of-type(4) .element-container:nth-of-type(2) {
-            margin-top: 0x !important; 
+        /* 4. ve 5. Kolonları Çevreleyen Özel Kapsayıcı Mantığı */
+        .action-frame {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            width: 100%;
         }
 
-        /* 5. Kolon: Temizle Butonu (Etiket boşluğu kadar aşağı indir ki kutularla hizalansın) */
-        div[data-testid="column"]:nth-of-type(5) .element-container:nth-of-type(1) {
-            margin-top: 38px !important; 
-        }
-
-        /* Checkbox kendi iç boşluklarını daralt */
+        /* Checkbox Düzenlemeleri */
         div[data-testid="stCheckbox"] {
             padding: 0px !important;
             margin: 0px !important;
         }
         div[data-testid="stCheckbox"] label {
-            padding-top: 0px !important;
-            padding-bottom: 0px !important;
-            min-height: 0px !important;
+            padding-top: 1px !important;
+            padding-bottom: 1px !important;
+            font-size: 0.88rem !important;
         }
 
-        /* Temizle Butonu tasarımı */
+        /* Temizle Butonu */
         .stButton > button { 
             background-color: #1C355E !important; 
             color: white !important; 
@@ -179,7 +171,8 @@ try:
             st.session_state.q_stok = False
             st.session_state.q_sifir_stok = False
 
-        col1, col2, col3, col4, col5 = st.columns([3.2, 2.4, 2.4, 2.2, 1.2])
+        # Kolon Genişlikleri Ayarlandı: Sağ Taraf (Checkbox + Buton) Tek Bir Frame Kolonuna Alındı
+        col1, col2, col3, col4 = st.columns([3.0, 2.3, 2.3, 3.6])
         
         current_marka = st.session_state.q_marka
         current_grup = st.session_state.q_grup
@@ -214,12 +207,19 @@ try:
         with col3:
             v_grup = st.selectbox("📂 Ürün Grubu", grup_ops, key="q_grup")
 
+        # 🎯 TEK BİR FRAME İÇİNDE CHECKBOX'LAR VE TEMİZLE BUTONU
         with col4:
-            v_stok = st.checkbox("🚫 Tükenenleri Gizle", key="q_stok")
-            v_sifir_stok = st.checkbox("⚠️ Sadece Tükenenleri Listele", key="q_sifir_stok")
-
-        with col5:
-            st.button("🧹 Temizle", on_click=filtreleri_temizle, use_container_width=True)
+            sub_c1, sub_c2 = st.columns([2.2, 1.2])
+            with sub_c1:
+                # Üst Checkbox -> Label Hizası
+                v_stok = st.checkbox("🚫 Tükenenleri Gizle", key="q_stok")
+                # İkinci Checkbox -> Input Kutu Hizası
+                st.markdown("<div style='margin-top: 4px;'></div>", unsafe_allow_html=True)
+                v_sifir_stok = st.checkbox("⚠️ Sadece Tükenenleri Listele", key="q_sifir_stok")
+            
+            with sub_c2:
+                # Temizle Butonu -> Input Kutusu ile tam aynı yükseklik ve seviyede
+                st.button("🧹 Temizle", on_click=filtreleri_temizle, use_container_width=True)
 
         # Filtreleme Algoritması
         f_df = data_frame.copy()
@@ -269,7 +269,7 @@ try:
         def row_style(row):
             if raw_stok.loc[row.name] == 0:
                 return ['background-color: rgba(255, 75, 75, 0.08)'] * len(row)
-            return [''] * len(row)
+            return [''] * row
 
         st.dataframe(
             out_df.style.apply(row_style, axis=1), 
