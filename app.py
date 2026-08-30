@@ -13,7 +13,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# 🎯 HASSAS HİZALAMA STİLLERİ (GÜNCELLENDİ)
+# 🎯 İKİNCİ CHECKBOX İÇİN NEGATİF MARGİN İLE YAKLAŞTIRMA STİLİ
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -65,7 +65,7 @@ st.markdown("""
             font-size: 0.9rem !important;
         }
 
-        /* 🎯 4. Kolonu (Col4) bağımsız konumlandırma alanı yapıyoruz */
+        /* 🎯 4. Kolonu (Col4) konumlandırma alanı yapıyoruz */
         div[data-testid="column"]:nth-child(4) {
             position: relative !important;
         }
@@ -78,12 +78,10 @@ st.markdown("""
             width: 100% !important;
         }
 
-        /* 🎯 2. Checkbox ("Sadece Tükenenleri Listele"): 2-3px yukarı çekilerek yakınlaştırıldı */
+        /* 🎯 2. Checkbox ("Sadece Tükenenleri Listele"): Negatif margin ile birinciye yaklaştırma */
         div[data-testid="column"]:nth-child(4) div[data-testid="stCheckbox"]:nth-of-type(2) {
-            position: absolute !important;
-            top: 18px !important;
-            left: 0px !important;
-            width: 100% !important;
+            position: relative !important;
+            margin-top: -12px !important; /* Birinciye yaklaşması için yukarı çekildi */
         }
 
         /* Temizle Butonu Özel Hizalaması */
