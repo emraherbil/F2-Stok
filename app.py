@@ -218,7 +218,7 @@ try:
         out_df = out_df.reset_index(drop=True)
         raw_stok = out_df["Güncel Stok"].copy()
 
-        # 🎯 Fiyat Formatlaması (Ondalıklı ve Doğru Ayırıcılar İle)
+        # Fiyat Formatlaması (Ondalıklı ve Doğru Ayırıcılar İle)
         out_df["Birim Maliyet"] = out_df["Birim Maliyet"].apply(
             lambda v: f"${v:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
         )
@@ -239,7 +239,7 @@ try:
             hide_index=True,
             height=540,
             column_config={
-                "Ürün Kodu": st.column_config.Column(alignment="center"),
+                # Ürün Kodu sütununa alignment verilmediği için otomatik olarak sola yaslı kalır
                 "Marka": st.column_config.Column(alignment="center"),
                 "Ürün Grubu": st.column_config.Column(alignment="center"),
                 "Güncel Stok": st.column_config.Column(alignment="center"),
