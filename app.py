@@ -13,7 +13,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# 🎯 KOLON 4 İÇİN PİKSEL HASSASİYETİNDE MUTLAK HİZALAMA STİLLERİ
+# 🎯 HASSAS HİZALAMA STİLLERİ (GÜNCELLENDİ)
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -78,10 +78,10 @@ st.markdown("""
             width: 100% !important;
         }
 
-        /* 🎯 2. Checkbox ("Sadece Tükenenleri Listele"): Temizle butonunun alt kenar hizası */
+        /* 🎯 2. Checkbox ("Sadece Tükenenleri Listele"): 2-3px yukarı çekilerek yakınlaştırıldı */
         div[data-testid="column"]:nth-child(4) div[data-testid="stCheckbox"]:nth-of-type(2) {
             position: absolute !important;
-            top: 28px !important;
+            top: 18px !important;
             left: 0px !important;
             width: 100% !important;
         }
