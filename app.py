@@ -13,7 +13,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# 🎯 DOĞRUDAN BLOK ÇOCUKLARINI HEDEFLEYEN KESİN HİZALAMA STİLLERİ
+# 🎯 MODERN :HAS() SEÇİCİSİ İLE KESİN BOŞLUK KONTROLÜ
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -59,19 +59,14 @@ st.markdown("""
             font-size: 0.9rem !important;
         }
 
-        /* 🎯 4. Kolonun dikey yığın aralığını sıfırlama */
-        div[data-testid="column"]:nth-child(4) div[data-testid="stVerticalBlock"] {
-            gap: 0px !important;
-        }
-
-        /* 🎯 1. Checkbox Bloğu ("Tükenenleri Gizle"): Ürün Grubu etiket hizası */
+        /* 🎯 1. Checkbox'ın yukarı kaydırılması (Ürün grubu hizası için) */
         div[data-testid="column"]:nth-child(4) div[data-testid="stVerticalBlock"] > div:nth-child(1) {
             margin-top: -30px !important;
         }
 
-        /* 🎯 2. Checkbox Bloğu ("Sadece Tükenenleri Listele"): Negatif margin ile yukarı yapıştırma */
-        div[data-testid="column"]:nth-child(4) div[data-testid="stVerticalBlock"] > div:nth-child(2) {
-            margin-top: -18px !important; /* Bu değeri -15px ile -22px arasında değiştirerek mesafeyi milimetrik ayarlayabilirsiniz */
+        /* 🎯 :HAS() İLE İKİNCİ CHECKBOX'I YUKARI YAPIŞTIRMA */
+        div[data-testid="column"]:nth-child(4) .element-container:has(div[data-testid="stCheckbox"]) + .element-container {
+            margin-top: -22px !important; /* İhtiyacınıza göre -15px ile -25px arasında ayarlayabilirsiniz */
         }
 
         /* Temizle Butonu Özel Hizalaması */
