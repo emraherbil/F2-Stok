@@ -13,12 +13,12 @@ st.set_page_config(
     layout="wide"
 )
 
-# 🎯 KOLON İÇİ DİKEY BOŞLUK (GAP) KONTROLÜ STİLLERİ
+# 🎯 DOĞRUDAN BLOK ÇOCUKLARINI HEDEFLEYEN KESİN HİZALAMA STİLLERİ
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
         .viewerBadge_container {display: none !important;}
-        [data-testid="stToolbar"] {display: hidden !important; display: none !important;}
+        [data-testid="stToolbar"] {display: none !important;}
         .stDeployButton {display: none !important;}
         header {visibility: hidden !important; display: none !important;}
         
@@ -59,14 +59,19 @@ st.markdown("""
             font-size: 0.9rem !important;
         }
 
-        /* 🎯 4. Kolonun içindeki elemanlar arası boşluğu (gap) daraltma */
+        /* 🎯 4. Kolonun dikey yığın aralığını sıfırlama */
         div[data-testid="column"]:nth-child(4) div[data-testid="stVerticalBlock"] {
-            gap: 2px !important; /* İki checkbox arasındaki mesafeyi buradan milimetrik olarak kontrol edebilirsiniz */
+            gap: 0px !important;
         }
 
-        /* 🎯 1. Checkbox ("Tükenenleri Gizle"): Ürün Grubu etiket hizası için yukarı çekme */
-        div[data-testid="column"]:nth-child(4) div[data-testid="stCheckbox"]:nth-of-type(1) {
+        /* 🎯 1. Checkbox Bloğu ("Tükenenleri Gizle"): Ürün Grubu etiket hizası */
+        div[data-testid="column"]:nth-child(4) div[data-testid="stVerticalBlock"] > div:nth-child(1) {
             margin-top: -30px !important;
+        }
+
+        /* 🎯 2. Checkbox Bloğu ("Sadece Tükenenleri Listele"): Negatif margin ile yukarı yapıştırma */
+        div[data-testid="column"]:nth-child(4) div[data-testid="stVerticalBlock"] > div:nth-child(2) {
+            margin-top: -18px !important; /* Bu değeri -15px ile -22px arasında değiştirerek mesafeyi milimetrik ayarlayabilirsiniz */
         }
 
         /* Temizle Butonu Özel Hizalaması */
