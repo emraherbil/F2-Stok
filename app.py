@@ -63,7 +63,7 @@ st.markdown("""
         
         /* İkinci Checkbox: Yukarı çekmek için margin değeri küçültüldü (İnce ayar için bu sayıyı değiştirebilirsiniz) */
         div[data-testid="column"]:nth-of-type(4) .element-container:nth-of-type(2) {
-            margin-top: 8px !important; 
+            margin-top: 4x !important; 
         }
 
         /* 5. Kolon: Temizle Butonu (Etiket boşluğu kadar aşağı indir ki kutularla hizalansın) */
