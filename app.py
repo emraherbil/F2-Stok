@@ -179,14 +179,14 @@ try:
             v_grup = st.selectbox("📂 Ürün Grubu", grup_ops, key="q_grup")
 
         with col4:
-            # Checkbox'ların diğer kolonlardaki text_input ve selectbox etiketleriyle 
-            # aynı hizada başlaması için güvenli bir boşluk (spacer) bırakıyoruz.
-            st.markdown("<div style='height: 28px;'></div>", unsafe_allow_html=True)
+            # 🎯 Buradaki yüksekliği 28px'den 25px'e düşürdük. 
+            # Dilerseniz bu değeri 24px veya 26px yaparak milimetrik oynamalar yapabilirsiniz.
+            st.markdown("<div style='height: 25px;'></div>", unsafe_allow_html=True)
             v_stok = st.checkbox("🚫 Tükenenleri Gizle", key="q_stok")
             v_sifir_stok = st.checkbox("⚠️ Sadece Tükenenleri Listele", key="q_sifir_stok")
 
         with col5:
-            # Butonu da form kutularıyla tam hizalamak için aynı boşluğu veriyoruz.
+            # Buton hizalaması
             st.markdown("<div style='height: 28px;'></div>", unsafe_allow_html=True)
             st.button("🧹 Temizle", on_click=filtreleri_temizle, use_container_width=True)
 
