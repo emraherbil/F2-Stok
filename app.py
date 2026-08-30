@@ -13,7 +13,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# 🎯 TEMİZ VE KARARLI CSS (Buton CSS'i hariç karmaşık itmeler temizlendi)
+# 🎯 TEMİZLE BUTONUNU YUKARI ÇEKEN CSS
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -63,6 +63,11 @@ st.markdown("""
             padding-top: 2px !important;
             padding-bottom: 2px !important;
             font-size: 0.9rem !important;
+        }
+
+        /* 🎯 TEMİZLE BUTONU HİZALAMASI: Input kutusu hizasına çıkması için yukarı çekildi (-28px) */
+        div[data-testid="column"]:nth-of-type(5) [data-testid="stButton"] {
+            margin-top: -28px !important;
         }
 
         /* Temizle Butonu Tasarımı */
@@ -202,8 +207,7 @@ try:
             v_sifir_stok = st.checkbox("⚠️ Sadece Tükenenleri Listele", key="q_sifir_stok")
 
         with col5:
-            # 🎯 ÇÖZÜM: Listbox (input) alanının yüksekliği kadar boşluk bırakılarak buton tam hizaya getirildi
-            st.markdown("<div style='height: 28px;'></div>", unsafe_allow_html=True)
+            # Önceki eklenen boşluk div'i temizlendi, buton CSS ile yukarı çekildi
             st.button("🧹 Temizle", on_click=filtreleri_temizle, use_container_width=True)
 
         # Filtreleme Algoritması
