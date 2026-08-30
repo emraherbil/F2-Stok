@@ -67,7 +67,7 @@ st.markdown("""
 
         /* 🎯 CHECKBOX BLOK HİZALAMASI: İki checkbox'ı birden input hizasına çekmek için */
         .checkbox-align-box {
-            margin-top: 0px !important;
+            margin-top: 6px !important;
         }
 
         /* Temizle Butonu Özel Hizalaması */
