@@ -13,7 +13,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# 🎯 TEMİZLE BUTONUNU YUKARI ÇEKEN CSS
+# 🎯 ADIM ADIM HİZALAMA (-8px ile input kutusuna yaklaştırma)
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -65,9 +65,9 @@ st.markdown("""
             font-size: 0.9rem !important;
         }
 
-        /* 🎯 TEMİZLE BUTONU HİZALAMASI: Input kutusu hizasına çıkması için yukarı çekildi (-28px) */
+        /* 🎯 DENEME: -28px çok yukarı (etikete) çıkardığı için -8px ile input kutusuna indiriyoruz */
         div[data-testid="column"]:nth-of-type(5) [data-testid="stButton"] {
-            margin-top: -28px !important;
+            margin-top: -8px !important;
         }
 
         /* Temizle Butonu Tasarımı */
@@ -96,7 +96,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 2. LOGO VE VERİ YÜKLEME FONKSİYONLARI
+# 2. LOGO AND DATA LOADING
 # ==========================================
 def logo_to_base64(img_path):
     try:
@@ -114,7 +114,7 @@ def load_data():
     return pd.read_excel('Stok Sayım Arşivi-v3.1-Web.xlsm', sheet_name='Stok', engine='openpyxl')
 
 # ==========================================
-# 3. ANA PANEL DÜZENİ
+# 3. MAIN PANEL LAYOUT
 # ==========================================
 try:
     df = load_data()
@@ -150,7 +150,7 @@ try:
         <div style="margin-top:35px;"></div> """, unsafe_allow_html=True)
 
     # ==========================================
-    # 4. FRAGMENT ALANI 
+    # 4. FRAGMENT AREA 
     # ==========================================
     @st.fragment
     def stok_paneli_icerik(data_frame):
@@ -207,7 +207,6 @@ try:
             v_sifir_stok = st.checkbox("⚠️ Sadece Tükenenleri Listele", key="q_sifir_stok")
 
         with col5:
-            # Önceki eklenen boşluk div'i temizlendi, buton CSS ile yukarı çekildi
             st.button("🧹 Temizle", on_click=filtreleri_temizle, use_container_width=True)
 
         # Filtreleme Algoritması
@@ -219,11 +218,9 @@ try:
         if v_marka != "Tümü": f_df = f_df[f_df[c_marka].astype(str) == v_marka]
         if v_grup != "Tümü": f_df = f_df[f_df[c_grup].astype(str) == v_grup]
         
-        # Stok Durumu Filtreleri
         if v_stok: f_df = f_df[f_df[c_stok] > 0]
         if v_sifir_stok: f_df = f_df[f_df[c_stok] == 0]
 
-        # KPI Kartları
         t_prod = len(f_df)
         t_stok = int(f_df[c_stok].sum())
         t_cost = f_df[c_maliyet].sum()
@@ -243,7 +240,6 @@ try:
 
         st.markdown("<div style='margin-top:15px;'></div>", unsafe_allow_html=True)
         
-        # Veri Tablosu Çıktısı
         out_df = f_df[[c_kod, c_tanim, c_marka, c_grup, c_stok, c_fiyat, c_maliyet]].copy()
         out_df.columns = ["Ürün Kodu", "Açıklama", "Marka", "Ürün Grubu", "Güncel Stok", "Birim Maliyet", "Toplam Maliyet"]
         
