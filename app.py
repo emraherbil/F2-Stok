@@ -13,7 +13,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# 🎯 BAĞIMSIZ VE KARARLI HİZALAMA CSS'İ
+# 🎯 İKİNCİ CHECKBOX VE TEMİZLE BUTONU İÇİN EŞİT HİZALAMA CSS'İ
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -54,18 +54,17 @@ st.markdown("""
             align-items: flex-start !important; 
         }
 
-        /* 4. Kolon (Checkboxlar) */
-        /* 1. Checkbox (Tükenenleri Gizle): Etiket ile aynı hizada (0px) */
+        /* 4. Kolon: 1. Checkbox (Tükenenleri Gizle) - En üstte etiket hizasında */
         div[data-testid="column"]:nth-of-type(4) .element-container:nth-of-type(1) {
             margin-top: 0px !important; 
         }
         
-        /* 2. Checkbox (Sadece Tükenenleri Listele): Bağımsız olarak Kutu hizasına indirildi */
+        /* 4. Kolon: 2. Checkbox (Sadece Tükenenleri Listele) - Input kutusu hizasında */
         div[data-testid="column"]:nth-of-type(4) .element-container:nth-of-type(2) {
             margin-top: 28px !important; 
         }
 
-        /* 5. Kolon (Temizle Butonu): Kutu hizasına indirildi (Checkbox 2 ile tamamen bağımsız) */
+        /* 5. Kolon: Temizle Butonu - 2. Checkbox ile birebir aynı yükseklikte (aynı hizada) */
         div[data-testid="column"]:nth-of-type(5) .element-container:nth-of-type(1) {
             margin-top: 28px !important; 
         }
@@ -107,7 +106,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 2. LOGO DAN VERİ YÜKLEME FONKSİYONLARI
+# 2. LOGO VE VERİ YÜKLEME FONKSİYONLARI
 # ==========================================
 def logo_to_base64(img_path):
     try:
@@ -178,7 +177,6 @@ try:
             st.session_state.q_stok = False
             st.session_state.q_sifir_stok = False
 
-        # 5 Ana Kolon (Net, düz ve bağımsız yapı)
         col1, col2, col3, col4, col5 = st.columns([3.2, 2.4, 2.4, 2.2, 1.2])
         
         current_marka = st.session_state.q_marka
@@ -214,12 +212,10 @@ try:
         with col3:
             v_grup = st.selectbox("📂 Ürün Grubu", grup_ops, key="q_grup")
 
-        # 4. Kolon: Sadece Checkboxlar (İç içe kolon yok!)
         with col4:
             v_stok = st.checkbox("🚫 Tükenenleri Gizle", key="q_stok")
             v_sifir_stok = st.checkbox("⚠️ Sadece Tükenenleri Listele", key="q_sifir_stok")
 
-        # 5. Kolon: Sadece Temizle Butonu (Checkboxlardan tamamen bağımsız)
         with col5:
             st.button("🧹 Temizle", on_click=filtreleri_temizle, use_container_width=True)
 
