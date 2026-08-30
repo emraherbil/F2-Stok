@@ -61,9 +61,9 @@ st.markdown("""
             padding-top: 0px !important;
         }
         
-        /* İkinci Checkbox: Araya boşluk atarak Ürün Grubu kutusu ile aynı hizaya indir */
+        /* İkinci Checkbox: Yukarı çekmek için margin değeri küçültüldü (İnce ayar için bu sayıyı değiştirebilirsiniz) */
         div[data-testid="column"]:nth-of-type(4) .element-container:nth-of-type(2) {
-            margin-top: 18px !important; /* Selectbox kutusuna hizalama boşluğu */
+            margin-top: 8px !important; 
         }
 
         /* 5. Kolon: Temizle Butonu (Etiket boşluğu kadar aşağı indir ki kutularla hizalansın) */
@@ -214,8 +214,6 @@ try:
         with col3:
             v_grup = st.selectbox("📂 Ürün Grubu", grup_ops, key="q_grup")
 
-        # Dikkat: Checkboxların arasına boşluk atmak için st.markdown HİLESİNİ ÇIKARDIK
-        # Doğrudan elementleri yazdırıyoruz, hizalamayı yukarıdaki CSS hallediyor.
         with col4:
             v_stok = st.checkbox("🚫 Tükenenleri Gizle", key="q_stok")
             v_sifir_stok = st.checkbox("⚠️ Sadece Tükenenleri Listele", key="q_sifir_stok")
