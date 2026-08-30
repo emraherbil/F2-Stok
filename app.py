@@ -181,7 +181,7 @@ try:
         with col4:
             # 🎯 Buradaki yüksekliği 28px'den 25px'e düşürdük. 
             # Dilerseniz bu değeri 24px veya 26px yaparak milimetrik oynamalar yapabilirsiniz.
-            st.markdown("<div style='height: 25px;'></div>", unsafe_allow_html=True)
+            st.markdown("<div style='height: 24px;'></div>", unsafe_allow_html=True)
             v_stok = st.checkbox("🚫 Tükenenleri Gizle", key="q_stok")
             v_sifir_stok = st.checkbox("⚠️ Sadece Tükenenleri Listele", key="q_sifir_stok")
 
