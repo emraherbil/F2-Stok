@@ -13,7 +13,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# 🎯 CHECKBOX SINIFINI DOĞRUDAN HEDEFLEYEN KESİN ÇÖZÜM
+# 🎯 İŞARETÇİ (MARKER) YÖNTEMİ İLE KESİN HİZALAMA VE BOŞLUK KONTROLÜ
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -59,14 +59,20 @@ st.markdown("""
             font-size: 0.9rem !important;
         }
 
-        /* 🎯 4. Kolonun 1. Checkbox'ını Ürün Grubu etiketine göre hizalama */
-        div[data-testid="column"]:nth-child(4) div[data-testid="stCheckbox"]:nth-of-type(1) {
-            margin-top: -30px !important;
+        /* 🎯 4. KOLON KONTROLÜ: İşaretçinin bulunduğu alanın dikey boşluklarını sıfırla */
+        div[data-testid="stVerticalBlock"]:has(.chk-marker) {
+            gap: 0px !important;
+            margin-top: -26px !important; /* Ürün Grubu etiketiyle aynı hizaya çeker */
         }
-
-        /* 🎯 4. Kolondaki Checkbox'ların aralarındaki mesafeyi doğrudan daraltma */
-        div[data-testid="column"]:nth-child(4) div[data-testid="stCheckbox"] {
-            margin-bottom: -14px !important; /* Bu değeri artırıp azaltarak iki checkbox'ı birbirine yaklaştırabilirsiniz */
+        
+        /* 🎯 İKİ CHECKBOX ARASINDAKİ UZAKLIĞI AZALTAN KURAL */
+        div[data-testid="stVerticalBlock"]:has(.chk-marker) > div.element-container {
+            margin-bottom: -12px !important; /* Mesafeyi daraltır; ihtiyaca göre -8px veya -16px yapılabilir */
+        }
+        
+        /* İşaretçiyi gizle */
+        .chk-marker {
+            display: none !important;
         }
 
         /* Temizle Butonu Özel Hizalaması */
@@ -207,6 +213,8 @@ try:
             v_grup = st.selectbox("📂 Ürün Grubu", grup_ops, key="q_grup")
 
         with col4:
+            # 🎯 CSS'in bu alanı şaşmaz biçimde yakalayabilmesi için işaretçi eklendi
+            st.markdown('<div class="chk-marker"></div>', unsafe_allow_html=True)
             v_stok = st.checkbox("🚫 Tükenenleri Gizle", key="q_stok")
             v_sifir_stok = st.checkbox("⚠️ Sadece Tükenenleri Listele", key="q_sifir_stok")
 
