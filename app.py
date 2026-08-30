@@ -13,12 +13,12 @@ st.set_page_config(
     layout="wide"
 )
 
-# 🎯 TRANSFORM YÖNTEMİ İLE KESİN HİZALAMA STİLLERİ
+# 🎯 KOLON İÇİ DİKEY BOŞLUK (GAP) KONTROLÜ STİLLERİ
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
         .viewerBadge_container {display: none !important;}
-        [data-testid="stToolbar"] {display: none !important;}
+        [data-testid="stToolbar"] {display: hidden !important; display: none !important;}
         .stDeployButton {display: none !important;}
         header {visibility: hidden !important; display: none !important;}
         
@@ -54,33 +54,19 @@ st.markdown("""
             align-items: flex-start !important; 
         }
 
-        /* Checkbox boşluklarını sıfırlama */
-        div[data-testid="stCheckbox"] {
-            padding: 0px !important;
-            margin: 0px !important;
-        }
+        /* Checkbox yazı tipi ayarları */
         div[data-testid="stCheckbox"] label {
-            padding-top: 2px !important;
-            padding-bottom: 2px !important;
             font-size: 0.9rem !important;
         }
 
-        /* 🎯 4. Kolonu (Col4) konumlandırma alanı yapıyoruz */
-        div[data-testid="column"]:nth-child(4) {
-            position: relative !important;
+        /* 🎯 4. Kolonun içindeki elemanlar arası boşluğu (gap) daraltma */
+        div[data-testid="column"]:nth-child(4) div[data-testid="stVerticalBlock"] {
+            gap: 2px !important; /* İki checkbox arasındaki mesafeyi buradan milimetrik olarak kontrol edebilirsiniz */
         }
 
-        /* 🎯 1. Checkbox ("Tükenenleri Gizle"): Ürün Grubu etiket hizası */
+        /* 🎯 1. Checkbox ("Tükenenleri Gizle"): Ürün Grubu etiket hizası için yukarı çekme */
         div[data-testid="column"]:nth-child(4) div[data-testid="stCheckbox"]:nth-of-type(1) {
-            position: absolute !important;
-            top: -30px !important;
-            left: 0px !important;
-            width: 100% !important;
-        }
-
-        /* 🎯 2. Checkbox ("Sadece Tükenenleri Listele"): Transform ile garantili yukarı taşıma */
-        div[data-testid="column"]:nth-child(4) div[data-testid="stCheckbox"]:nth-of-type(2) {
-            transform: translateY(-8px) !important; /* İhtiyacınıza göre -6px ile -10px arasında ayarlayabilirsiniz */
+            margin-top: -30px !important;
         }
 
         /* Temizle Butonu Özel Hizalaması */
