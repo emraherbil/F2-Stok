@@ -13,71 +13,42 @@ st.set_page_config(
     layout="wide"
 )
 
-# 🎯 İŞARETÇİ (MARKER) YÖNTEMİ İLE KESİN HİZALAMA VE BOŞLUK KONTROLÜ
+# 🎯 TEMİZ, GÜVENLİ VE SİSTEMİ BOZMAYAN CSS
 st.markdown("""
     <style>
+        /* Gereksiz Streamlit araçlarını gizle */
         footer {visibility: hidden !important; display: none !important;}
         .viewerBadge_container {display: none !important;}
-        [data-testid="stToolbar"] {display: none !important;}
-        .stDeployButton {display: none !important;}
         header {visibility: hidden !important; display: none !important;}
         
+        /* Arka planı şeffaf yap */
         html, body, .stApp { background-color: transparent !important; }
         
         .block-container { 
-            display: block !important;
             padding-top: 1.5rem !important; 
             padding-bottom: 1.5rem !important; 
             max-width: 100% !important;
         }
         
-        div[data-testid="stVerticalBlock"] > div:first-child {
-            position: sticky !important;
-            top: 0px !important;
-            background-color: transparent !important;
-            z-index: 9999 !important;
-            padding-bottom: 10px !important;
-        }
-        
+        /* Üst Bilgi (Header) Tasarımı */
         .custom-header-container { 
             display: flex; 
             align-items: center; 
             gap: 25px; 
-            padding-top: 0px;
-            padding-bottom: 0px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e0e0e0;
+            margin-bottom: 20px;
         }
         .custom-logo { height: 60px; object-fit: contain; }
         .custom-title-block { display: flex; flex-direction: column; justify-content: center; }
         
-        /* Tüm ana kolonları yukarıdan başlat */
-        div[data-testid="stHorizontalBlock"] {
-            align-items: flex-start !important; 
+        /* 🎯 CHECKBOX BOŞLUK KONTROLÜ (GÜVENLİ YÖNTEM) */
+        /* Streamlit ızgarasını bozmadan sadece checkbox elemanının alt boşluğunu kısaltır */
+        div[data-testid="stCheckbox"] {
+            margin-bottom: -15px !important;
         }
-
-        /* Checkbox yazı tipi ayarları */
         div[data-testid="stCheckbox"] label {
             font-size: 0.9rem !important;
-        }
-
-        /* 🎯 4. KOLON KONTROLÜ: İşaretçinin bulunduğu alanın dikey boşluklarını sıfırla */
-        div[data-testid="stVerticalBlock"]:has(.chk-marker) {
-            gap: 0px !important;
-            margin-top: -26px !important; /* Ürün Grubu etiketiyle aynı hizaya çeker */
-        }
-        
-        /* 🎯 İKİ CHECKBOX ARASINDAKİ UZAKLIĞI AZALTAN KURAL */
-        div[data-testid="stVerticalBlock"]:has(.chk-marker) > div.element-container {
-            margin-bottom: -12px !important; /* Mesafeyi daraltır; ihtiyaca göre -8px veya -16px yapılabilir */
-        }
-        
-        /* İşaretçiyi gizle */
-        .chk-marker {
-            display: none !important;
-        }
-
-        /* Temizle Butonu Özel Hizalaması */
-        .custom-align-box {
-            margin-top: -16px !important;
         }
 
         /* Temizle Butonu Tasarımı */
@@ -90,17 +61,11 @@ st.markdown("""
             width: 100% !important; 
             font-weight: 500 !important;
             transition: all 0.2s !important;
-            margin: 0 !important;
         }
-        
         .stButton > button:hover { 
             background-color: #12223c !important;
             border: 1px solid #12223c !important;
             color: white !important; 
-        }
-        
-        div[data-baseweb="input"] {
-            border-radius: 6px !important;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -157,7 +122,7 @@ try:
                 <span style="color:#7d7f87; font-size:0.85rem; margin-top:4px;">📅 <b>Son Güncelleme / Sayım Tarihi:</b> {c_stok}</span>
             </div>
         </div>
-        <div style="margin-top:35px;"></div> """, unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
 
     # ==========================================
     # 4. FRAGMENT ALANI 
@@ -177,6 +142,7 @@ try:
             st.session_state.q_stok = False
             st.session_state.q_sifir_stok = False
 
+        # Kolon genişlikleri düzenlendi
         col1, col2, col3, col4, col5 = st.columns([3.2, 2.4, 2.4, 2.2, 1.2])
         
         current_marka = st.session_state.q_marka
@@ -213,15 +179,16 @@ try:
             v_grup = st.selectbox("📂 Ürün Grubu", grup_ops, key="q_grup")
 
         with col4:
-            # 🎯 CSS'in bu alanı şaşmaz biçimde yakalayabilmesi için işaretçi eklendi
-            st.markdown('<div class="chk-marker"></div>', unsafe_allow_html=True)
+            # Checkbox'ların diğer kolonlardaki text_input ve selectbox etiketleriyle 
+            # aynı hizada başlaması için güvenli bir boşluk (spacer) bırakıyoruz.
+            st.markdown("<div style='height: 28px;'></div>", unsafe_allow_html=True)
             v_stok = st.checkbox("🚫 Tükenenleri Gizle", key="q_stok")
             v_sifir_stok = st.checkbox("⚠️ Sadece Tükenenleri Listele", key="q_sifir_stok")
 
         with col5:
-            st.markdown("<div class='custom-align-box'>", unsafe_allow_html=True)
+            # Butonu da form kutularıyla tam hizalamak için aynı boşluğu veriyoruz.
+            st.markdown("<div style='height: 28px;'></div>", unsafe_allow_html=True)
             st.button("🧹 Temizle", on_click=filtreleri_temizle, use_container_width=True)
-            st.markdown("</div>", unsafe_allow_html=True)
 
         # Filtreleme Algoritması
         f_df = data_frame.copy()
@@ -241,7 +208,7 @@ try:
         
         def kpi_card(label, val, color):
             return f"""
-            <div style='background-color: rgba(28, 31, 46, 0.03); padding: 12px 15px; border-radius: 6px; border-left: 5px solid {color}; display: flex; justify-content: space-between; align-items: center;'>
+            <div style='background-color: rgba(28, 31, 46, 0.03); padding: 12px 15px; border-radius: 6px; border-left: 5px solid {color}; display: flex; justify-content: space-between; align-items: center; margin-top: 10px;'>
                 <span style='font-size:13px; color:#555; font-weight:bold;'>{label}</span>
                 <span style='font-size:1.15rem; font-weight: 800; color:#111;'>{val}</span>
             </div>
@@ -252,7 +219,7 @@ try:
         with k2: st.markdown(kpi_card("📦 Toplam Stok:", f"{t_stok:,}".replace(",", ".") + " Adet", "#4CAF50"), unsafe_allow_html=True)
         with k3: st.markdown(kpi_card("💰 Toplam Maliyet:", f"${t_cost:,.0f}".replace(",", "."), "#FFC107"), unsafe_allow_html=True)
 
-        st.markdown("<div style='margin-top:15px;'></div>", unsafe_allow_html=True)
+        st.markdown("<div style='margin-top:20px;'></div>", unsafe_allow_html=True)
         
         out_df = f_df[[c_kod, c_tanim, c_marka, c_grup, c_stok, c_fiyat, c_maliyet]].copy()
         out_df.columns = ["Ürün Kodu", "Açıklama", "Marka", "Ürün Grubu", "Güncel Stok", "Birim Maliyet", "Toplam Maliyet"]
@@ -287,4 +254,4 @@ try:
     stok_paneli_icerik(df)
 
 except Exception as e:
-    st.error(f"Hata olustu: {e}")
+    st.error(f"Hata oluştu: {e}")
