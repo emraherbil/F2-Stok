@@ -13,7 +13,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# 🎯 MODERN :HAS() SEÇİCİSİ İLE KESİN BOŞLUK KONTROLÜ
+# 🎯 CHECKBOX SINIFINI DOĞRUDAN HEDEFLEYEN KESİN ÇÖZÜM
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -59,14 +59,14 @@ st.markdown("""
             font-size: 0.9rem !important;
         }
 
-        /* 🎯 1. Checkbox'ın yukarı kaydırılması (Ürün grubu hizası için) */
-        div[data-testid="column"]:nth-child(4) div[data-testid="stVerticalBlock"] > div:nth-child(1) {
+        /* 🎯 4. Kolonun 1. Checkbox'ını Ürün Grubu etiketine göre hizalama */
+        div[data-testid="column"]:nth-child(4) div[data-testid="stCheckbox"]:nth-of-type(1) {
             margin-top: -30px !important;
         }
 
-        /* 🎯 :HAS() İLE İKİNCİ CHECKBOX'I YUKARI YAPIŞTIRMA */
-        div[data-testid="column"]:nth-child(4) .element-container:has(div[data-testid="stCheckbox"]) + .element-container {
-            margin-top: -22px !important; /* İhtiyacınıza göre -15px ile -25px arasında ayarlayabilirsiniz */
+        /* 🎯 4. Kolondaki Checkbox'ların aralarındaki mesafeyi doğrudan daraltma */
+        div[data-testid="column"]:nth-child(4) div[data-testid="stCheckbox"] {
+            margin-bottom: -14px !important; /* Bu değeri artırıp azaltarak iki checkbox'ı birbirine yaklaştırabilirsiniz */
         }
 
         /* Temizle Butonu Özel Hizalaması */
