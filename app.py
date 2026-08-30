@@ -13,7 +13,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# 🎯 ÇİFT CHECKBOX HİZALAMA STİLLERİ
+# 🎯 BAĞIMSIZ CHECKBOX VE BUTON HİZALAMA STİLLERİ
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -65,9 +65,14 @@ st.markdown("""
             font-size: 0.9rem !important;
         }
 
-        /* 🎯 CHECKBOX BLOK HİZALAMASI: İki checkbox'ı birden input hizasına çekmek için */
-        .checkbox-align-box {
-            margin-top: -8px !important;
+        /* 🎯 1. CHECKBOX: "Tükenenleri Gizle" (Ürün Grubu etiketi hizası için) */
+        .checkbox-top-box {
+            margin-top: -24px !important;
+        }
+
+        /* 🎯 2. CHECKBOX: "Sadece Tükenenleri Listele" (Temizle butonunun alt kenarı için) */
+        .checkbox-bottom-box {
+            margin-top: 4px !important;
         }
 
         /* Temizle Butonu Özel Hizalaması */
@@ -208,9 +213,13 @@ try:
             v_grup = st.selectbox("📂 Ürün Grubu", grup_ops, key="q_grup")
 
         with col4:
-            # 🎯 Checkbox'ları özel kapsayıcı içerisine alarak hafifçe yukarı çekiyoruz
-            st.markdown("<div class='checkbox-align-box'>", unsafe_allow_html=True)
+            # 🎯 1. Checkbox bağımsız üst konumlandırma
+            st.markdown("<div class='checkbox-top-box'>", unsafe_allow_html=True)
             v_stok = st.checkbox("🚫 Tükenenleri Gizle", key="q_stok")
+            st.markdown("</div>", unsafe_allow_html=True)
+            
+            # 🎯 2. Checkbox bağımsız alt konumlandırma
+            st.markdown("<div class='checkbox-bottom-box'>", unsafe_allow_html=True)
             v_sifir_stok = st.checkbox("⚠️ Sadece Tükenenleri Listele", key="q_sifir_stok")
             st.markdown("</div>", unsafe_allow_html=True)
 
