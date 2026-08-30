@@ -57,13 +57,13 @@ st.markdown("""
         /* 4. Kolon: Checkboxlar */
         /* İlk Checkbox: Ürün Grubu etiketiyle milimetrik hiza */
         div[data-testid="column"]:nth-of-type(4) .element-container:nth-of-type(1) {
-            margin-top: 0px !important; 
+            margin-top: 4px !important; 
             padding-top: 0px !important;
         }
         
         /* İkinci Checkbox: Yukarı çekmek için margin değeri küçültüldü (İnce ayar için bu sayıyı değiştirebilirsiniz) */
         div[data-testid="column"]:nth-of-type(4) .element-container:nth-of-type(2) {
-            margin-top: 4x !important; 
+            margin-top: 0x !important; 
         }
 
         /* 5. Kolon: Temizle Butonu (Etiket boşluğu kadar aşağı indir ki kutularla hizalansın) */
