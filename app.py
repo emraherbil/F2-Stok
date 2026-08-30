@@ -13,7 +13,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# 🎯 KESİN ÇÖZÜM: Özel Sınıf Tabanlı Hizalama (-16px İle Orta Nokta)
+# 🎯 ÇİFT CHECKBOX HİZALAMA STİLLERİ
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -65,7 +65,12 @@ st.markdown("""
             font-size: 0.9rem !important;
         }
 
-        /* 🎯 ÖZEL KUTU KONTROLÜ: Listbox ile tam hizalamak için -16px */
+        /* 🎯 CHECKBOX BLOK HİZALAMASI: İki checkbox'ı birden input hizasına çekmek için */
+        .checkbox-align-box {
+            margin-top: -6px !important;
+        }
+
+        /* Temizle Butonu Özel Hizalaması */
         .custom-align-box {
             margin-top: -16px !important;
         }
@@ -203,11 +208,13 @@ try:
             v_grup = st.selectbox("📂 Ürün Grubu", grup_ops, key="q_grup")
 
         with col4:
+            # 🎯 Checkbox'ları özel kapsayıcı içerisine alarak hafifçe yukarı çekiyoruz
+            st.markdown("<div class='checkbox-align-box'>", unsafe_allow_html=True)
             v_stok = st.checkbox("🚫 Tükenenleri Gizle", key="q_stok")
             v_sifir_stok = st.checkbox("⚠️ Sadece Tükenenleri Listele", key="q_sifir_stok")
+            st.markdown("</div>", unsafe_allow_html=True)
 
         with col5:
-            # 🎯 KESİN ÇÖZÜM: Butonu özel HTML div içerisine sararak doğrudan hedefliyoruz
             st.markdown("<div class='custom-align-box'>", unsafe_allow_html=True)
             st.button("🧹 Temizle", on_click=filtreleri_temizle, use_container_width=True)
             st.markdown("</div>", unsafe_allow_html=True)
