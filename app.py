@@ -13,7 +13,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# 🎯 SADELEŞTİRİLMİŞ VE STABİL CSS
+# 🎯 BAĞIMSIZ VE KARARLI HİZALAMA CSS'İ
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -49,9 +49,25 @@ st.markdown("""
         .custom-logo { height: 60px; object-fit: contain; }
         .custom-title-block { display: flex; flex-direction: column; justify-content: center; }
         
-        /* Doğal yukarıdan hizalama (Etiketler yan yana olsun diye) */
+        /* Tüm ana kolonları yukarıdan başlat */
         div[data-testid="stHorizontalBlock"] {
             align-items: flex-start !important; 
+        }
+
+        /* 4. Kolon (Checkboxlar) */
+        /* 1. Checkbox (Tükenenleri Gizle): Etiket ile aynı hizada (0px) */
+        div[data-testid="column"]:nth-of-type(4) .element-container:nth-of-type(1) {
+            margin-top: 0px !important; 
+        }
+        
+        /* 2. Checkbox (Sadece Tükenenleri Listele): Bağımsız olarak Kutu hizasına indirildi */
+        div[data-testid="column"]:nth-of-type(4) .element-container:nth-of-type(2) {
+            margin-top: 28px !important; 
+        }
+
+        /* 5. Kolon (Temizle Butonu): Kutu hizasına indirildi (Checkbox 2 ile tamamen bağımsız) */
+        div[data-testid="column"]:nth-of-type(5) .element-container:nth-of-type(1) {
+            margin-top: 28px !important; 
         }
 
         /* Checkbox boşluklarını daraltma */
@@ -91,7 +107,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 2. LOGO VE VERİ YÜKLEME FONKSİYONLARI
+# 2. LOGO DAN VERİ YÜKLEME FONKSİYONLARI
 # ==========================================
 def logo_to_base64(img_path):
     try:
@@ -162,8 +178,8 @@ try:
             st.session_state.q_stok = False
             st.session_state.q_sifir_stok = False
 
-        # 4 Ana Kolon (Sağ taraf Frame içinde)
-        col1, col2, col3, col4 = st.columns([3.0, 2.3, 2.3, 3.6])
+        # 5 Ana Kolon (Net, düz ve bağımsız yapı)
+        col1, col2, col3, col4, col5 = st.columns([3.2, 2.4, 2.4, 2.2, 1.2])
         
         current_marka = st.session_state.q_marka
         current_grup = st.session_state.q_grup
@@ -198,21 +214,14 @@ try:
         with col3:
             v_grup = st.selectbox("📂 Ürün Grubu", grup_ops, key="q_grup")
 
-        # 🎯 STABİL HİZALAMA ÇERÇEVESİ (FRAME)
+        # 4. Kolon: Sadece Checkboxlar (İç içe kolon yok!)
         with col4:
-            sub_c1, sub_c2 = st.columns([2.2, 1.2])
-            
-            with sub_c1:
-                # 1. Checkbox: Etiket hizası
-                v_stok = st.checkbox("🚫 Tükenenleri Gizle", key="q_stok")
-                # 2. Checkbox'ı Selectbox Input'u hizasına indirmek için küçük boşluk
-                st.markdown("<div style='margin-top: 8px;'></div>", unsafe_allow_html=True)
-                v_sifir_stok = st.checkbox("⚠️ Sadece Tükenenleri Listele", key="q_sifir_stok")
-            
-            with sub_c2:
-                # Butonu Selectbox Input'u ve 2. Checkbox hizasına indirmek için etiket yüksekliği kadar boşluk
-                st.markdown("<div style='margin-top: 27px;'></div>", unsafe_allow_html=True)
-                st.button("🧹 Temizle", on_click=filtreleri_temizle, use_container_width=True)
+            v_stok = st.checkbox("🚫 Tükenenleri Gizle", key="q_stok")
+            v_sifir_stok = st.checkbox("⚠️ Sadece Tükenenleri Listele", key="q_sifir_stok")
+
+        # 5. Kolon: Sadece Temizle Butonu (Checkboxlardan tamamen bağımsız)
+        with col5:
+            st.button("🧹 Temizle", on_click=filtreleri_temizle, use_container_width=True)
 
         # Filtreleme Algoritması
         f_df = data_frame.copy()
@@ -259,7 +268,6 @@ try:
         out_df["Toplam Maliyet"] = out_df["Toplam Maliyet"].apply(lambda v: f"${v:,.0f}".replace(",", "."))
         out_df["Güncel Stok"] = out_df["Güncel Stok"].apply(lambda v: f"{int(v):,}".replace(",", "."))
 
-        # 🎯 TABLO HATASI DÜZELTİLDİ: len(row)
         def row_style(row):
             if raw_stok.loc[row.name] == 0:
                 return ['background-color: rgba(255, 75, 75, 0.08)'] * len(row)
