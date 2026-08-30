@@ -13,7 +13,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# 🎯 SINIRLARI ZORLAYAN NATIVE CSS HİZALAMA
+# 🎯 İSTEDİĞİNİZ KUSURSUZ ASİMETRİK HİZALAMA
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -31,7 +31,6 @@ st.markdown("""
             max-width: 100% !important;
         }
         
-        /* Header sabitleme */
         div[data-testid="stVerticalBlock"] > div:first-child {
             position: sticky !important;
             top: 0px !important;
@@ -50,38 +49,40 @@ st.markdown("""
         .custom-logo { height: 60px; object-fit: contain; }
         .custom-title-block { display: flex; flex-direction: column; justify-content: center; }
         
-        /* 🚀 KRİTİK DOKUNUŞ: Bütün kolon elemanlarını ALT TABANA (flex-end) kilitler */
+        /* Tüm kolonları üstten başlat (Doğal akış) */
         div[data-testid="stHorizontalBlock"] {
-            align-items: flex-end !important;
+            align-items: flex-start !important; 
+        }
+
+        /* 4. Kolon: Checkboxlar */
+        /* İlk Checkbox: Ürün Grubu etiketiyle milimetrik hiza */
+        div[data-testid="column"]:nth-of-type(4) .element-container:nth-of-type(1) {
+            margin-top: 0px !important; 
+            padding-top: 0px !important;
         }
         
-        div[data-testid="column"] {
-            display: flex !important;
-            flex-direction: column !important;
-            justify-content: flex-end !important;
+        /* İkinci Checkbox: Araya boşluk atarak Ürün Grubu kutusu ile aynı hizaya indir */
+        div[data-testid="column"]:nth-of-type(4) .element-container:nth-of-type(2) {
+            margin-top: 18px !important; /* Selectbox kutusuna hizalama boşluğu */
         }
 
-        /* Tüm elemanların alt dış boşluğunu sıfırla */
-        div[data-testid="column"] > div {
-            margin-bottom: 0px !important;
+        /* 5. Kolon: Temizle Butonu (Etiket boşluğu kadar aşağı indir ki kutularla hizalansın) */
+        div[data-testid="column"]:nth-of-type(5) .element-container:nth-of-type(1) {
+            margin-top: 28px !important; 
         }
 
-        /* 🎯 CHECKBOX'LARI 40PX INPUT KUTUSUNA SIĞDIRMA */
+        /* Checkbox kendi iç boşluklarını daralt */
         div[data-testid="stCheckbox"] {
             padding: 0px !important;
             margin: 0px !important;
-            line-height: 1 !important;
         }
-        
         div[data-testid="stCheckbox"] label {
             padding-top: 0px !important;
             padding-bottom: 0px !important;
-            min-height: 18px !important;
-            height: 18px !important;
-            align-items: center !important;
+            min-height: 20px !important;
         }
 
-        /* 🎯 TEMİZLE BUTONU */
+        /* Temizle Butonu tasarımı */
         .stButton > button { 
             background-color: #1C355E !important; 
             color: white !important; 
@@ -91,7 +92,7 @@ st.markdown("""
             width: 100% !important; 
             font-weight: 500 !important;
             transition: all 0.2s !important;
-            margin-top: 0px !important;
+            margin: 0 !important;
         }
         
         .stButton > button:hover { 
@@ -102,7 +103,6 @@ st.markdown("""
         
         div[data-baseweb="input"] {
             border-radius: 6px !important;
-            height: 40px !important;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -162,7 +162,7 @@ try:
         <div style="margin-top:35px;"></div> """, unsafe_allow_html=True)
 
     # ==========================================
-    # 4. FRAGMENT ALANI (MILIMETRIK HİZALAMA)
+    # 4. FRAGMENT ALANI 
     # ==========================================
     @st.fragment
     def stok_paneli_icerik(data_frame):
@@ -214,6 +214,8 @@ try:
         with col3:
             v_grup = st.selectbox("📂 Ürün Grubu", grup_ops, key="q_grup")
 
+        # Dikkat: Checkboxların arasına boşluk atmak için st.markdown HİLESİNİ ÇIKARDIK
+        # Doğrudan elementleri yazdırıyoruz, hizalamayı yukarıdaki CSS hallediyor.
         with col4:
             v_stok = st.checkbox("🚫 Tükenenleri Gizle", key="q_stok")
             v_sifir_stok = st.checkbox("⚠️ Sadece Tükenenleri Listele", key="q_sifir_stok")
@@ -234,7 +236,7 @@ try:
         if v_stok: f_df = f_df[f_df[c_stok] > 0]
         if v_sifir_stok: f_df = f_df[f_df[c_stok] == 0]
 
-        # KPI Kartları Hesaplamaları
+        # KPI Kartları
         t_prod = len(f_df)
         t_stok = int(f_df[c_stok].sum())
         t_cost = f_df[c_maliyet].sum()
@@ -259,7 +261,6 @@ try:
         out_df.columns = ["Ürün Kodu", "Açıklama", "Marka", "Ürün Grubu", "Güncel Stok", "Birim Maliyet", "Toplam Maliyet"]
         
         out_df["Ürün Kodu"] = out_df["Ürün Kodu"].astype(str)
-        
         out_df = out_df.reset_index(drop=True)
         raw_stok = out_df["Güncel Stok"].copy()
 
