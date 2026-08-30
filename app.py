@@ -13,7 +13,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# 🎯 DEDICATED FRAME VE MİLİMETRİK HİZALAMA CSS'İ
+# 🎯 DÜZELTİLMİŞ CSS: Sadece gerekenleri aşağı itiyoruz
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -49,29 +49,36 @@ st.markdown("""
         .custom-logo { height: 60px; object-fit: contain; }
         .custom-title-block { display: flex; flex-direction: column; justify-content: center; }
         
-        /* 🚀 FRAME ALANI VE HİZALAMALAR */
-        /* Kolonların taban çizgisini sabitle */
+        /* Tüm kolonlar normal (yukarıdan) hizalansın */
         div[data-testid="stHorizontalBlock"] {
-            align-items: flex-end !important;
+            align-items: flex-start !important; 
         }
 
-        /* 4. ve 5. Kolonları Çevreleyen Özel Kapsayıcı Mantığı */
-        .action-frame {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            width: 100%;
+        /* 4. Kolon: Checkboxlar */
+        /* İlk Checkbox (Tükenenleri Gizle) doğal hizasında kalsın (Etiket hizası) */
+        div[data-testid="column"]:nth-of-type(4) .element-container:nth-of-type(1) {
+            margin-top: 0px !important; 
+        }
+        
+        /* İkinci Checkbox (Sadece Tükenenleri Listele) Input hizasına itilsin */
+        div[data-testid="column"]:nth-of-type(4) .element-container:nth-of-type(2) {
+            margin-top: 25px !important; 
         }
 
-        /* Checkbox Düzenlemeleri */
+        /* 5. Kolon: Temizle Butonu (Input hizasına itilsin) */
+        div[data-testid="column"]:nth-of-type(5) .element-container:nth-of-type(1) {
+            margin-top: 28px !important; 
+        }
+
+        /* Checkbox boşluklarını daraltma */
         div[data-testid="stCheckbox"] {
             padding: 0px !important;
             margin: 0px !important;
         }
         div[data-testid="stCheckbox"] label {
-            padding-top: 1px !important;
-            padding-bottom: 1px !important;
-            font-size: 0.88rem !important;
+            padding-top: 2px !important;
+            padding-bottom: 2px !important;
+            font-size: 0.9rem !important;
         }
 
         /* Temizle Butonu */
@@ -171,8 +178,7 @@ try:
             st.session_state.q_stok = False
             st.session_state.q_sifir_stok = False
 
-        # Kolon Genişlikleri Ayarlandı: Sağ Taraf (Checkbox + Buton) Tek Bir Frame Kolonuna Alındı
-        col1, col2, col3, col4 = st.columns([3.0, 2.3, 2.3, 3.6])
+        col1, col2, col3, col4, col5 = st.columns([3.2, 2.4, 2.4, 2.2, 1.2])
         
         current_marka = st.session_state.q_marka
         current_grup = st.session_state.q_grup
@@ -207,19 +213,13 @@ try:
         with col3:
             v_grup = st.selectbox("📂 Ürün Grubu", grup_ops, key="q_grup")
 
-        # 🎯 TEK BİR FRAME İÇİNDE CHECKBOX'LAR VE TEMİZLE BUTONU
+        # Checkboxlar 4. Kolonda alt alta (CSS ile 2.si aşağı itiliyor)
         with col4:
-            sub_c1, sub_c2 = st.columns([2.2, 1.2])
-            with sub_c1:
-                # Üst Checkbox -> Label Hizası
-                v_stok = st.checkbox("🚫 Tükenenleri Gizle", key="q_stok")
-                # İkinci Checkbox -> Input Kutu Hizası
-                st.markdown("<div style='margin-top: 4px;'></div>", unsafe_allow_html=True)
-                v_sifir_stok = st.checkbox("⚠️ Sadece Tükenenleri Listele", key="q_sifir_stok")
-            
-            with sub_c2:
-                # Temizle Butonu -> Input Kutusu ile tam aynı yükseklik ve seviyede
-                st.button("🧹 Temizle", on_click=filtreleri_temizle, use_container_width=True)
+            v_stok = st.checkbox("🚫 Tükenenleri Gizle", key="q_stok")
+            v_sifir_stok = st.checkbox("⚠️ Sadece Tükenenleri Listele", key="q_sifir_stok")
+
+        with col5:
+            st.button("🧹 Temizle", on_click=filtreleri_temizle, use_container_width=True)
 
         # Filtreleme Algoritması
         f_df = data_frame.copy()
@@ -266,10 +266,11 @@ try:
         out_df["Toplam Maliyet"] = out_df["Toplam Maliyet"].apply(lambda v: f"${v:,.0f}".replace(",", "."))
         out_df["Güncel Stok"] = out_df["Güncel Stok"].apply(lambda v: f"{int(v):,}".replace(",", "."))
 
+        # 🎯 HATA DÜZELTİLDİ: return [''] * len(row) yazıldı
         def row_style(row):
             if raw_stok.loc[row.name] == 0:
                 return ['background-color: rgba(255, 75, 75, 0.08)'] * len(row)
-            return [''] * row
+            return [''] * len(row)
 
         st.dataframe(
             out_df.style.apply(row_style, axis=1), 
