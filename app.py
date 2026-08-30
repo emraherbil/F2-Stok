@@ -79,7 +79,7 @@ st.markdown("""
         div[data-testid="stCheckbox"] label {
             padding-top: 0px !important;
             padding-bottom: 0px !important;
-            min-height: 20px !important;
+            min-height: 10px !important;
         }
 
         /* Temizle Butonu tasarımı */
