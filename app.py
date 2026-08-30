@@ -68,7 +68,7 @@ st.markdown("""
 
         /* 5. Kolon: Temizle Butonu (Etiket boşluğu kadar aşağı indir ki kutularla hizalansın) */
         div[data-testid="column"]:nth-of-type(5) .element-container:nth-of-type(1) {
-            margin-top: 28px !important; 
+            margin-top: 38px !important; 
         }
 
         /* Checkbox kendi iç boşluklarını daralt */
@@ -79,7 +79,7 @@ st.markdown("""
         div[data-testid="stCheckbox"] label {
             padding-top: 0px !important;
             padding-bottom: 0px !important;
-            min-height: 10px !important;
+            min-height: 0px !important;
         }
 
         /* Temizle Butonu tasarımı */
