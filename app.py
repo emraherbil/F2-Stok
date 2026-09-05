@@ -13,7 +13,6 @@ st.set_page_config(
     layout="wide"
 )
 
-# 🎯 TEMİZ, GÜVENLİ VE SİSTEMİ BOZMAYAN CSS
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -92,7 +91,8 @@ try:
     c_kod = df.columns[1]     
     c_tanim = df.columns[2] 
     c_marka = df.columns[3]         
-    c_grup = df.columns[4]          
+    c_grup = df.columns[4]
+    c_not = df.columns[11]          # 🎯 L Sütunu (İndeks 11)   
     c_fiyat = df.columns[12]        
     c_maliyet = df.columns[13]      
     
@@ -180,7 +180,6 @@ try:
             st.markdown("<div style='height: 28px;'></div>", unsafe_allow_html=True)
             st.button("🧹 Temizle", on_click=filtreleri_temizle, use_container_width=True)
 
-        # Filtreleme Algoritması
         f_df = data_frame.copy()
         if v_search:
             m1 = f_df[c_kod].astype(str).str.contains(v_search, case=False)
@@ -211,35 +210,33 @@ try:
 
         st.markdown("<div style='margin-top:20px;'></div>", unsafe_allow_html=True)
         
+        # 🎯 Notlar tablodan gizlice ayrıştırılıyor (Senkronizasyon için)
         out_df = f_df[[c_kod, c_tanim, c_marka, c_grup, c_stok, c_fiyat, c_maliyet]].copy()
+        notes_s = f_df[c_not].copy()
+        
         out_df.columns = ["Ürün Kodu", "Açıklama", "Marka", "Ürün Grubu", "Güncel Stok", "Birim Maliyet", "Toplam Maliyet"]
         
         out_df["Ürün Kodu"] = out_df["Ürün Kodu"].astype(str)
         out_df = out_df.reset_index(drop=True)
-        raw_stok = out_df["Güncel Stok"].copy()
+        notes_s = notes_s.reset_index(drop=True)
 
-        # Fiyat Formatlaması (Ondalıklı ve Doğru Ayırıcılar İle)
         out_df["Birim Maliyet"] = out_df["Birim Maliyet"].apply(
             lambda v: f"${v:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
         )
         out_df["Toplam Maliyet"] = out_df["Toplam Maliyet"].apply(
             lambda v: f"${v:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
         )
-        
         out_df["Güncel Stok"] = out_df["Güncel Stok"].apply(lambda v: f"{int(v):,}".replace(",", "."))
 
-        def row_style(row):
-            if raw_stok.loc[row.name] == 0:
-                return ['background-color: rgba(255, 75, 75, 0.08)'] * len(row)
-            return [''] * len(row)
-
-        st.dataframe(
-            out_df.style.apply(row_style, axis=1), 
+        # 🎯 Seçim olayını tetikleyen yeni Dataframe (Styler iptal edildi)
+        selection_event = st.dataframe(
+            out_df, 
             use_container_width=True, 
             hide_index=True,
             height=540,
+            on_select="rerun",
+            selection_mode="single-row",
             column_config={
-                # Ürün Kodu sütununa alignment verilmediği için otomatik olarak sola yaslı kalır
                 "Marka": st.column_config.Column(alignment="center"),
                 "Ürün Grubu": st.column_config.Column(alignment="center"),
                 "Güncel Stok": st.column_config.Column(alignment="center"),
@@ -247,6 +244,24 @@ try:
                 "Toplam Maliyet": st.column_config.Column(alignment="right")
             }
         )
+
+        # 🎯 Tıklanan Satırın Notunu Ekrana Yazdırma Mantığı
+        selected_rows = selection_event.selection.rows
+        if selected_rows:
+            row_idx = selected_rows[0]
+            selected_prod_name = out_df.iloc[row_idx]["Açıklama"]
+            selected_note = notes_s.iloc[row_idx]
+            
+            # Not hücresi boşsa varsayılan bir metin göster
+            if pd.isna(selected_note) or str(selected_note).strip() == "" or str(selected_note).lower() == "nan":
+                selected_note = "Bu ürün için kayıtlı özel bir not bulunmamaktadır."
+                
+            st.markdown(f"""
+            <div style='background-color: rgba(28, 53, 94, 0.05); padding: 15px; border-radius: 8px; border-left: 5px solid #1C355E; margin-top: 15px;'>
+                <div style='font-size: 0.9rem; color: #555; margin-bottom: 5px;'>📌 <b>Seçilen Ürün:</b> {selected_prod_name}</div>
+                <div style='font-size: 1rem; color: #111;'>📝 <b>Not:</b> {selected_note}</div>
+            </div>
+            """, unsafe_allow_html=True)
 
     stok_paneli_icerik(df)
 
