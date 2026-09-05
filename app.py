@@ -3,7 +3,6 @@ import pandas as pd
 import os
 import base64
 from pathlib import Path
-from st_aggrid import AgGrid, GridOptionsBuilder, ColumnsAutoSizeMode # YENİ EKLENEN KÜTÜPHANE
 
 # ==========================================
 # 1. SAYFA YAPILANDIRMASI VE KÜRESEL STİLLER
@@ -14,6 +13,7 @@ st.set_page_config(
     layout="wide"
 )
 
+# 🎯 TEMİZ, GÜVENLİ VE SİSTEMİ BOZMAYAN CSS
 st.markdown("""
     <style>
         footer {visibility: hidden !important; display: none !important;}
@@ -65,7 +65,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 2. LOGO VE VERİ YÜKLEME
+# 2. LOGO VE VERİ YÜKLEME FONKSİYONLARI
 # ==========================================
 def logo_to_base64(img_path):
     try:
@@ -92,12 +92,8 @@ try:
     c_kod = df.columns[1]     
     c_tanim = df.columns[2] 
     c_marka = df.columns[3]         
-    c_grup = df.columns[4]
-    
-    # 🎯 Sizin belirttiğiniz gibi L sütununa denk gelen 12. İndeks
-    c_not = df.columns[12]          
-    
-    c_fiyat = df.columns[12] # Excel'inizdeki asıl fiyat/maliyet sütun indisleri
+    c_grup = df.columns[4]          
+    c_fiyat = df.columns[12]        
     c_maliyet = df.columns[13]      
     
     sayim_cols = list(df.columns[14:]) 
@@ -142,30 +138,49 @@ try:
 
         col1, col2, col3, col4, col5 = st.columns([3.2, 2.4, 2.4, 2.2, 1.2])
         
-        # Filtreleme UI Kısımları (Önceki kodla aynı)
         current_marka = st.session_state.q_marka
         current_grup = st.session_state.q_grup
 
-        df_for_marka = data_frame[data_frame[c_grup].astype(str) == current_grup] if current_grup != "Tümü" else data_frame
+        if current_grup != "Tümü":
+            df_for_marka = data_frame[data_frame[c_grup].astype(str) == current_grup]
+        else:
+            df_for_marka = data_frame
         marka_ops = ["Tümü"] + sorted([str(x) for x in df_for_marka[c_marka].dropna().unique() if str(x).lower() != 'nan'])
 
-        df_for_grup = data_frame[data_frame[c_marka].astype(str) == current_marka] if current_marka != "Tümü" else data_frame
+        if current_marka != "Tümü":
+            df_for_grup = data_frame[data_frame[c_marka].astype(str) == current_marka]
+        else:
+            df_for_grup = data_frame
         grup_ops = ["Tümü"] + sorted([str(x) for x in df_for_grup[c_grup].dropna().unique() if str(x).lower() != 'nan'])
 
-        if current_marka not in marka_ops: st.session_state.q_marka = "Tümü"
-        if current_grup not in grup_ops: st.session_state.q_grup = "Tümü"
+        if current_marka not in marka_ops:
+            st.session_state.q_marka = "Tümü"
+        if current_grup not in grup_ops:
+            st.session_state.q_grup = "Tümü"
 
-        with col1: v_search = st.text_input("📝 Ürün Ara", key=f"search_box_{st.session_state.clear_ver}", placeholder="Ürün adı veya kodu yazıp Enter'a basın...")
-        with col2: v_marka = st.selectbox("🏷️ Marka", marka_ops, key="q_marka")
-        with col3: v_grup = st.selectbox("📂 Ürün Grubu", grup_ops, key="q_grup")
+        with col1:
+            v_search = st.text_input(
+                label="📝 Ürün Ara", 
+                key=f"search_box_{st.session_state.clear_ver}",
+                placeholder="Ürün adı veya kodu yazıp Enter'a basın..."
+            )
+
+        with col2:
+            v_marka = st.selectbox("🏷️ Marka", marka_ops, key="q_marka")
+
+        with col3:
+            v_grup = st.selectbox("📂 Ürün Grubu", grup_ops, key="q_grup")
+
         with col4:
             st.markdown("<div style='height: 25px;'></div>", unsafe_allow_html=True)
             v_stok = st.checkbox("🚫 Tükenenleri Gizle", key="q_stok")
             v_sifir_stok = st.checkbox("⚠️ Sadece Tükenenleri Listele", key="q_sifir_stok")
+
         with col5:
             st.markdown("<div style='height: 28px;'></div>", unsafe_allow_html=True)
             st.button("🧹 Temizle", on_click=filtreleri_temizle, use_container_width=True)
 
+        # Filtreleme Algoritması
         f_df = data_frame.copy()
         if v_search:
             m1 = f_df[c_kod].astype(str).str.contains(v_search, case=False)
@@ -173,6 +188,7 @@ try:
             f_df = f_df[m1 | m2]
         if v_marka != "Tümü": f_df = f_df[f_df[c_marka].astype(str) == v_marka]
         if v_grup != "Tümü": f_df = f_df[f_df[c_grup].astype(str) == v_grup]
+        
         if v_stok: f_df = f_df[f_df[c_stok] > 0]
         if v_sifir_stok: f_df = f_df[f_df[c_stok] == 0]
 
@@ -180,64 +196,56 @@ try:
         t_stok = int(f_df[c_stok].sum())
         t_cost = f_df[c_maliyet].sum()
         
-        # KPI Kartları
-        k1, k2, k3 = st.columns(3)
         def kpi_card(label, val, color):
-            return f"<div style='background-color: rgba(28, 31, 46, 0.03); padding: 12px 15px; border-radius: 6px; border-left: 5px solid {color}; display: flex; justify-content: space-between; align-items: center; margin-top: 10px;'><span style='font-size:13px; color:#555; font-weight:bold;'>{label}</span><span style='font-size:1.15rem; font-weight: 800; color:#111;'>{val}</span></div>"
+            return f"""
+            <div style='background-color: rgba(28, 31, 46, 0.03); padding: 12px 15px; border-radius: 6px; border-left: 5px solid {color}; display: flex; justify-content: space-between; align-items: center; margin-top: 10px;'>
+                <span style='font-size:13px; color:#555; font-weight:bold;'>{label}</span>
+                <span style='font-size:1.15rem; font-weight: 800; color:#111;'>{val}</span>
+            </div>
+            """
+
+        k1, k2, k3 = st.columns(3)
         with k1: st.markdown(kpi_card("📋 Toplam Çesit:", f"{t_prod:,}".replace(",", ".") + " Adet", "#1E88E5"), unsafe_allow_html=True)
         with k2: st.markdown(kpi_card("📦 Toplam Stok:", f"{t_stok:,}".replace(",", ".") + " Adet", "#4CAF50"), unsafe_allow_html=True)
         with k3: st.markdown(kpi_card("💰 Toplam Maliyet:", f"${t_cost:,.0f}".replace(",", "."), "#FFC107"), unsafe_allow_html=True)
 
         st.markdown("<div style='margin-top:20px;'></div>", unsafe_allow_html=True)
         
-        # 🎯 Veri Çerçevesini Hazırlama (Metne ÇEVİRMİYORUZ ki sıralama çalışsın)
-        out_df = f_df[[c_kod, c_tanim, c_marka, c_grup, c_stok, c_not, c_fiyat, c_maliyet]].copy()
-        out_df.columns = ["Ürün Kodu", "Açıklama", "Marka", "Ürün Grubu", "Güncel Stok", "Notlar", "Birim Maliyet", "Toplam Maliyet"]
+        out_df = f_df[[c_kod, c_tanim, c_marka, c_grup, c_stok, c_fiyat, c_maliyet]].copy()
+        out_df.columns = ["Ürün Kodu", "Açıklama", "Marka", "Ürün Grubu", "Güncel Stok", "Birim Maliyet", "Toplam Maliyet"]
+        
         out_df["Ürün Kodu"] = out_df["Ürün Kodu"].astype(str)
-        out_df["Notlar"] = out_df["Notlar"].fillna("").astype(str)
-        
-        # 🎯 AG-GRID İLE TABLO YAPILANDIRMASI
-        gb = GridOptionsBuilder.from_dataframe(out_df)
-        
-        # Hizalamalar
-        gb.configure_column("Ürün Kodu", cellStyle={'textAlign': 'left'})
-        gb.configure_column("Açıklama", cellStyle={'textAlign': 'left'})
-        gb.configure_column("Marka", cellStyle={'textAlign': 'center'})
-        gb.configure_column("Ürün Grubu", cellStyle={'textAlign': 'center'})
-        
-        # 🎯 MUCİZENİN GERÇEKLEŞTİĞİ YER: STOK SÜTUNUNDA NOTLARI BALONCUK YAPMA
-        gb.configure_column("Güncel Stok", 
-                            cellStyle={'textAlign': 'center'}, 
-                            tooltipField="Notlar", 
-                            type=["numericColumn", "numberColumnFilter"])
-        
-        # Notlar sütununu tablodan gizliyoruz (sadece baloncuk için arka planda kalıyor)
-        gb.configure_column("Notlar", hide=True)
-        
-        # 🎯 Fiyatları sayısal bırakıp AgGrid'in Javascript motoruyla formatlıyoruz (Böylece sıralama kusursuz çalışır)
-        currency_format = "value != null ? '$' + value.toLocaleString('tr-TR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '$0,00'"
-        
-        gb.configure_column("Birim Maliyet", 
-                            cellStyle={'textAlign': 'right'}, 
-                            type=["numericColumn"], 
-                            valueFormatter=currency_format)
-                            
-        gb.configure_column("Toplam Maliyet", 
-                            cellStyle={'textAlign': 'right'}, 
-                            type=["numericColumn"], 
-                            valueFormatter=currency_format)
+        out_df = out_df.reset_index(drop=True)
+        raw_stok = out_df["Güncel Stok"].copy()
 
-        gridOptions = gb.build()
-        gridOptions['enableBrowserTooltips'] = True # Baloncuğun görünmesi için zorunlu
+        # Fiyat Formatlaması (Ondalıklı ve Doğru Ayırıcılar İle)
+        out_df["Birim Maliyet"] = out_df["Birim Maliyet"].apply(
+            lambda v: f"${v:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+        )
+        out_df["Toplam Maliyet"] = out_df["Toplam Maliyet"].apply(
+            lambda v: f"${v:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+        )
+        
+        out_df["Güncel Stok"] = out_df["Güncel Stok"].apply(lambda v: f"{int(v):,}".replace(",", "."))
 
-        # Tabloyu Ekrana Bas
-        AgGrid(
-            out_df,
-            gridOptions=gridOptions,
-            allow_unsafe_jscode=True,
-            columns_auto_size_mode=ColumnsAutoSizeMode.FIT_CONTENTS,
-            theme="streamlit",
-            height=540
+        def row_style(row):
+            if raw_stok.loc[row.name] == 0:
+                return ['background-color: rgba(255, 75, 75, 0.08)'] * len(row)
+            return [''] * len(row)
+
+        st.dataframe(
+            out_df.style.apply(row_style, axis=1), 
+            use_container_width=True, 
+            hide_index=True,
+            height=540,
+            column_config={
+                # Ürün Kodu sütununa alignment verilmediği için otomatik olarak sola yaslı kalır
+                "Marka": st.column_config.Column(alignment="center"),
+                "Ürün Grubu": st.column_config.Column(alignment="center"),
+                "Güncel Stok": st.column_config.Column(alignment="center"),
+                "Birim Maliyet": st.column_config.Column(alignment="right"),
+                "Toplam Maliyet": st.column_config.Column(alignment="right")
+            }
         )
 
     stok_paneli_icerik(df)
