@@ -22,6 +22,7 @@ LOGO_COLOR = "#B5C1D0"  # Logo alt yazı rengi
 if is_dark:
   bg_color = "#0E1117"
   text_color = "#FAFAFA"
+  label_color = "#FAFAFA"  # 🌟 Etiketler için okunması kolay beyaz/beyaza yakın renk
   subtext_color = "#A3A8B4"
   input_bg = LOGO_COLOR
   input_text = "#1E222A"
@@ -33,6 +34,7 @@ if is_dark:
 else:
   bg_color = "#FFFFFF"
   text_color = "#262730"
+  label_color = "#262730"  # Aydınlık mod için standart renk
   subtext_color = "#7D7F87"
   input_bg = "#E2E8F0"
   input_text = "#1A202C"
@@ -63,10 +65,11 @@ st.markdown(
             max-width: 100% !important;
         }}
         
+        /* 🌟 ETİKET STİLLERİ: Kalınlık kaldırıldı ve renk güncellendi */
         div[data-testid="stWidgetLabel"] label, 
         div[data-testid="stWidgetLabel"] p {{
-            color: {text_color} !important;
-            font-weight: 600 !important;
+            color: {label_color} !important;
+            font-weight: normal !important; 
         }}
 
         div[data-testid="stTextInput"] > div > div,
@@ -103,14 +106,19 @@ st.markdown(
             color: {input_text} !important;
         }}
 
-        /* DATAFRAME KAPSAYICI ARKA PLANINI TEMA RENGİNE ZORLAMA */
-        div[data-testid="stDataFrame"], div[data-testid="stDataFrame"] > div {{
-            --secondary-background-color: {header_bg} !important;
+        /* 🌟 DATAFRAME BEYAZ ŞERİT DÜZELTMESİ: Arka plan bg_color'a sabitlendi */
+        div[data-testid="stDataFrame"], 
+        div[data-testid="stDataFrame"] > div,
+        div[data-testid="stDataFrame"] > div > div {{
+            --secondary-background-color: {bg_color} !important;
+            --background-color: {bg_color} !important;
             background-color: {bg_color} !important;
         }}
 
+        /* 🌟 CHECKBOX STİLLERİ: Kalınlık kaldırıldı ve renk güncellendi */
         div[data-testid="stCheckbox"] label span {{
-            color: {text_color} !important;
+            color: {label_color} !important;
+            font-weight: normal !important;
         }}
         div[data-testid="stCheckbox"] {{
             margin-bottom: -15px !important;
@@ -435,10 +443,9 @@ try:
           ] * len(row)
         return [""] * len(row)
 
-    # 📏 DİNAMİK YÜKSEKLİK HESAPLAMA EKLENDİ
-    # Satır başı ~35px + Başlık için ~42px. Maksimum 540px, Minimum 100px.
+    # 📏 DİNAMİK YÜKSEKLİK HESAPLAMA (Görünüm ayarları sabit bırakıldı)
     row_count = len(out_df)
-    calculated_height = (row_count * 35) + 42
+    calculated_height = (row_count * 36) + 40
     
     if row_count == 0:
         dynamic_height = 100
@@ -451,7 +458,7 @@ try:
         out_df.style.apply(row_style, axis=1),
         use_container_width=True,
         hide_index=True,
-        height=dynamic_height,  # Sabit 540px yerine hesaplanan yüksekliği veriyoruz
+        height=dynamic_height,
         column_config={
             "Marka": st.column_config.Column(alignment="center"),
             "Ürün Grubu": st.column_config.Column(alignment="center"),
