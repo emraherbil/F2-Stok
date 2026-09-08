@@ -22,6 +22,7 @@ LOGO_COLOR = "#B5C1D0"  # Logo alt yazı rengi
 if is_dark:
   bg_color = "#0E1117"
   text_color = "#FAFAFA"
+  label_color = "#D1D5DB"  # 🌟 Karanlık modda etiketler için daha okunabilir açık gri
   subtext_color = "#A3A8B4"
   input_bg = LOGO_COLOR
   input_text = "#1E222A"
@@ -33,6 +34,7 @@ if is_dark:
 else:
   bg_color = "#FFFFFF"
   text_color = "#262730"
+  label_color = "#262730"  # Aydınlık mod için standart renk
   subtext_color = "#7D7F87"
   input_bg = "#E2E8F0"
   input_text = "#1A202C"
@@ -65,7 +67,7 @@ st.markdown(
         
         div[data-testid="stWidgetLabel"] label, 
         div[data-testid="stWidgetLabel"] p {{
-            color: {text_color} !important;
+            color: {label_color} !important;
             font-weight: 600 !important;
         }}
 
@@ -110,7 +112,7 @@ st.markdown(
         }}
 
         div[data-testid="stCheckbox"] label span {{
-            color: {text_color} !important;
+            color: {label_color} !important;
         }}
         div[data-testid="stCheckbox"] {{
             margin-bottom: -15px !important;
@@ -236,6 +238,7 @@ try:
       f" border-color:{'#333333' if is_dark else '#e0e0e0'};'>",
       unsafe_allow_html=True,
   )
+
 
   # ==========================================
   # 4. FRAGMENT ALANI
@@ -435,23 +438,21 @@ try:
           ] * len(row)
         return [""] * len(row)
 
-    # 📏 DİNAMİK YÜKSEKLİK HESAPLAMA EKLENDİ
-    # Satır başı ~35px + Başlık için ~42px. Maksimum 540px, Minimum 100px.
     row_count = len(out_df)
     calculated_height = (row_count * 35) + 42
-    
+
     if row_count == 0:
-        dynamic_height = 100
+      dynamic_height = 100
     elif calculated_height > 540:
-        dynamic_height = 540
+      dynamic_height = 540
     else:
-        dynamic_height = calculated_height
+      dynamic_height = calculated_height
 
     st.dataframe(
         out_df.style.apply(row_style, axis=1),
         use_container_width=True,
         hide_index=True,
-        height=dynamic_height,  # Sabit 540px yerine hesaplanan yüksekliği veriyoruz
+        height=dynamic_height,
         column_config={
             "Marka": st.column_config.Column(alignment="center"),
             "Ürün Grubu": st.column_config.Column(alignment="center"),
