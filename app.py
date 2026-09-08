@@ -363,7 +363,6 @@ try:
     t_cost = f_df[c_maliyet].sum()
 
     def kpi_card(label, val, color):
-      # 🌟 Yalnızca üst taraftaki boşluğu (margin-top) muhafaza ettim
       return f"""
             <div style='background-color: {card_bg}; padding: 12px 15px; border-radius: 6px; border-left: 5px solid {color}; display: flex; justify-content: space-between; align-items: center; margin-top: 10px;'>
                 <span style='font-size:13px; color:{card_label}; font-weight:bold;'>{label}</span>
@@ -400,8 +399,6 @@ try:
           unsafe_allow_html=True,
       )
 
-    # 🌟 BURASI ÖNEMLİ: Tabloyu Streamlit'in boşluk kısıtlamalarından kurtarıp 
-    # sabit ve net bir mesafeyle (25px) aşağı itiyoruz.
     st.markdown("<div style='height: 25px;'></div>", unsafe_allow_html=True)
 
     out_df = f_df[[
@@ -456,14 +453,13 @@ try:
         return [""] * len(row)
 
     row_count = len(out_df)
-    calculated_height = (row_count * 36) + 40
-
+    
+    # 🌟 Tablo yüksekliği artık fazladan boşluk bırakmayacak şekilde tam içeriğe göre hesaplanıyor
     if row_count == 0:
       dynamic_height = 100
-    elif calculated_height > 540:
-      dynamic_height = 540
     else:
-      dynamic_height = calculated_height
+      calculated_height = (row_count * 35) + 38
+      dynamic_height = min(calculated_height, 540)
 
     st.dataframe(
         out_df.style.apply(row_style, axis=1),
