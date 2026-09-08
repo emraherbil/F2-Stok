@@ -30,7 +30,7 @@ if is_dark:
   card_bg = "#2A2F3B"
   card_text = "#FFFFFF"
   card_label = "#D1D5DB"
-  table_bg = "#1E222A"  # 🎯 Dark mod tablo satır ve arkaplan rengi
+  table_bg = "#1E222A"
 else:
   bg_color = "#FFFFFF"
   text_color = "#262730"
@@ -42,7 +42,7 @@ else:
   card_bg = "rgba(28, 31, 46, 0.03)"
   card_text = "#111111"
   card_label = "#555555"
-  table_bg = "#FFFFFF"  # 🎯 Açık mod tablo satır ve arkaplan rengi
+  table_bg = "#FFFFFF"
 
 st.markdown(
     f"""
@@ -51,10 +51,7 @@ st.markdown(
         .viewerBadge_container {{display: none !important;}}
         header {{visibility: hidden !important; display: none !important;}}
         
-        /* 1. ROOT SEVİYESİNDE YALNIZCA ANA ARKA PLANLARI ETKİLE (Sızmayı Engeller) */
         :root, [data-testid="stAppViewContainer"], .stApp {{
-            --background-color: {bg_color} !important;
-            --text-color: {text_color} !important;
             background-color: {bg_color} !important;
             color: {text_color} !important;
         }}
@@ -105,30 +102,16 @@ st.markdown(
             color: {input_text} !important;
         }}
 
-        /* ========================================================
-           2. DATAFRAME ÖZEL STİL KONTROLÜ (BEYAZ ŞERİT ÇÖZÜMÜ)
-           ======================================================== */
-        /* Sadece tabloya özel başlık rengi */
         div[data-testid="stDataFrame"] {{
             --secondary-background-color: {header_bg} !important;
         }}
 
-        /* Tablonun kapsayıcı dış çerçevesi ve alt boşlukları satır rengiyle aynı olsun */
         div[data-testid="stDataFrame"] > div {{
             background-color: {table_bg} !important;
             border: 1px solid {input_border} !important;
             border-radius: 6px !important;
             overflow: hidden !important;
         }}
-
-        /* Kaydırma çubuğu (scrollbar) arka planlarının beyaz görünmesini engelleme */
-        div[data-testid="stDataFrame"] ::-webkit-scrollbar-track {{
-            background: {table_bg} !important;
-        }}
-        div[data-testid="stDataFrame"] ::-webkit-scrollbar-corner {{
-            background: {table_bg} !important;
-        }}
-        /* ======================================================== */
 
         div[data-testid="stCheckbox"] label span {{
             color: {text_color} !important;
@@ -257,6 +240,7 @@ try:
       f" border-color:{'#333333' if is_dark else '#e0e0e0'};'>",
       unsafe_allow_html=True,
   )
+
 
   # ==========================================
   # 4. FRAGMENT ALANI
@@ -456,17 +440,15 @@ try:
           ] * len(row)
         return [""] * len(row)
 
-    # 📏 DİNAMİK YÜKSEKLİK HESAPLAMA (Daha Hassas Ayar)
-    # Streamlit Tablo Satırı: 35px, Tablo Başlığı: 38px
     row_count = len(out_df)
     calculated_height = (row_count * 35) + 38
-    
+
     if row_count == 0:
-        dynamic_height = 100
+      dynamic_height = 100
     elif calculated_height > 540:
-        dynamic_height = 540
+      dynamic_height = 540
     else:
-        dynamic_height = calculated_height
+      dynamic_height = calculated_height
 
     st.dataframe(
         out_df.style.apply(row_style, axis=1),
@@ -484,5 +466,5 @@ try:
 
   stok_paneli_icerik(df)
 
-except Exception as e:
-  st.error(f"Hata oluştu: {e}")
+except Exception as er:
+  st.error(f"Hata oluştu: {er}")
