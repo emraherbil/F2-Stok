@@ -22,7 +22,9 @@ LOGO_COLOR = "#B5C1D0"  # Logo alt yazı rengi
 if is_dark:
   bg_color = "#0E1117"
   text_color = "#FAFAFA"
-  label_color = "#FAFAFA"  # 🌟 Etiketler için okunması kolay beyaz/beyaza yakın renk
+  label_color = (
+      "#F1F5F9"  # 🌟 Karanlık mod için beyaza yakın soft ve net bir ton
+  )
   subtext_color = "#A3A8B4"
   input_bg = LOGO_COLOR
   input_text = "#1E222A"
@@ -65,9 +67,12 @@ st.markdown(
             max-width: 100% !important;
         }}
         
-        /* 🌟 ETİKET STİLLERİ: Kalınlık kaldırıldı ve renk güncellendi */
+        /* 🌟 ETİKETLER KÖKTEN DÜZELTİLDİ: Tüm alt elemanlar hedeflendi */
+        div[data-testid="stWidgetLabel"],
+        div[data-testid="stWidgetLabel"] *,
         div[data-testid="stWidgetLabel"] label, 
-        div[data-testid="stWidgetLabel"] p {{
+        div[data-testid="stWidgetLabel"] p,
+        div[data-testid="stWidgetLabel"] span {{
             color: {label_color} !important;
             font-weight: normal !important; 
         }}
@@ -106,7 +111,7 @@ st.markdown(
             color: {input_text} !important;
         }}
 
-        /* 🌟 DATAFRAME BEYAZ ŞERİT DÜZELTMESİ: Arka plan bg_color'a sabitlendi */
+        /* 🌟 DATAFRAME BEYAZ ŞERİT DÜZELTMESİ */
         div[data-testid="stDataFrame"], 
         div[data-testid="stDataFrame"] > div,
         div[data-testid="stDataFrame"] > div > div {{
@@ -115,7 +120,6 @@ st.markdown(
             background-color: {bg_color} !important;
         }}
 
-        /* 🌟 CHECKBOX STİLLERİ: Kalınlık kaldırıldı ve renk güncellendi */
         div[data-testid="stCheckbox"] label span {{
             color: {label_color} !important;
             font-weight: normal !important;
@@ -443,16 +447,15 @@ try:
           ] * len(row)
         return [""] * len(row)
 
-    # 📏 DİNAMİK YÜKSEKLİK HESAPLAMA (Görünüm ayarları sabit bırakıldı)
     row_count = len(out_df)
     calculated_height = (row_count * 36) + 40
-    
+
     if row_count == 0:
-        dynamic_height = 100
+      dynamic_height = 100
     elif calculated_height > 540:
-        dynamic_height = 540
+      dynamic_height = 540
     else:
-        dynamic_height = calculated_height
+      dynamic_height = calculated_height
 
     st.dataframe(
         out_df.style.apply(row_style, axis=1),
