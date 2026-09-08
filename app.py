@@ -5,7 +5,7 @@ import base64
 from pathlib import Path
 
 # ==========================================
-# 1. SAYFA YAPILANDIRMASI VE KÜRESEL STİLLER
+# 1. SAYFA YAPILANDIRMASI
 # ==========================================
 st.set_page_config(
     page_title="F2 ICT - Ofis Stok İzleme Paneli", 
@@ -13,40 +13,61 @@ st.set_page_config(
     layout="wide"
 )
 
-# 🎯 TEMİZ, GÜVENLİ VE SİSTEMİ BOZMAYAN CSS
-st.markdown("""
+# 🎯 DARK / LIGHT MOD DURUMU VE DİNAMİK CSS
+if "dark_mode" not in st.session_state:
+    st.session_state.dark_mode = False
+
+is_dark = st.session_state.dark_mode
+
+bg_color = "#0E1117" if is_dark else "transparent"
+text_color = "#FAFAFA" if is_dark else "#262730"
+subtext_color = "#A3A8B4" if is_dark else "#7d7f87"
+card_bg = "rgba(255, 255, 255, 0.05)" if is_dark else "rgba(28, 31, 46, 0.03)"
+card_text = "#FFFFFF" if is_dark else "#111111"
+card_label = "#AAAAAA" if is_dark else "#555555"
+
+st.markdown(f"""
     <style>
-        footer {visibility: hidden !important; display: none !important;}
-        .viewerBadge_container {display: none !important;}
-        header {visibility: hidden !important; display: none !important;}
+        footer {{visibility: hidden !important; display: none !important;}}
+        .viewerBadge_container {{display: none !important;}}
+        header {{visibility: hidden !important; display: none !important;}}
         
-        html, body, .stApp { background-color: transparent !important; }
+        html, body, .stApp {{ 
+            background-color: {bg_color} !important; 
+            color: {text_color} !important;
+        }}
         
-        .block-container { 
+        .block-container {{ 
             padding-top: 1.5rem !important; 
             padding-bottom: 1.5rem !important; 
             max-width: 100% !important;
-        }
+        }}
         
-        .custom-header-container { 
+        .custom-header-container {{ 
             display: flex; 
             align-items: center; 
-            gap: 25px; 
+            justify-content: space-between;
             padding-bottom: 10px;
-            border-bottom: 1px solid #e0e0e0;
+            border-bottom: 1px solid {"#333333" if is_dark else "#e0e0e0"};
             margin-bottom: 20px;
-        }
-        .custom-logo { height: 60px; object-fit: contain; }
-        .custom-title-block { display: flex; flex-direction: column; justify-content: center; }
+        }}
+        .custom-header-left {{
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }}
+        .custom-logo {{ height: 60px; object-fit: contain; }}
+        .custom-title-block {{ display: flex; flex-direction: column; justify-content: center; }}
         
-        div[data-testid="stCheckbox"] {
+        div[data-testid="stCheckbox"] {{
             margin-bottom: -15px !important;
-        }
-        div[data-testid="stCheckbox"] label {
+        }}
+        div[data-testid="stCheckbox"] label {{
             font-size: 0.9rem !important;
-        }
+            color: {text_color} !important;
+        }}
 
-        .stButton > button { 
+        .stButton > button {{ 
             background-color: #1C355E !important; 
             color: white !important; 
             border: 1px solid #1C355E !important; 
@@ -55,12 +76,12 @@ st.markdown("""
             width: 100% !important; 
             font-weight: 500 !important;
             transition: all 0.2s !important;
-        }
-        .stButton > button:hover { 
+        }}
+        .stButton > button:hover {{ 
             background-color: #12223c !important;
             border: 1px solid #12223c !important;
             color: white !important; 
-        }
+        }}
     </style>
 """, unsafe_allow_html=True)
 
@@ -108,15 +129,26 @@ try:
     else:
         logo_html = '<div style="font-size: 2.5rem;">📦</div>'
 
-    st.markdown(f"""
-        <div class="custom-header-container">
-            {logo_html}
-            <div class="custom-title-block">
-                <h2 style="margin:0; padding:0; font-size:1.85rem; color:#262730; font-weight:700; line-height:1.2;">Ofis Stok İzleme Paneli</h2>
-                <span style="color:#7d7f87; font-size:0.85rem; margin-top:4px;">📅 <b>Son Güncelleme / Sayım Tarihi:</b> {c_stok}</span>
+    # Üst başlık alanı ve Dark Mode anahtarı (Koyukaydırıcı)
+    header_col1, header_col2 = st.columns([8.5, 1.5])
+    
+    with header_col1:
+        st.markdown(f"""
+            <div class="custom-header-container" style="border-bottom:none; margin-bottom:0; padding-bottom:0;">
+                <div class="custom-header-left">
+                    {logo_html}
+                    <div class="custom-title-block">
+                        <h2 style="margin:0; padding:0; font-size:1.85rem; color:{text_color}; font-weight:700; line-height:1.2;">Ofis Stok İzleme Paneli</h2>
+                        <span style="color:{subtext_color}; font-size:0.85rem; margin-top:4px;">📅 <b>Son Güncelleme / Sayım Tarihi:</b> {c_stok}</span>
+                    </div>
+                </div>
             </div>
-        </div>
-        """, unsafe_allow_html=True)
+            """, unsafe_allow_html=True)
+
+    with header_col2:
+        st.toggle("🌙 Karanlık Mod", key="dark_mode")
+
+    st.markdown(f"<hr style='margin-top:10px; margin-bottom:20px; border-color:{'#333333' if is_dark else '#e0e0e0'};'>", unsafe_allow_html=True)
 
     # ==========================================
     # 4. FRAGMENT ALANI 
@@ -198,9 +230,9 @@ try:
         
         def kpi_card(label, val, color):
             return f"""
-            <div style='background-color: rgba(28, 31, 46, 0.03); padding: 12px 15px; border-radius: 6px; border-left: 5px solid {color}; display: flex; justify-content: space-between; align-items: center; margin-top: 10px;'>
-                <span style='font-size:13px; color:#555; font-weight:bold;'>{label}</span>
-                <span style='font-size:1.15rem; font-weight: 800; color:#111;'>{val}</span>
+            <div style='background-color: {card_bg}; padding: 12px 15px; border-radius: 6px; border-left: 5px solid {color}; display: flex; justify-content: space-between; align-items: center; margin-top: 10px;'>
+                <span style='font-size:13px; color:{card_label}; font-weight:bold;'>{label}</span>
+                <span style='font-size:1.15rem; font-weight: 800; color:{card_text};'>{val}</span>
             </div>
             """
 
@@ -230,7 +262,8 @@ try:
 
         def row_style(row):
             if raw_stok.loc[row.name] == 0:
-                return ['background-color: rgba(255, 75, 75, 0.08)'] * len(row)
+                bg_highlight = 'rgba(255, 75, 75, 0.2)' if is_dark else 'rgba(255, 75, 75, 0.08)'
+                return [f'background-color: {bg_highlight}'] * len(row)
             return [''] * len(row)
 
         st.dataframe(
@@ -239,7 +272,6 @@ try:
             hide_index=True,
             height=540,
             column_config={
-                # Ürün Kodu sütununa alignment verilmediği için otomatik olarak sola yaslı kalır
                 "Marka": st.column_config.Column(alignment="center"),
                 "Ürün Grubu": st.column_config.Column(alignment="center"),
                 "Güncel Stok": st.column_config.Column(alignment="center"),
