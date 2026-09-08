@@ -34,10 +34,10 @@ else:
   bg_color = "#FFFFFF"
   text_color = "#262730"
   subtext_color = "#7D7F87"
-  input_bg = "#E2E8F0"
+  input_bg = "#E2E8F0"  # Açık modda logodan esinlenen hafif açık ton
   input_text = "#1A202C"
   input_border = "#CBD5E0"
-  header_bg = LOGO_COLOR
+  header_bg = LOGO_COLOR  # Tablo başlığı açık modda da logo rengi
   card_bg = "rgba(28, 31, 46, 0.03)"
   card_text = "#111111"
   card_label = "#555555"
@@ -49,6 +49,7 @@ st.markdown(
         .viewerBadge_container {{display: none !important;}}
         header {{visibility: hidden !important; display: none !important;}}
         
+        /* STREAMLIT GLOBAL CANVASI DİNAMİK AŞMA (TABLO BAŞLIĞINI ETKİLER) */
         :root, [data-testid="stAppViewContainer"], .stApp {{
             --background-color: {bg_color} !important;
             --secondary-background-color: {header_bg} !important;
@@ -63,12 +64,14 @@ st.markdown(
             max-width: 100% !important;
         }}
         
+        /* GİRDİ KUTUSU ETİKETLERİ */
         div[data-testid="stWidgetLabel"] label, 
         div[data-testid="stWidgetLabel"] p {{
             color: {text_color} !important;
             font-weight: 600 !important;
         }}
 
+        /* 🎯 DİNAMİK AÇILAN KUTULAR VE ARAMA INPUT ARKA PLAN RENGİ */
         div[data-testid="stTextInput"] > div > div,
         div[data-testid="stSelectbox"] > div > div,
         div[data-baseweb="base-input"],
@@ -88,6 +91,7 @@ st.markdown(
             color: #4A5568 !important;
         }}
 
+        /* SELECTBOX METİN VE İKONLARI */
         div[data-testid="stSelectbox"] div[role="button"],
         div[data-baseweb="select"] span,
         div[data-baseweb="select"] svg {{
@@ -96,6 +100,7 @@ st.markdown(
             font-weight: 600 !important;
         }}
 
+        /* POPUP LİSTE MENÜSÜ */
         div[data-baseweb="popover"] div,
         div[data-baseweb="menu"],
         div[data-baseweb="option"] {{
@@ -103,12 +108,12 @@ st.markdown(
             color: {input_text} !important;
         }}
 
-        /* DATAFRAME KAPSAYICI ARKA PLANINI TEMA RENGİNE ZORLAMA */
-        div[data-testid="stDataFrame"], div[data-testid="stDataFrame"] > div {{
+        /* 🎯 DATAFRAME CANVAS & HEADER ÖZELLEŞTİRME */
+        div[data-testid="stDataFrame"] {{
             --secondary-background-color: {header_bg} !important;
-            background-color: {bg_color} !important;
         }}
 
+        /* CHECKBOX YAZILARI */
         div[data-testid="stCheckbox"] label span {{
             color: {text_color} !important;
         }}
@@ -116,6 +121,7 @@ st.markdown(
             margin-bottom: -15px !important;
         }}
 
+        /* TOGGLE BUTONU */
         div[data-testid="stToggle"] div[role="switch"] {{
             background-color: rgba(104, 162, 185, 0.3) !important;
         }}
@@ -435,23 +441,11 @@ try:
           ] * len(row)
         return [""] * len(row)
 
-    # 📏 DİNAMİK YÜKSEKLİK HESAPLAMA EKLENDİ
-    # Satır başı ~35px + Başlık için ~42px. Maksimum 540px, Minimum 100px.
-    row_count = len(out_df)
-    calculated_height = (row_count * 35) + 42
-    
-    if row_count == 0:
-        dynamic_height = 100
-    elif calculated_height > 540:
-        dynamic_height = 540
-    else:
-        dynamic_height = calculated_height
-
     st.dataframe(
         out_df.style.apply(row_style, axis=1),
         use_container_width=True,
         hide_index=True,
-        height=dynamic_height,  # Sabit 540px yerine hesaplanan yüksekliği veriyoruz
+        height=540,
         column_config={
             "Marka": st.column_config.Column(alignment="center"),
             "Ürün Grubu": st.column_config.Column(alignment="center"),
