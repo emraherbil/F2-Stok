@@ -311,13 +311,13 @@ try:
         
         out_df["Güncel Stok"] = out_df["Güncel Stok"].apply(lambda v: f"{int(v):,}".replace(",", "."))
 
-        # 🟢 TABLO İÇİ DİNAMİK RENKLENDİRME (Tükenenler için her iki modda da uçuk kırmızı ton)
+        # 🟢 TABLO İÇİ DİNAMİK RENKLENDİRME (Karanlık modda tükenenler için koyu gri)
         def row_style(row):
             is_zero = raw_stok.loc[row.name] == 0
             
             if is_dark:
-                # Karanlık mod: Tükenenler için hafif/uçuk kırmızı, diğerleri koyu gri
-                bg = 'rgba(255, 75, 75, 0.22)' if is_zero else '#1E222A'
+                # Karanlık mod: Tükenenler için şık bir koyu gri tonu (#2A2F3B veya benzeri)
+                bg = '#2A2F3B' if is_zero else '#1E222A'
                 color = '#F5F5F5'
                 return [f'background-color: {bg}; color: {color}'] * len(row)
             else:
