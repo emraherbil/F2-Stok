@@ -13,15 +13,17 @@ st.set_page_config(
     layout="wide"
 )
 
-# 🎯 DARK / LIGHT MOD DURUMU VE DİNAMİK CSS
+# 🎯 DARK / LIGHT MOD DURUMU VE GELİŞMİŞ CSS FİX
 if "dark_mode" not in st.session_state:
     st.session_state.dark_mode = False
 
 is_dark = st.session_state.dark_mode
 
-bg_color = "#0E1117" if is_dark else "transparent"
+bg_color = "#0E1117" if is_dark else "#FFFFFF"
+input_bg = "#1E222A" if is_dark else "#FFFFFF"
+input_border = "#383E4A" if is_dark else "#D3D3D3"
 text_color = "#FAFAFA" if is_dark else "#262730"
-subtext_color = "#A3A8B4" if is_dark else "#7d7f87"
+subtext_color = "#A3A8B4" if is_dark else "#7D7F87"
 card_bg = "rgba(255, 255, 255, 0.05)" if is_dark else "rgba(28, 31, 46, 0.03)"
 card_text = "#FFFFFF" if is_dark else "#111111"
 card_label = "#AAAAAA" if is_dark else "#555555"
@@ -32,6 +34,13 @@ st.markdown(f"""
         .viewerBadge_container {{display: none !important;}}
         header {{visibility: hidden !important; display: none !important;}}
         
+        /* STREAMLIT GLOBAL CSS DEĞİŞKENLERİ (Tablo ve Temel Bileşenler İçin) */
+        :root {{
+            --background-color: {bg_color} !important;
+            --secondary-background-color: {input_bg} !important;
+            --text-color: {text_color} !important;
+        }}
+
         html, body, .stApp {{ 
             background-color: {bg_color} !important; 
             color: {text_color} !important;
@@ -43,12 +52,61 @@ st.markdown(f"""
             max-width: 100% !important;
         }}
         
+        /* GİRDİ KUTUSU ETİKETLERİ (Açılan kutuların üstündeki siyah yazılar) */
+        div[data-testid="stWidgetLabel"] label, 
+        div[data-testid="stWidgetLabel"] p,
+        label[data-testid="stWidgetLabel"] {{
+            color: {text_color} !important;
+            font-weight: 600 !important;
+        }}
+
+        /* TEXT INPUT VE SELECTBOX KUTULARININ ARKA PLANI */
+        div[data-baseweb="input"], 
+        div[data-baseweb="select"] > div {{
+            background-color: {input_bg} !important;
+            color: {text_color} !important;
+            border-color: {input_border} !important;
+        }}
+
+        div[data-baseweb="input"] input {{
+            color: {text_color} !important;
+        }}
+
+        /* SELECTBOX OK SİMGESİ VE METİNLERİ */
+        div[data-baseweb="select"] span, 
+        div[data-baseweb="select"] svg {{
+            color: {text_color} !important;
+            fill: {text_color} !important;
+        }}
+
+        /* SELECTBOX AÇILAN LİSTE MENÜSÜ */
+        div[data-baseweb="popover"] div,
+        div[data-baseweb="option"] {{
+            background-color: {input_bg} !important;
+            color: {text_color} !important;
+        }}
+        div[data-baseweb="option"]:hover {{
+            background-color: {"#2D323E" if is_dark else "#EAEAEA"} !important;
+        }}
+
+        /* CHECKBOX YAZILARI */
+        div[data-testid="stCheckbox"] label span {{
+            color: {text_color} !important;
+        }}
+        div[data-testid="stCheckbox"] {{
+            margin-bottom: -15px !important;
+        }}
+
+        /* TABLO CONTAINER GÖRÜNÜMÜ */
+        [data-testid="stDataFrame"] {{
+            background-color: {input_bg} !important;
+        }}
+
         .custom-header-container {{ 
             display: flex; 
             align-items: center; 
             justify-content: space-between;
             padding-bottom: 10px;
-            border-bottom: 1px solid {"#333333" if is_dark else "#e0e0e0"};
             margin-bottom: 20px;
         }}
         .custom-header-left {{
@@ -58,14 +116,6 @@ st.markdown(f"""
         }}
         .custom-logo {{ height: 60px; object-fit: contain; }}
         .custom-title-block {{ display: flex; flex-direction: column; justify-content: center; }}
-        
-        div[data-testid="stCheckbox"] {{
-            margin-bottom: -15px !important;
-        }}
-        div[data-testid="stCheckbox"] label {{
-            font-size: 0.9rem !important;
-            color: {text_color} !important;
-        }}
 
         .stButton > button {{ 
             background-color: #1C355E !important; 
@@ -129,7 +179,6 @@ try:
     else:
         logo_html = '<div style="font-size: 2.5rem;">📦</div>'
 
-    # Üst başlık alanı ve Dark Mode anahtarı (Koyukaydırıcı)
     header_col1, header_col2 = st.columns([8.5, 1.5])
     
     with header_col1:
@@ -212,7 +261,6 @@ try:
             st.markdown("<div style='height: 28px;'></div>", unsafe_allow_html=True)
             st.button("🧹 Temizle", on_click=filtreleri_temizle, use_container_width=True)
 
-        # Filtreleme Algoritması
         f_df = data_frame.copy()
         if v_search:
             m1 = f_df[c_kod].astype(str).str.contains(v_search, case=False)
@@ -250,7 +298,6 @@ try:
         out_df = out_df.reset_index(drop=True)
         raw_stok = out_df["Güncel Stok"].copy()
 
-        # Fiyat Formatlaması (Ondalıklı ve Doğru Ayırıcılar İle)
         out_df["Birim Maliyet"] = out_df["Birim Maliyet"].apply(
             lambda v: f"${v:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
         )
@@ -262,7 +309,7 @@ try:
 
         def row_style(row):
             if raw_stok.loc[row.name] == 0:
-                bg_highlight = 'rgba(255, 75, 75, 0.2)' if is_dark else 'rgba(255, 75, 75, 0.08)'
+                bg_highlight = 'rgba(255, 75, 75, 0.25)' if is_dark else 'rgba(255, 75, 75, 0.08)'
                 return [f'background-color: {bg_highlight}'] * len(row)
             return [''] * len(row)
 
