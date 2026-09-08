@@ -98,10 +98,11 @@ st.markdown(f"""
             margin-bottom: -15px !important;
         }}
 
-        /* 🟢 KARANLIK MOD TOGGLE BUTONU RENGİ (#68A2B9) */
-        div[data-testid="stToggle"] [data-baseweb="checkbox"] div[data-checked="true"],
-        div[data-testid="stToggle"] div[data-checked="true"] > div,
-        div[data-testid="stToggle"] input:checked + div {{
+        /* 🟢 KESİN ÇÖZÜM: KARANLIK MOD TOGGLE BUTONU RENGİ (#68A2B9) */
+        div[data-testid="stToggle"] div[role="switch"] {{
+            background-color: rgba(104, 162, 185, 0.3) !important;
+        }}
+        div[data-testid="stToggle"] div[role="switch"][aria-checked="true"] {{
             background-color: #68A2B9 !important;
         }}
 
@@ -310,18 +311,17 @@ try:
         
         out_df["Güncel Stok"] = out_df["Güncel Stok"].apply(lambda v: f"{int(v):,}".replace(",", "."))
 
-        # 🟢 TABLO İÇİ DİNAMİK RENKLENDİRME (Karanlık/Aydınlık Mod Uyumlu - Özel Mavi Tonlu)
+        # 🟢 TABLO İÇİ DİNAMİK RENKLENDİRME (Hafif ve Uyumlu Tonlar)
         def row_style(row):
             is_zero = raw_stok.loc[row.name] == 0
             
             if is_dark:
-                # Karanlık mod: Tükenenlere #68A2B9 (logo rengi), diğerlerine koyu arka plan
-                bg = '#68A2B9' if is_zero else '#1E222A'
-                # Yazı rengi: #68A2B9 üzerindeki metnin okunabilirliği için beyazımsı renk tercih edildi
-                color = '#FFFFFF' if is_zero else '#F5F5F5' 
+                # Karanlık mod: Tükenenler için #68A2B9 tonunun hafif şeffaf versiyonu (arka planı boğmaz)
+                bg = 'rgba(104, 162, 185, 0.18)' if is_zero else '#1E222A'
+                color = '#F5F5F5'
                 return [f'background-color: {bg}; color: {color}'] * len(row)
             else:
-                # Aydınlık mod: Tükenenlere açık kırmızı, diğerleri varsayılan
+                # Aydınlık mod: Tükenenler için hafif kırmızı/pembe
                 if is_zero:
                     return ['background-color: rgba(255, 75, 75, 0.15); color: #000000'] * len(row)
                 return [''] * len(row)
