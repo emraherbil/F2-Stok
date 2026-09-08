@@ -363,7 +363,6 @@ try:
     t_cost = f_df[c_maliyet].sum()
 
     def kpi_card(label, val, color):
-      # 🌟 Kartın üst marjini hassas olarak 5px artırıldı
       return f"""
             <div style='background-color: {card_bg}; padding: 12px 15px; border-radius: 6px; border-left: 5px solid {color}; display: flex; justify-content: space-between; align-items: center; margin-top: 5px;'>
                 <span style='font-size:13px; color:{card_label}; font-weight:bold;'>{label}</span>
@@ -400,8 +399,8 @@ try:
           unsafe_allow_html=True,
       )
 
-    # 🌟 Kart ile tablo arasındaki boşluk da aynı oranda (5px) ayarlandı
-    st.markdown("<div style='margin-top:5px;'></div>", unsafe_allow_html=True)
+    # 🌟 Kartlar ile tablo arasındaki boşluk 3px artırılarak 8px yapıldı
+    st.markdown("<div style='margin-top:8px;'></div>", unsafe_allow_html=True)
 
     out_df = f_df[[
         c_kod,
