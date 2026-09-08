@@ -363,8 +363,9 @@ try:
     t_cost = f_df[c_maliyet].sum()
 
     def kpi_card(label, val, color):
+      # 🌟 Metin kutusu ile bilgi kartı arasındaki üst boşluk (margin-top) uygulandı
       return f"""
-            <div style='background-color: {card_bg}; padding: 12px 15px; border-radius: 6px; border-left: 5px solid {color}; display: flex; justify-content: space-between; align-items: center; margin-top: 10px;'>
+            <div style='background-color: {card_bg}; padding: 12px 15px; border-radius: 6px; border-left: 5px solid {color}; display: flex; justify-content: space-between; align-items: center; margin-top: 15px;'>
                 <span style='font-size:13px; color:{card_label}; font-weight:bold;'>{label}</span>
                 <span style='font-size:1.15rem; font-weight: 800; color:{card_text};'>{val}</span>
             </div>
@@ -399,8 +400,8 @@ try:
           unsafe_allow_html=True,
       )
 
-    # 🌟 Bilgi kartları ile tablo arasındaki boşluk 10px olarak ayarlandı
-    st.markdown("<div style='margin-top:10px;'></div>", unsafe_allow_html=True)
+    # 🌟 Bilgi kartı ile tablo arasındaki boşluk da aynı değere (15px) ayarlandı
+    st.markdown("<div style='margin-top:15px;'></div>", unsafe_allow_html=True)
 
     out_df = f_df[[
         c_kod,
