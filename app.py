@@ -16,17 +16,31 @@ if "dark_mode" not in st.session_state:
 
 is_dark = st.session_state.dark_mode
 
-# Renk Paleti
-bg_color = "#0E1117" if is_dark else "#FFFFFF"
-input_border = "#383E4A" if is_dark else "#D3D3D3"
-text_color = "#FAFAFA" if is_dark else "#262730"
-subtext_color = "#A3A8B4" if is_dark else "#7D7F87"
-card_bg = "#2A2F3B" if is_dark else "rgba(28, 31, 46, 0.03)"
-card_text = "#FFFFFF" if is_dark else "#111111"
-card_label = "#D1D5DB" if is_dark else "#555555"
+# 🎨 LOGO RENK PALETİ ("Information Communication Technologies")
+LOGO_COLOR = "#B5C1D0"  # Logo alt yazı rengi
 
-# 🎨 Logo Alt Metni Rengi (Information Communication Technologies)
-logo_sub_color = "#B5C1D0"
+if is_dark:
+  bg_color = "#0E1117"
+  text_color = "#FAFAFA"
+  subtext_color = "#A3A8B4"
+  input_bg = LOGO_COLOR
+  input_text = "#1E222A"
+  input_border = "#383E4A"
+  header_bg = LOGO_COLOR
+  card_bg = "#2A2F3B"
+  card_text = "#FFFFFF"
+  card_label = "#D1D5DB"
+else:
+  bg_color = "#FFFFFF"
+  text_color = "#262730"
+  subtext_color = "#7D7F87"
+  input_bg = "#E2E8F0"  # Açık modda logodan esinlenen hafif açık ton
+  input_text = "#1A202C"
+  input_border = "#CBD5E0"
+  header_bg = LOGO_COLOR  # Tablo başlığı açık modda da logo rengi
+  card_bg = "rgba(28, 31, 46, 0.03)"
+  card_text = "#111111"
+  card_label = "#555555"
 
 st.markdown(
     f"""
@@ -35,14 +49,12 @@ st.markdown(
         .viewerBadge_container {{display: none !important;}}
         header {{visibility: hidden !important; display: none !important;}}
         
-        :root {{
+        /* STREAMLIT GLOBAL CANVASI DİNAMİK AŞMA (TABLO BAŞLIĞINI ETKİLER) */
+        :root, [data-testid="stAppViewContainer"], .stApp {{
             --background-color: {bg_color} !important;
-            --secondary-background-color: {logo_sub_color} !important;
+            --secondary-background-color: {header_bg} !important;
             --text-color: {text_color} !important;
-        }}
-
-        html, body, .stApp {{ 
-            background-color: {bg_color} !important; 
+            background-color: {bg_color} !important;
             color: {text_color} !important;
         }}
         
@@ -59,19 +71,19 @@ st.markdown(
             font-weight: 600 !important;
         }}
 
-        /* 🎯 AÇILAN KUTULAR VE ARAMA INPUT ARKA PLAN RENGİ (GÜÇLENDİRİLMİŞ SEÇİCİLER) */
+        /* 🎯 DİNAMİK AÇILAN KUTULAR VE ARAMA INPUT ARKA PLAN RENGİ */
         div[data-testid="stTextInput"] > div > div,
         div[data-testid="stSelectbox"] > div > div,
         div[data-baseweb="base-input"],
         div[data-baseweb="select"] > div {{
-            background-color: {logo_sub_color} !important;
+            background-color: {input_bg} !important;
             border-color: {input_border} !important;
             border-radius: 6px !important;
         }}
 
         div[data-testid="stTextInput"] input {{
-            color: #1E222A !important;
-            -webkit-text-fill-color: #1E222A !important;
+            color: {input_text} !important;
+            -webkit-text-fill-color: {input_text} !important;
             font-weight: 600 !important;
         }}
 
@@ -79,12 +91,12 @@ st.markdown(
             color: #4A5568 !important;
         }}
 
-        /* SELECTBOX YAZILARI VE OK İKONU */
+        /* SELECTBOX METİN VE İKONLARI */
         div[data-testid="stSelectbox"] div[role="button"],
         div[data-baseweb="select"] span,
         div[data-baseweb="select"] svg {{
-            color: #1E222A !important;
-            fill: #1E222A !important;
+            color: {input_text} !important;
+            fill: {input_text} !important;
             font-weight: 600 !important;
         }}
 
@@ -92,19 +104,13 @@ st.markdown(
         div[data-baseweb="popover"] div,
         div[data-baseweb="menu"],
         div[data-baseweb="option"] {{
-            background-color: {logo_sub_color} !important;
-            color: #1E222A !important;
-        }}
-        div[data-baseweb="option"]:hover {{
-            background-color: #9AA8B9 !important;
+            background-color: {input_bg} !important;
+            color: {input_text} !important;
         }}
 
-        /* 🎯 STREAMLIT DATAFRAME CANVAS & HEADER HEDEFLEME */
+        /* 🎯 DATAFRAME CANVAS & HEADER ÖZELLEŞTİRME */
         div[data-testid="stDataFrame"] {{
-            --secondary-background-color: {logo_sub_color} !important;
-        }}
-        div[data-testid="stDataFrame"] canvas {{
-            border-radius: 4px;
+            --secondary-background-color: {header_bg} !important;
         }}
 
         /* CHECKBOX YAZILARI */
@@ -160,7 +166,7 @@ st.markdown(
 
 
 # ==========================================
-# 2. LOGO VE VERİ YÜKLEME FONKSİYONLARI
+# 2. LOGO VE VERİ YÜKLEME
 # ==========================================
 def logo_to_base64(img_path):
   try:
@@ -424,7 +430,6 @@ try:
 
     def row_style(row):
       is_zero = raw_stok.loc[row.name] == 0
-
       if is_dark:
         bg = "#2A2F3B" if is_zero else "#1E222A"
         color = "#F5F5F5"
