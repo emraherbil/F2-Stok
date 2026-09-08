@@ -102,17 +102,6 @@ st.markdown(
             color: {input_text} !important;
         }}
 
-        div[data-testid="stDataFrame"] {{
-            --secondary-background-color: {header_bg} !important;
-        }}
-
-        div[data-testid="stDataFrame"] > div {{
-            background-color: {table_bg} !important;
-            border: 1px solid {input_border} !important;
-            border-radius: 6px !important;
-            overflow: hidden !important;
-        }}
-
         div[data-testid="stCheckbox"] label span {{
             color: {text_color} !important;
         }}
@@ -422,47 +411,65 @@ try:
             f"${v:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
         )
     )
-
     out_df["Güncel Stok"] = out_df["Güncel Stok"].apply(
         lambda v: f"{int(v):,}".replace(",", ".")
     )
 
-    def row_style(row):
-      is_zero = raw_stok.loc[row.name] == 0
-      if is_dark:
-        bg = "#2A2F3B" if is_zero else table_bg
-        color = "#F5F5F5"
-        return [f"background-color: {bg}; color: {color}"] * len(row)
-      else:
-        if is_zero:
-          return [
-              "background-color: rgba(255, 75, 75, 0.15); color: #000000"
-          ] * len(row)
-        return [""] * len(row)
+    # 🌐 HTML / CSS TABLO OLUŞTURMA (Beyaz Şerit Sorununu Kökten Çözer)
+    border_color_val = "#383E4A" if is_dark else "#CBD5E0"
 
-    row_count = len(out_df)
-    calculated_height = (row_count * 35) + 38
+    table_html = f"""
+        <div style="background-color: {table_bg}; border: 1px solid {border_color_val}; border-radius: 6px; overflow-x: auto; margin-top: 10px;">
+            <table style="width: 100%; border-collapse: collapse; font-family: sans-serif; font-size: 14px; color: {text_color}; white-space: nowrap;">
+                <thead>
+                    <tr style="background-color: {header_bg}; color: #1E222A; font-weight: 700;">
+                        <th style="padding: 12px 15px; text-align: left;">Ürün Kodu</th>
+                        <th style="padding: 12px 15px; text-align: left;">Açıklama</th>
+                        <th style="padding: 12px 15px; text-align: center;">Marka</th>
+                        <th style="padding: 12px 15px; text-align: center;">Ürün Grubu</th>
+                        <th style="padding: 12px 15px; text-align: center;">Güncel Stok</th>
+                        <th style="padding: 12px 15px; text-align: right;">Birim Maliyet</th>
+                        <th style="padding: 12px 15px; text-align: right;">Toplam Maliyet</th>
+                    </tr>
+                </thead>
+                <tbody>
+        """
 
-    if row_count == 0:
-      dynamic_height = 100
-    elif calculated_height > 540:
-      dynamic_height = 540
+    if len(out_df) == 0:
+      table_html += f"""
+            <tr>
+                <td colspan="7" style="padding: 25px; text-align: center; color: {subtext_color};">Kriterlere uygun ürün bulunamadı.</td>
+            </tr>
+            """
     else:
-      dynamic_height = calculated_height
+      for idx, row in out_df.iterrows():
+        is_zero = raw_stok.iloc[idx] == 0
+        if is_dark:
+          row_bg = "#2A2F3B" if is_zero else table_bg
+          row_color = "#F5F5F5"
+        else:
+          row_bg = "rgba(255, 75, 75, 0.15)" if is_zero else "#FFFFFF"
+          row_color = "#000000" if is_zero else text_color
 
-    st.dataframe(
-        out_df.style.apply(row_style, axis=1),
-        use_container_width=True,
-        hide_index=True,
-        height=dynamic_height,
-        column_config={
-            "Marka": st.column_config.Column(alignment="center"),
-            "Ürün Grubu": st.column_config.Column(alignment="center"),
-            "Güncel Stok": st.column_config.Column(alignment="center"),
-            "Birim Maliyet": st.column_config.Column(alignment="right"),
-            "Toplam Maliyet": st.column_config.Column(alignment="right"),
-        },
-    )
+        table_html += f"""
+                <tr style="background-color: {row_bg}; color: {row_color}; border-bottom: 1px solid {border_color_val};">
+                    <td style="padding: 11px 15px; font-weight: 600;">{row['Ürün Kodu']}</td>
+                    <td style="padding: 11px 15px;">{row['Açıklama']}</td>
+                    <td style="padding: 11px 15px; text-align: center;">{row['Marka']}</td>
+                    <td style="padding: 11px 15px; text-align: center;">{row['Ürün Grubu']}</td>
+                    <td style="padding: 11px 15px; text-align: center; font-weight: 600;">{row['Güncel Stok']}</td>
+                    <td style="padding: 11px 15px; text-align: right;">{row['Birim Maliyet']}</td>
+                    <td style="padding: 11px 15px; text-align: right; font-weight: 600;">{row['Toplam Maliyet']}</td>
+                </tr>
+            """
+
+    table_html += """
+                </tbody>
+            </table>
+        </div>
+        """
+
+    st.markdown(table_html, unsafe_allow_html=True)
 
   stok_paneli_icerik(df)
 
