@@ -55,7 +55,6 @@ st.markdown(
             --background-color: {bg_color} !important;
             --secondary-background-color: {header_bg} !important;
             --text-color: {text_color} !important;
-            --primary-color: #68A2B9 !important;
             background-color: {bg_color} !important;
             color: {text_color} !important;
         }}
@@ -107,18 +106,10 @@ st.markdown(
             margin-bottom: -15px !important;
         }}
 
-        /* TOGGLE RENK GÜNCELLEMESİ (TURUNCU YERİNE #68A2B9) */
         div[data-testid="stToggle"] div[role="switch"] {{
             background-color: rgba(104, 162, 185, 0.3) !important;
         }}
         div[data-testid="stToggle"] div[role="switch"][aria-checked="true"] {{
-            background-color: #68A2B9 !important;
-        }}
-        div[data-testid="stToggle"] input:checked + div {{
-            background-color: #68A2B9 !important;
-        }}
-        /* Baseweb tabanlı toggle aktif durum kaplamaları */
-        div[data-baseweb="checkbox"] input:checked ~ div {{
             background-color: #68A2B9 !important;
         }}
 
@@ -408,7 +399,7 @@ try:
           unsafe_allow_html=True,
       )
 
-    st.markdown("<div style='height: 27px;'></div>", unsafe_allow_html=True)
+    st.markdown("<div style='height: 25px;'></div>", unsafe_allow_html=True)
 
     out_df = f_df[[
         c_kod,
@@ -462,7 +453,8 @@ try:
         return [""] * len(row)
 
     row_count = len(out_df)
-
+    
+    # 🌟 Kalan son minik boşluk/çizgi payı da optimize edilerek tam hizalandı
     if row_count == 0:
       dynamic_height = 100
     else:
