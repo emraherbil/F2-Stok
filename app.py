@@ -3,7 +3,6 @@ import os
 from pathlib import Path
 import pandas as pd
 import streamlit as st
-import streamlit.components.v1 as components
 
 # ==========================================
 # 1. SAYFA YAPILANDIRMASI
@@ -18,7 +17,7 @@ if "dark_mode" not in st.session_state:
 is_dark = st.session_state.dark_mode
 
 # 🎨 LOGO RENK PALETİ ("Information Communication Technologies")
-LOGO_COLOR = "#B5C1D0"  # Logo alt yazı rengi (Tablo Başlığı)
+LOGO_COLOR = "#B5C1D0"  # Logo alt yazı rengi
 
 if is_dark:
   bg_color = "#0E1117"
@@ -31,7 +30,6 @@ if is_dark:
   card_bg = "#2A2F3B"
   card_text = "#FFFFFF"
   card_label = "#D1D5DB"
-  table_bg = "#1E222A"
 else:
   bg_color = "#FFFFFF"
   text_color = "#262730"
@@ -43,7 +41,6 @@ else:
   card_bg = "rgba(28, 31, 46, 0.03)"
   card_text = "#111111"
   card_label = "#555555"
-  table_bg = "#FFFFFF"
 
 st.markdown(
     f"""
@@ -53,6 +50,9 @@ st.markdown(
         header {{visibility: hidden !important; display: none !important;}}
         
         :root, [data-testid="stAppViewContainer"], .stApp {{
+            --background-color: {bg_color} !important;
+            --secondary-background-color: {header_bg} !important;
+            --text-color: {text_color} !important;
             background-color: {bg_color} !important;
             color: {text_color} !important;
         }}
@@ -101,6 +101,12 @@ st.markdown(
         div[data-baseweb="option"] {{
             background-color: {input_bg} !important;
             color: {input_text} !important;
+        }}
+
+        /* DATAFRAME KAPSAYICI ARKA PLANINI TEMA RENGİNE ZORLAMA */
+        div[data-testid="stDataFrame"], div[data-testid="stDataFrame"] > div {{
+            --secondary-background-color: {header_bg} !important;
+            background-color: {bg_color} !important;
         }}
 
         div[data-testid="stCheckbox"] label span {{
@@ -230,7 +236,6 @@ try:
       f" border-color:{'#333333' if is_dark else '#e0e0e0'};'>",
       unsafe_allow_html=True,
   )
-
 
   # ==========================================
   # 4. FRAGMENT ALANI
@@ -412,120 +417,51 @@ try:
             f"${v:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
         )
     )
+
     out_df["Güncel Stok"] = out_df["Güncel Stok"].apply(
         lambda v: f"{int(v):,}".replace(",", ".")
     )
 
-    # 🌐 TEK EKRANA SIĞAN, SABİT GENİŞLİKLİ GÜVENLİ HTML TABLO
-    border_color_val = "#383E4A" if is_dark else "#CBD5E0"
+    def row_style(row):
+      is_zero = raw_stok.loc[row.name] == 0
+      if is_dark:
+        bg = "#2A2F3B" if is_zero else "#1E222A"
+        color = "#F5F5F5"
+        return [f"background-color: {bg}; color: {color}"] * len(row)
+      else:
+        if is_zero:
+          return [
+              "background-color: rgba(255, 75, 75, 0.15); color: #000000"
+          ] * len(row)
+        return [""] * len(row)
 
-    table_html = f"""
-        <!DOCTYPE html>
-        <html>
-        <head>
-        <meta charset="utf-8">
-        <style>
-            body {{
-                background-color: {table_bg};
-                color: {text_color};
-                font-family: sans-serif;
-                margin: 0;
-                padding: 0;
-            }}
-            table {{
-                width: 100%;
-                border-collapse: collapse;
-                font-size: 13px;
-                table-layout: fixed;
-            }}
-            th {{
-                background-color: {header_bg};
-                color: #1E222A;
-                font-weight: 700;
-                padding: 10px 12px;
-                text-align: left;
-                position: sticky;
-                top: 0;
-                z-index: 1;
-                overflow: hidden;
-                word-wrap: break-word;
-            }}
-            td {{
-                padding: 10px 12px;
-                border-bottom: 1px solid {border_color_val};
-                overflow: hidden;
-                word-wrap: break-word;
-            }}
-            /* Sütun Genişlik Ayarları (Toplam %100) */
-            th:nth-child(1), td:nth-child(1) {{ width: 14%; text-align: left; }}
-            th:nth-child(2), td:nth-child(2) {{ width: 26%; text-align: left; white-space: normal; }}
-            th:nth-child(3), td:nth-child(3) {{ width: 12%; text-align: center; }}
-            th:nth-child(4), td:nth-child(4) {{ width: 13%; text-align: center; }}
-            th:nth-child(5), td:nth-child(5) {{ width: 11%; text-align: center; }}
-            th:nth-child(6), td:nth-child(6) {{ width: 12%; text-align: right; }}
-            th:nth-child(7), td:nth-child(7) {{ width: 12%; text-align: right; }}
-        </style>
-        </head>
-        <body>
-        <div style="background-color: {table_bg}; border: 1px solid {border_color_val}; border-radius: 6px; overflow: hidden;">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Ürün Kodu</th>
-                        <th>Açıklama</th>
-                        <th style="text-align: center;">Marka</th>
-                        <th style="text-align: center;">Ürün Grubu</th>
-                        <th style="text-align: center;">Güncel Stok</th>
-                        <th style="text-align: right;">Birim Maliyet</th>
-                        <th style="text-align: right;">Toplam Maliyet</th>
-                    </tr>
-                </thead>
-                <tbody>
-        """
-
-    if len(out_df) == 0:
-      table_html += f"""
-                <tr>
-                    <td colspan="7" style="text-align: center; color: {subtext_color}; padding: 25px;">Kriterlere uygun ürün bulunamadı.</td>
-                </tr>
-                """
-    else:
-      for idx, row in out_df.iterrows():
-        is_zero = raw_stok.iloc[idx] == 0
-        if is_dark:
-          row_bg = "#2A2F3B" if is_zero else table_bg
-          row_color = "#F5F5F5"
-        else:
-          row_bg = "rgba(255, 75, 75, 0.15)" if is_zero else "#FFFFFF"
-          row_color = "#000000" if is_zero else text_color
-
-        table_html += f"""
-                <tr style="background-color: {row_bg}; color: {row_color};">
-                    <td>{row['Ürün Kodu']}</td>
-                    <td>{row['Açıklama']}</td>
-                    <td style="text-align: center;">{row['Marka']}</td>
-                    <td style="text-align: center;">{row['Ürün Grubu']}</td>
-                    <td style="text-align: center;">{row['Güncel Stok']}</td>
-                    <td style="text-align: right;">{row['Birim Maliyet']}</td>
-                    <td style="text-align: right;">{row['Toplam Maliyet']}</td>
-                </tr>
-                """
-
-    table_html += """
-                </tbody>
-            </table>
-        </div>
-        </body>
-        </html>
-        """
-
+    # 📏 DİNAMİK YÜKSEKLİK HESAPLAMA EKLENDİ
+    # Satır başı ~35px + Başlık için ~42px. Maksimum 540px, Minimum 100px.
     row_count = len(out_df)
-    calc_h = (row_count * 45) + 60
-    iframe_height = min(max(calc_h, 120), 520) if row_count > 0 else 120
+    calculated_height = (row_count * 35) + 42
+    
+    if row_count == 0:
+        dynamic_height = 100
+    elif calculated_height > 540:
+        dynamic_height = 540
+    else:
+        dynamic_height = calculated_height
 
-    components.html(table_html, height=iframe_height, scrolling=False)
+    st.dataframe(
+        out_df.style.apply(row_style, axis=1),
+        use_container_width=True,
+        hide_index=True,
+        height=dynamic_height,  # Sabit 540px yerine hesaplanan yüksekliği veriyoruz
+        column_config={
+            "Marka": st.column_config.Column(alignment="center"),
+            "Ürün Grubu": st.column_config.Column(alignment="center"),
+            "Güncel Stok": st.column_config.Column(alignment="center"),
+            "Birim Maliyet": st.column_config.Column(alignment="right"),
+            "Toplam Maliyet": st.column_config.Column(alignment="right"),
+        },
+    )
 
   stok_paneli_icerik(df)
 
-except Exception as er:
-  st.error(f"Hata oluştu: {er}")
+except Exception as e:
+  st.error(f"Hata oluştu: {e}")
