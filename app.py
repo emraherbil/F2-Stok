@@ -416,7 +416,7 @@ try:
         lambda v: f"{int(v):,}".replace(",", ".")
     )
 
-    # 🌐 YATAY KAYDIRILABİLİR (SCROLL) GÜVENLİ HTML TABLO
+    # 🌐 TEK EKRANA SIĞAN, SABİT GENİŞLİKLİ GÜVENLİ HTML TABLO
     border_color_val = "#383E4A" if is_dark else "#CBD5E0"
 
     table_html = f"""
@@ -435,44 +435,44 @@ try:
             table {{
                 width: 100%;
                 border-collapse: collapse;
-                font-size: 14px;
-                white-space: nowrap;
+                font-size: 13px;
+                table-layout: fixed;
             }}
             th {{
                 background-color: {header_bg};
                 color: #1E222A;
                 font-weight: 700;
-                padding: 12px 15px;
+                padding: 10px 12px;
                 text-align: left;
                 position: sticky;
                 top: 0;
                 z-index: 1;
+                overflow: hidden;
+                word-wrap: break-word;
             }}
             td {{
-                padding: 11px 15px;
+                padding: 10px 12px;
                 border-bottom: 1px solid {border_color_val};
+                overflow: hidden;
+                word-wrap: break-word;
             }}
-            /* Yatay Kaydırma Çubuğu Tasarımı */
-            ::-webkit-scrollbar {{
-                height: 8px;
-                width: 8px;
-            }}
-            ::-webkit-scrollbar-track {{
-                background: {table_bg};
-            }}
-            ::-webkit-scrollbar-thumb {{
-                background: {border_color_val};
-                border-radius: 4px;
-            }}
+            /* Sütun Genişlik Ayarları (Toplam %100) */
+            th:nth-child(1), td:nth-child(1) {{ width: 14%; text-align: left; }}
+            th:nth-child(2), td:nth-child(2) {{ width: 26%; text-align: left; white-space: normal; }}
+            th:nth-child(3), td:nth-child(3) {{ width: 12%; text-align: center; }}
+            th:nth-child(4), td:nth-child(4) {{ width: 13%; text-align: center; }}
+            th:nth-child(5), td:nth-child(5) {{ width: 11%; text-align: center; }}
+            th:nth-child(6), td:nth-child(6) {{ width: 12%; text-align: right; }}
+            th:nth-child(7), td:nth-child(7) {{ width: 12%; text-align: right; }}
         </style>
         </head>
         <body>
-        <div style="background-color: {table_bg}; border: 1px solid {border_color_val}; border-radius: 6px; overflow-x: auto;">
+        <div style="background-color: {table_bg}; border: 1px solid {border_color_val}; border-radius: 6px; overflow: hidden;">
             <table>
                 <thead>
                     <tr>
-                        <th style="text-align: left;">Ürün Kodu</th>
-                        <th style="text-align: left;">Açıklama</th>
+                        <th>Ürün Kodu</th>
+                        <th>Açıklama</th>
                         <th style="text-align: center;">Marka</th>
                         <th style="text-align: center;">Ürün Grubu</th>
                         <th style="text-align: center;">Güncel Stok</th>
@@ -501,13 +501,13 @@ try:
 
         table_html += f"""
                 <tr style="background-color: {row_bg}; color: {row_color};">
-                    <td style="font-weight: 600;">{row['Ürün Kodu']}</td>
+                    <td>{row['Ürün Kodu']}</td>
                     <td>{row['Açıklama']}</td>
                     <td style="text-align: center;">{row['Marka']}</td>
                     <td style="text-align: center;">{row['Ürün Grubu']}</td>
-                    <td style="text-align: center; font-weight: 600;">{row['Güncel Stok']}</td>
+                    <td style="text-align: center;">{row['Güncel Stok']}</td>
                     <td style="text-align: right;">{row['Birim Maliyet']}</td>
-                    <td style="text-align: right; font-weight: 600;">{row['Toplam Maliyet']}</td>
+                    <td style="text-align: right;">{row['Toplam Maliyet']}</td>
                 </tr>
                 """
 
@@ -520,10 +520,10 @@ try:
         """
 
     row_count = len(out_df)
-    calc_h = (row_count * 40) + 75  # Yatay scrollbar payı için artırıldı
-    iframe_height = min(max(calc_h, 120), 535) if row_count > 0 else 120
+    calc_h = (row_count * 45) + 60
+    iframe_height = min(max(calc_h, 120), 520) if row_count > 0 else 120
 
-    components.html(table_html, height=iframe_height, scrolling=True)
+    components.html(table_html, height=iframe_height, scrolling=False)
 
   stok_paneli_icerik(df)
 
