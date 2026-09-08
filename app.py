@@ -98,7 +98,7 @@ st.markdown(f"""
             margin-bottom: -15px !important;
         }}
 
-        /* 🟢 KESİN ÇÖZÜM: KARANLIK MOD TOGGLE BUTONU RENGİ (#68A2B9) */
+        /* 🟢 KARANLIK MOD TOGGLE BUTONU RENGİ (#68A2B9) */
         div[data-testid="stToggle"] div[role="switch"] {{
             background-color: rgba(104, 162, 185, 0.3) !important;
         }}
@@ -311,13 +311,13 @@ try:
         
         out_df["Güncel Stok"] = out_df["Güncel Stok"].apply(lambda v: f"{int(v):,}".replace(",", "."))
 
-        # 🟢 TABLO İÇİ DİNAMİK RENKLENDİRME (Hafif ve Uyumlu Tonlar)
+        # 🟢 TABLO İÇİ DİNAMİK RENKLENDİRME (Tükenenler için her iki modda da uçuk kırmızı ton)
         def row_style(row):
             is_zero = raw_stok.loc[row.name] == 0
             
             if is_dark:
-                # Karanlık mod: Tükenenler için #68A2B9 tonunun hafif şeffaf versiyonu (arka planı boğmaz)
-                bg = 'rgba(104, 162, 185, 0.18)' if is_zero else '#1E222A'
+                # Karanlık mod: Tükenenler için hafif/uçuk kırmızı, diğerleri koyu gri
+                bg = 'rgba(255, 75, 75, 0.22)' if is_zero else '#1E222A'
                 color = '#F5F5F5'
                 return [f'background-color: {bg}; color: {color}'] * len(row)
             else:
