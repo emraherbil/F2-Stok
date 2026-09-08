@@ -363,9 +363,9 @@ try:
     t_cost = f_df[c_maliyet].sum()
 
     def kpi_card(label, val, color):
-      # 🌟 Doğrudan kart öğesinin CSS alt marjinine (margin-bottom: 8px) uygulandı
+      # 🌟 Yalnızca üst taraftaki boşluğu (margin-top) muhafaza ettim
       return f"""
-            <div style='background-color: {card_bg}; padding: 12px 15px; border-radius: 6px; border-left: 5px solid {color}; display: flex; justify-content: space-between; align-items: center; margin-top: 8px; margin-bottom: 8px;'>
+            <div style='background-color: {card_bg}; padding: 12px 15px; border-radius: 6px; border-left: 5px solid {color}; display: flex; justify-content: space-between; align-items: center; margin-top: 10px;'>
                 <span style='font-size:13px; color:{card_label}; font-weight:bold;'>{label}</span>
                 <span style='font-size:1.15rem; font-weight: 800; color:{card_text};'>{val}</span>
             </div>
@@ -399,6 +399,10 @@ try:
           ),
           unsafe_allow_html=True,
       )
+
+    # 🌟 BURASI ÖNEMLİ: Tabloyu Streamlit'in boşluk kısıtlamalarından kurtarıp 
+    # sabit ve net bir mesafeyle (25px) aşağı itiyoruz.
+    st.markdown("<div style='height: 25px;'></div>", unsafe_allow_html=True)
 
     out_df = f_df[[
         c_kod,
