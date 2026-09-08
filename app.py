@@ -454,11 +454,11 @@ try:
 
     row_count = len(out_df)
     
-    # 🌟 Tablo yüksekliği artık fazladan boşluk bırakmayacak şekilde tam içeriğe göre hesaplanıyor
+    # 🌟 Kalan son minik boşluk/çizgi payı da optimize edilerek tam hizalandı
     if row_count == 0:
       dynamic_height = 100
     else:
-      calculated_height = (row_count * 35) + 38
+      calculated_height = (row_count * 35) + 35
       dynamic_height = min(calculated_height, 540)
 
     st.dataframe(
