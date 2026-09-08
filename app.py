@@ -22,7 +22,7 @@ LOGO_COLOR = "#B5C1D0"  # Logo alt yazı rengi
 if is_dark:
   bg_color = "#0E1117"
   text_color = "#FAFAFA"
-  label_color = "#D1D5DB"  # 🌟 Karanlık modda etiketler için daha okunabilir açık gri
+  label_color = "#FFFFFF"  # 🌟 Karanlık modda maksimum okunabilirlik için saf beyaz
   subtext_color = "#A3A8B4"
   input_bg = LOGO_COLOR
   input_text = "#1E222A"
@@ -34,7 +34,7 @@ if is_dark:
 else:
   bg_color = "#FFFFFF"
   text_color = "#262730"
-  label_color = "#262730"  # Aydınlık mod için standart renk
+  label_color = "#262730"  # Aydınlık mod için standart koyu renk
   subtext_color = "#7D7F87"
   input_bg = "#E2E8F0"
   input_text = "#1A202C"
@@ -66,9 +66,10 @@ st.markdown(
         }}
         
         div[data-testid="stWidgetLabel"] label, 
-        div[data-testid="stWidgetLabel"] p {{
+        div[data-testid="stWidgetLabel"] p,
+        div[data-testid="stWidgetLabel"] span {{
             color: {label_color} !important;
-            font-weight: 600 !important;
+            font-weight: 700 !important;
         }}
 
         div[data-testid="stTextInput"] > div > div,
@@ -113,6 +114,7 @@ st.markdown(
 
         div[data-testid="stCheckbox"] label span {{
             color: {label_color} !important;
+            font-weight: 700 !important;
         }}
         div[data-testid="stCheckbox"] {{
             margin-bottom: -15px !important;
