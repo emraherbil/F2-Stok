@@ -3,6 +3,7 @@ import os
 from pathlib import Path
 import pandas as pd
 import streamlit as st
+import streamlit.components.v1 as components
 
 # ==========================================
 # 1. SAYFA YAPILANDIRMASI
@@ -151,6 +152,27 @@ st.markdown(
     </style>
 """,
     unsafe_allow_html=True,
+)
+
+# 🌟 TOGGLE RENGİNİ ZORLA DEĞİŞTİRMEK İÇİN JAVASCRIPT ÇÖZÜMÜ
+components.html(
+    """
+    <script>
+        const doc = window.parent.document;
+        const applyToggleColor = () => {
+            const toggles = doc.querySelectorAll('div[data-testid="stToggle"] div[role="switch"]');
+            toggles.forEach(t => {
+                if(t.getAttribute('aria-checked') === 'true') {
+                    t.style.setProperty('background-color', '#68A2B9', 'important');
+                }
+            });
+        };
+        const observer = new MutationObserver(applyToggleColor);
+        observer.observe(doc.body, { childList: true, subtree: true, attributes: true });
+        applyToggleColor();
+    </script>
+    """,
+    height=0,
 )
 
 
