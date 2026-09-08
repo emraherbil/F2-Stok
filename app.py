@@ -19,6 +19,7 @@ if "dark_mode" not in st.session_state:
 
 is_dark = st.session_state.dark_mode
 
+# Renk Paleti Tanımlamaları
 bg_color = "#0E1117" if is_dark else "#FFFFFF"
 input_bg = "#1E222A" if is_dark else "#FFFFFF"
 input_border = "#383E4A" if is_dark else "#D3D3D3"
@@ -34,7 +35,7 @@ st.markdown(f"""
         .viewerBadge_container {{display: none !important;}}
         header {{visibility: hidden !important; display: none !important;}}
         
-        /* STREAMLIT GLOBAL CSS DEĞİŞKENLERİ (Tablo ve Temel Bileşenler İçin) */
+        /* STREAMLIT GLOBAL CSS DEĞİŞKENLERİ */
         :root {{
             --background-color: {bg_color} !important;
             --secondary-background-color: {input_bg} !important;
@@ -52,7 +53,7 @@ st.markdown(f"""
             max-width: 100% !important;
         }}
         
-        /* GİRDİ KUTUSU ETİKETLERİ (Açılan kutuların üstündeki siyah yazılar) */
+        /* GİRDİ KUTUSU ETİKETLERİ */
         div[data-testid="stWidgetLabel"] label, 
         div[data-testid="stWidgetLabel"] p,
         label[data-testid="stWidgetLabel"] {{
@@ -97,9 +98,9 @@ st.markdown(f"""
             margin-bottom: -15px !important;
         }}
 
-        /* TABLO CONTAINER GÖRÜNÜMÜ */
-        [data-testid="stDataFrame"] {{
-            background-color: {input_bg} !important;
+        /* 🟢 KARANLIK MOD TOGGLE BUTONU RENGİ (#68A2B9) */
+        div[data-testid="stToggle"] *[data-checked="true"] {{
+            background-color: #68A2B9 !important;
         }}
 
         .custom-header-container {{ 
@@ -307,11 +308,20 @@ try:
         
         out_df["Güncel Stok"] = out_df["Güncel Stok"].apply(lambda v: f"{int(v):,}".replace(",", "."))
 
+        # 🟢 TABLO İÇİ DİNAMİK RENKLENDİRME (Karanlık/Aydınlık Mod Uyumlu)
         def row_style(row):
-            if raw_stok.loc[row.name] == 0:
-                bg_highlight = 'rgba(255, 75, 75, 0.25)' if is_dark else 'rgba(255, 75, 75, 0.08)'
-                return [f'background-color: {bg_highlight}'] * len(row)
-            return [''] * len(row)
+            is_zero = raw_stok.loc[row.name] == 0
+            
+            if is_dark:
+                # Karanlık mod: Tükenenlere mat bordo, diğerlerine koyu arka plan, beyaza yakın metin
+                bg = '#4a2323' if is_zero else '#1E222A'
+                color = '#F5F5F5'
+                return [f'background-color: {bg}; color: {color}'] * len(row)
+            else:
+                # Aydınlık mod: Tükenenlere açık kırmızı, diğerleri varsayılan
+                if is_zero:
+                    return ['background-color: rgba(255, 75, 75, 0.15); color: #000000'] * len(row)
+                return [''] * len(row)
 
         st.dataframe(
             out_df.style.apply(row_style, axis=1), 
