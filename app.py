@@ -3,7 +3,6 @@ import os
 from pathlib import Path
 import pandas as pd
 import streamlit as st
-import streamlit.components.v1 as components
 
 # ==========================================
 # 1. SAYFA YAPILANDIRMASI
@@ -108,17 +107,7 @@ st.markdown(
             margin-bottom: -15px !important;
         }}
 
-        /* TOGGLE RENK GÜNCELLEMESİ */
-        div[data-testid="stToggle"] div[role="switch"] {{
-            background-color: rgba(104, 162, 185, 0.3) !important;
-        }}
-        div[data-testid="stToggle"] div[role="switch"][aria-checked="true"] {{
-            background-color: #68A2B9 !important;
-        }}
-        div[data-testid="stToggle"] input:checked + div {{
-            background-color: #68A2B9 !important;
-        }}
-
+        /* ÖZEL KART VE BUTON STİLLERİ */
         .custom-header-container {{ 
             display: flex; 
             align-items: center; 
@@ -149,30 +138,63 @@ st.markdown(
             border: 1px solid #12223c !important;
             color: white !important; 
         }}
+
+        /* ÖZEL CSS TOGGLE SWITCH TASARIMI */
+        .theme-switch-wrapper {{
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 10px;
+            height: 40px;
+        }}
+        .theme-switch-label {{
+            color: {text_color};
+            font-size: 1rem;
+            font-weight: 500;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }}
+        .switch {{
+            position: relative;
+            display: inline-block;
+            width: 48px;
+            height: 24px;
+        }}
+        .switch input {{
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }}
+        .slider {{
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(104, 162, 185, 0.3);
+            transition: .3s;
+            border-radius: 24px;
+        }}
+        .slider:before {{
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }}
+        input:checked + .slider {{
+            background-color: #68A2B9;
+        }}
+        input:checked + .slider:before {{
+            transform: translateX(24px);
+        }}
     </style>
 """,
     unsafe_allow_html=True,
-)
-
-# 🌟 TOGGLE RENGİNİ ZORLA DEĞİŞTİRMEK İÇİN JAVASCRIPT ÇÖZÜMÜ
-components.html(
-    """
-    <script>
-        const doc = window.parent.document;
-        const applyToggleColor = () => {
-            const toggles = doc.querySelectorAll('div[data-testid="stToggle"] div[role="switch"]');
-            toggles.forEach(t => {
-                if(t.getAttribute('aria-checked') === 'true') {
-                    t.style.setProperty('background-color', '#68A2B9', 'important');
-                }
-            });
-        };
-        const observer = new MutationObserver(applyToggleColor);
-        observer.observe(doc.body, { childList: true, subtree: true, attributes: true });
-        applyToggleColor();
-    </script>
-    """,
-    height=0,
 )
 
 
@@ -227,7 +249,7 @@ try:
   else:
     logo_html = '<div style="font-size: 2.5rem;">📦</div>'
 
-  header_col1, header_col2 = st.columns([8.5, 1.5])
+  header_col1, header_col2 = st.columns([8.2, 1.8])
 
   with header_col1:
     st.markdown(
@@ -246,7 +268,21 @@ try:
     )
 
   with header_col2:
-    st.toggle("🌙 Karanlık Mod", key="dark_mode")
+    st.markdown(
+        "<div style='height: 12px;'></div>", unsafe_allow_html=True
+    )  # Dikey hizalama boşluğu
+    checked_attr = "checked" if st.session_state.dark_mode else ""
+
+    # Streamlit buton tetikleyicisi olarak gizli bir checkbox veya query_params/session_state yönetimi kullanabiliriz.
+    # Burada kullanıcı tıkladığında sayfanın yenilenmesini sağlayan akıllı bir yapı kuruyoruz:
+    dark_mode_clicked = st.checkbox(
+        "🌙 Karanlık Mod",
+        value=st.session_state.dark_mode,
+        key="dark_mode_checkbox",
+    )
+    if dark_mode_clicked != st.session_state.dark_mode:
+      st.session_state.dark_mode = dark_mode_clicked
+      st.rerun()
 
   st.markdown(
       f"<hr style='margin-top:10px; margin-bottom:20px;"
@@ -480,7 +516,7 @@ try:
         return [""] * len(row)
 
     row_count = len(out_df)
-    
+
     if row_count == 0:
       dynamic_height = 100
     else:
