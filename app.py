@@ -55,6 +55,7 @@ st.markdown(
             --background-color: {bg_color} !important;
             --secondary-background-color: {header_bg} !important;
             --text-color: {text_color} !important;
+            --primary-color: #68A2B9 !important;
             background-color: {bg_color} !important;
             color: {text_color} !important;
         }}
@@ -106,10 +107,14 @@ st.markdown(
             margin-bottom: -15px !important;
         }}
 
+        /* TOGGLE RENK GÜNCELLEMESİ */
         div[data-testid="stToggle"] div[role="switch"] {{
             background-color: rgba(104, 162, 185, 0.3) !important;
         }}
         div[data-testid="stToggle"] div[role="switch"][aria-checked="true"] {{
+            background-color: #68A2B9 !important;
+        }}
+        div[data-testid="stToggle"] input:checked + div {{
             background-color: #68A2B9 !important;
         }}
 
@@ -399,7 +404,6 @@ try:
           unsafe_allow_html=True,
       )
 
-    # 🌟 Mesafe 2 piksel artırılarak 27px yapıldı
     st.markdown("<div style='height: 27px;'></div>", unsafe_allow_html=True)
 
     out_df = f_df[[
