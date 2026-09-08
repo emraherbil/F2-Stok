@@ -22,9 +22,7 @@ LOGO_COLOR = "#B5C1D0"  # Logo alt yazı rengi
 if is_dark:
   bg_color = "#0E1117"
   text_color = "#FAFAFA"
-  label_color = (
-      "#F1F5F9"  # 🌟 Karanlık mod için beyaza yakın soft ve net bir ton
-  )
+  label_color = "#F1F5F9"  # 🌟 Beyaza yakın yumuşak ve net renk
   subtext_color = "#A3A8B4"
   input_bg = LOGO_COLOR
   input_text = "#1E222A"
@@ -67,16 +65,6 @@ st.markdown(
             max-width: 100% !important;
         }}
         
-        /* 🌟 ETİKETLER KÖKTEN DÜZELTİLDİ: Tüm alt elemanlar hedeflendi */
-        div[data-testid="stWidgetLabel"],
-        div[data-testid="stWidgetLabel"] *,
-        div[data-testid="stWidgetLabel"] label, 
-        div[data-testid="stWidgetLabel"] p,
-        div[data-testid="stWidgetLabel"] span {{
-            color: {label_color} !important;
-            font-weight: normal !important; 
-        }}
-
         div[data-testid="stTextInput"] > div > div,
         div[data-testid="stSelectbox"] > div > div,
         div[data-baseweb="base-input"],
@@ -120,6 +108,7 @@ st.markdown(
             background-color: {bg_color} !important;
         }}
 
+        /* 🌟 CHECKBOX STİLLERİ */
         div[data-testid="stCheckbox"] label span {{
             color: {label_color} !important;
             font-weight: normal !important;
@@ -249,6 +238,7 @@ try:
       unsafe_allow_html=True,
   )
 
+
   # ==========================================
   # 4. FRAGMENT ALANI
   # ==========================================
@@ -306,18 +296,45 @@ try:
     if current_grup not in grup_ops:
       st.session_state.q_grup = "Tümü"
 
+    # 🌟 ETİKET KONTROLÜ: Streamlit'in kendi etiketi yerine özel HTML etiketleri kullanıldı
     with col1:
+      st.markdown(
+          f"<div style='color: {label_color}; font-size: 14px;"
+          " margin-bottom: 6px; font-weight: normal;'>📝 Ürün Ara</div>",
+          unsafe_allow_html=True,
+      )
       v_search = st.text_input(
-          label="📝 Ürün Ara",
+          label="Ürün Ara",
+          label_visibility="collapsed",
           key=f"search_box_{st.session_state.clear_ver}",
           placeholder="Ürün adı veya kodu yazıp Enter'a basın...",
       )
 
     with col2:
-      v_marka = st.selectbox("🏷️ Marka", marka_ops, key="q_marka")
+      st.markdown(
+          f"<div style='color: {label_color}; font-size: 14px;"
+          " margin-bottom: 6px; font-weight: normal;'>🏷️ Marka</div>",
+          unsafe_allow_html=True,
+      )
+      v_marka = st.selectbox(
+          "Marka",
+          marka_ops,
+          label_visibility="collapsed",
+          key="q_marka",
+      )
 
     with col3:
-      v_grup = st.selectbox("📂 Ürün Grubu", grup_ops, key="q_grup")
+      st.markdown(
+          f"<div style='color: {label_color}; font-size: 14px;"
+          " margin-bottom: 6px; font-weight: normal;'>📂 Ürün Grubu</div>",
+          unsafe_allow_html=True,
+      )
+      v_grup = st.selectbox(
+          "Ürün Grubu",
+          grup_ops,
+          label_visibility="collapsed",
+          key="q_grup",
+      )
 
     with col4:
       st.markdown(
