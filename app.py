@@ -25,9 +25,9 @@ input_bg = "#1E222A" if is_dark else "#FFFFFF"
 input_border = "#383E4A" if is_dark else "#D3D3D3"
 text_color = "#FAFAFA" if is_dark else "#262730"
 subtext_color = "#A3A8B4" if is_dark else "#7D7F87"
-card_bg = "rgba(255, 255, 255, 0.05)" if is_dark else "rgba(28, 31, 46, 0.03)"
+card_bg = "#2A2F3B" if is_dark else "rgba(28, 31, 46, 0.03)"
 card_text = "#FFFFFF" if is_dark else "#111111"
-card_label = "#AAAAAA" if is_dark else "#555555"
+card_label = "#D1D5DB" if is_dark else "#555555"
 
 st.markdown(f"""
     <style>
@@ -289,7 +289,7 @@ try:
             """
 
         k1, k2, k3 = st.columns(3)
-        with k1: st.markdown(kpi_card("📋 Toplam Çesit:", f"{t_prod:,}".replace(",", ".") + " Adet", "#1E88E5"), unsafe_allow_html=True)
+        with k1: st.markdown(kpi_card("📋 Toplam Çeşit:", f"{t_prod:,}".replace(",", ".") + " Adet", "#1E88E5"), unsafe_allow_html=True)
         with k2: st.markdown(kpi_card("📦 Toplam Stok:", f"{t_stok:,}".replace(",", ".") + " Adet", "#4CAF50"), unsafe_allow_html=True)
         with k3: st.markdown(kpi_card("💰 Toplam Maliyet:", f"${t_cost:,.0f}".replace(",", "."), "#FFC107"), unsafe_allow_html=True)
 
@@ -311,17 +311,15 @@ try:
         
         out_df["Güncel Stok"] = out_df["Güncel Stok"].apply(lambda v: f"{int(v):,}".replace(",", "."))
 
-        # 🟢 TABLO İÇİ DİNAMİK RENKLENDİRME (Karanlık modda tükenenler için koyu gri)
+        # 🟢 TABLO İÇİ DİNAMİK RENKLENDİRME
         def row_style(row):
             is_zero = raw_stok.loc[row.name] == 0
             
             if is_dark:
-                # Karanlık mod: Tükenenler için şık bir koyu gri tonu (#2A2F3B veya benzeri)
                 bg = '#2A2F3B' if is_zero else '#1E222A'
                 color = '#F5F5F5'
                 return [f'background-color: {bg}; color: {color}'] * len(row)
             else:
-                # Aydınlık mod: Tükenenler için hafif kırmızı/pembe
                 if is_zero:
                     return ['background-color: rgba(255, 75, 75, 0.15); color: #000000'] * len(row)
                 return [''] * len(row)
