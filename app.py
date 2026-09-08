@@ -416,7 +416,7 @@ try:
         lambda v: f"{int(v):,}".replace(",", ".")
     )
 
-    # 🌐 GÜVENLİ HTML TABLO OLUŞTURMA VE COMPONENT KULLANIMI
+    # 🌐 YATAY KAYDIRILABİLİR (SCROLL) GÜVENLİ HTML TABLO
     border_color_val = "#383E4A" if is_dark else "#CBD5E0"
 
     table_html = f"""
@@ -452,10 +452,22 @@ try:
                 padding: 11px 15px;
                 border-bottom: 1px solid {border_color_val};
             }}
+            /* Yatay Kaydırma Çubuğu Tasarımı */
+            ::-webkit-scrollbar {{
+                height: 8px;
+                width: 8px;
+            }}
+            ::-webkit-scrollbar-track {{
+                background: {table_bg};
+            }}
+            ::-webkit-scrollbar-thumb {{
+                background: {border_color_val};
+                border-radius: 4px;
+            }}
         </style>
         </head>
         <body>
-        <div style="background-color: {table_bg}; border: 1px solid {border_color_val}; border-radius: 6px; overflow: hidden;">
+        <div style="background-color: {table_bg}; border: 1px solid {border_color_val}; border-radius: 6px; overflow-x: auto;">
             <table>
                 <thead>
                     <tr>
@@ -508,8 +520,8 @@ try:
         """
 
     row_count = len(out_df)
-    calc_h = (row_count * 40) + 60
-    iframe_height = min(max(calc_h, 120), 520) if row_count > 0 else 120
+    calc_h = (row_count * 40) + 75  # Yatay scrollbar payı için artırıldı
+    iframe_height = min(max(calc_h, 120), 535) if row_count > 0 else 120
 
     components.html(table_html, height=iframe_height, scrolling=True)
 
