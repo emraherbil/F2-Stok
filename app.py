@@ -22,7 +22,7 @@ LOGO_COLOR = "#B5C1D0"  # Logo alt yazı rengi
 if is_dark:
   bg_color = "#0E1117"
   text_color = "#FAFAFA"
-  label_color = "#F1F5F9"  # 🌟 Beyaza yakın yumuşak ve net renk
+  label_color = "#F1F5F9"  # Beyaza yakın yumuşak ve net renk
   subtext_color = "#A3A8B4"
   input_bg = LOGO_COLOR
   input_text = "#1E222A"
@@ -34,13 +34,13 @@ if is_dark:
 else:
   bg_color = "#FFFFFF"
   text_color = "#262730"
-  label_color = "#262730"  # Aydınlık mod için standart renk
+  label_color = "#262730"
   subtext_color = "#7D7F87"
-  input_bg = "#E2E8F0"
+  input_bg = None  # Aydınlık modda varsayılan Streamlit rengi
   input_text = "#1A202C"
   input_border = "#CBD5E0"
   header_bg = LOGO_COLOR
-  card_bg = "rgba(28, 31, 46, 0.03)"
+  card_bg = bg_color  # 🌟 Kart arka planı taban rengi ile aynı yapıldı
   card_text = "#111111"
   card_label = "#555555"
 
@@ -65,16 +65,8 @@ st.markdown(
             max-width: 100% !important;
         }}
         
-        div[data-testid="stTextInput"] > div > div,
-        div[data-testid="stSelectbox"] > div > div,
-        div[data-baseweb="base-input"],
-        div[data-baseweb="select"] > div {{
-            background-color: {input_bg} !important;
-            border-color: {input_border} !important;
-            border-radius: 6px !important;
-        }}
+        {'div[data-testid="stTextInput"] > div > div, div[data-testid="stSelectbox"] > div > div, div[data-baseweb="base-input"], div[data-baseweb="select"] > div { background-color: ' + str(input_bg) + ' !important; border-color: ' + str(input_border) + ' !important; border-radius: 6px !important; }' if is_dark else ''}
 
-        /* 🌟 KUTU İÇİ YAZILAR NORMAL YAPILDI */
         div[data-testid="stTextInput"] input {{
             color: {input_text} !important;
             -webkit-text-fill-color: {input_text} !important;
@@ -94,15 +86,9 @@ st.markdown(
             font-weight: normal !important;
         }}
 
-        div[data-baseweb="popover"] div,
-        div[data-baseweb="menu"],
-        div[data-baseweb="option"] {{
-            background-color: {input_bg} !important;
-            color: {input_text} !important;
-            font-weight: normal !important;
-        }}
+        {'div[data-baseweb="popover"] div, div[data-baseweb="menu"], div[data-baseweb="option"] { background-color: ' + str(input_bg) + ' !important; color: ' + str(input_text) + ' !important; font-weight: normal !important; }' if is_dark else ''}
 
-        /* 🌟 DATAFRAME BEYAZ ŞERİT DÜZELTMESİ */
+        /* DATAFRAME BEYAZ ŞERİT DÜZELTMESİ */
         div[data-testid="stDataFrame"], 
         div[data-testid="stDataFrame"] > div,
         div[data-testid="stDataFrame"] > div > div {{
@@ -111,7 +97,7 @@ st.markdown(
             background-color: {bg_color} !important;
         }}
 
-        /* 🌟 CHECKBOX STİLLERİ */
+        /* CHECKBOX STİLLERİ */
         div[data-testid="stCheckbox"] label span {{
             color: {label_color} !important;
             font-weight: normal !important;
@@ -377,8 +363,11 @@ try:
     t_cost = f_df[c_maliyet].sum()
 
     def kpi_card(label, val, color):
+      border_radius_style = (
+          "border-top-right-radius: 6px; border-bottom-right-radius: 6px;"
+      )
       return f"""
-            <div style='background-color: {card_bg}; padding: 12px 15px; border-radius: 6px; border-left: 5px solid {color}; display: flex; justify-content: space-between; align-items: center; margin-top: 10px;'>
+            <div style='background-color: {card_bg}; padding: 12px 15px; {border_radius_style} border-left: 5px solid {color}; display: flex; justify-content: space-between; align-items: center; margin-top: 10px;'>
                 <span style='font-size:13px; color:{card_label}; font-weight:bold;'>{label}</span>
                 <span style='font-size:1.15rem; font-weight: 800; color:{card_text};'>{val}</span>
             </div>
