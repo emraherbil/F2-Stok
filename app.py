@@ -99,7 +99,9 @@ st.markdown(f"""
         }}
 
         /* 🟢 KARANLIK MOD TOGGLE BUTONU RENGİ (#68A2B9) */
-        div[data-testid="stToggle"] *[data-checked="true"] {{
+        div[data-testid="stToggle"] [data-baseweb="checkbox"] div[data-checked="true"],
+        div[data-testid="stToggle"] div[data-checked="true"] > div,
+        div[data-testid="stToggle"] input:checked + div {{
             background-color: #68A2B9 !important;
         }}
 
@@ -308,14 +310,15 @@ try:
         
         out_df["Güncel Stok"] = out_df["Güncel Stok"].apply(lambda v: f"{int(v):,}".replace(",", "."))
 
-        # 🟢 TABLO İÇİ DİNAMİK RENKLENDİRME (Karanlık/Aydınlık Mod Uyumlu)
+        # 🟢 TABLO İÇİ DİNAMİK RENKLENDİRME (Karanlık/Aydınlık Mod Uyumlu - Özel Mavi Tonlu)
         def row_style(row):
             is_zero = raw_stok.loc[row.name] == 0
             
             if is_dark:
-                # Karanlık mod: Tükenenlere mat bordo, diğerlerine koyu arka plan, beyaza yakın metin
-                bg = '#4a2323' if is_zero else '#1E222A'
-                color = '#F5F5F5'
+                # Karanlık mod: Tükenenlere #68A2B9 (logo rengi), diğerlerine koyu arka plan
+                bg = '#68A2B9' if is_zero else '#1E222A'
+                # Yazı rengi: #68A2B9 üzerindeki metnin okunabilirliği için beyazımsı renk tercih edildi
+                color = '#FFFFFF' if is_zero else '#F5F5F5' 
                 return [f'background-color: {bg}; color: {color}'] * len(row)
             else:
                 # Aydınlık mod: Tükenenlere açık kırmızı, diğerleri varsayılan
