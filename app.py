@@ -74,14 +74,16 @@ st.markdown(
             border-radius: 6px !important;
         }}
 
+        /* 🌟 KUTU İÇİ YAZILAR NORMAL YAPILDI */
         div[data-testid="stTextInput"] input {{
             color: {input_text} !important;
             -webkit-text-fill-color: {input_text} !important;
-            font-weight: 600 !important;
+            font-weight: normal !important;
         }}
 
         div[data-testid="stTextInput"] input::placeholder {{
             color: #4A5568 !important;
+            font-weight: normal !important;
         }}
 
         div[data-testid="stSelectbox"] div[role="button"],
@@ -89,7 +91,7 @@ st.markdown(
         div[data-baseweb="select"] svg {{
             color: {input_text} !important;
             fill: {input_text} !important;
-            font-weight: 600 !important;
+            font-weight: normal !important;
         }}
 
         div[data-baseweb="popover"] div,
@@ -97,6 +99,7 @@ st.markdown(
         div[data-baseweb="option"] {{
             background-color: {input_bg} !important;
             color: {input_text} !important;
+            font-weight: normal !important;
         }}
 
         /* 🌟 DATAFRAME BEYAZ ŞERİT DÜZELTMESİ */
@@ -296,7 +299,6 @@ try:
     if current_grup not in grup_ops:
       st.session_state.q_grup = "Tümü"
 
-    # 🌟 ETİKET KONTROLÜ: Streamlit'in kendi etiketi yerine özel HTML etiketleri kullanıldı
     with col1:
       st.markdown(
           f"<div style='color: {label_color}; font-size: 14px;"
