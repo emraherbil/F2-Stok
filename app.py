@@ -3,6 +3,7 @@ import os
 from pathlib import Path
 import pandas as pd
 import streamlit as st
+import streamlit.components.v1 as components
 
 # ==========================================
 # 1. SAYFA YAPILANDIRMASI
@@ -415,21 +416,56 @@ try:
         lambda v: f"{int(v):,}".replace(",", ".")
     )
 
-    # 🌐 HTML / CSS TABLO OLUŞTURMA (Beyaz Şerit Sorununu Kökten Çözer)
+    # 🌐 GÜVENLİ HTML TABLO OLUŞTURMA VE COMPONENT KULLANIMI
     border_color_val = "#383E4A" if is_dark else "#CBD5E0"
 
     table_html = f"""
-        <div style="background-color: {table_bg}; border: 1px solid {border_color_val}; border-radius: 6px; overflow-x: auto; margin-top: 10px;">
-            <table style="width: 100%; border-collapse: collapse; font-family: sans-serif; font-size: 14px; color: {text_color}; white-space: nowrap;">
+        <!DOCTYPE html>
+        <html>
+        <head>
+        <meta charset="utf-8">
+        <style>
+            body {{
+                background-color: {table_bg};
+                color: {text_color};
+                font-family: sans-serif;
+                margin: 0;
+                padding: 0;
+            }}
+            table {{
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 14px;
+                white-space: nowrap;
+            }}
+            th {{
+                background-color: {header_bg};
+                color: #1E222A;
+                font-weight: 700;
+                padding: 12px 15px;
+                text-align: left;
+                position: sticky;
+                top: 0;
+                z-index: 1;
+            }}
+            td {{
+                padding: 11px 15px;
+                border-bottom: 1px solid {border_color_val};
+            }}
+        </style>
+        </head>
+        <body>
+        <div style="background-color: {table_bg}; border: 1px solid {border_color_val}; border-radius: 6px; overflow: hidden;">
+            <table>
                 <thead>
-                    <tr style="background-color: {header_bg}; color: #1E222A; font-weight: 700;">
-                        <th style="padding: 12px 15px; text-align: left;">Ürün Kodu</th>
-                        <th style="padding: 12px 15px; text-align: left;">Açıklama</th>
-                        <th style="padding: 12px 15px; text-align: center;">Marka</th>
-                        <th style="padding: 12px 15px; text-align: center;">Ürün Grubu</th>
-                        <th style="padding: 12px 15px; text-align: center;">Güncel Stok</th>
-                        <th style="padding: 12px 15px; text-align: right;">Birim Maliyet</th>
-                        <th style="padding: 12px 15px; text-align: right;">Toplam Maliyet</th>
+                    <tr>
+                        <th style="text-align: left;">Ürün Kodu</th>
+                        <th style="text-align: left;">Açıklama</th>
+                        <th style="text-align: center;">Marka</th>
+                        <th style="text-align: center;">Ürün Grubu</th>
+                        <th style="text-align: center;">Güncel Stok</th>
+                        <th style="text-align: right;">Birim Maliyet</th>
+                        <th style="text-align: right;">Toplam Maliyet</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -437,10 +473,10 @@ try:
 
     if len(out_df) == 0:
       table_html += f"""
-            <tr>
-                <td colspan="7" style="padding: 25px; text-align: center; color: {subtext_color};">Kriterlere uygun ürün bulunamadı.</td>
-            </tr>
-            """
+                <tr>
+                    <td colspan="7" style="text-align: center; color: {subtext_color}; padding: 25px;">Kriterlere uygun ürün bulunamadı.</td>
+                </tr>
+                """
     else:
       for idx, row in out_df.iterrows():
         is_zero = raw_stok.iloc[idx] == 0
@@ -452,24 +488,30 @@ try:
           row_color = "#000000" if is_zero else text_color
 
         table_html += f"""
-                <tr style="background-color: {row_bg}; color: {row_color}; border-bottom: 1px solid {border_color_val};">
-                    <td style="padding: 11px 15px; font-weight: 600;">{row['Ürün Kodu']}</td>
-                    <td style="padding: 11px 15px;">{row['Açıklama']}</td>
-                    <td style="padding: 11px 15px; text-align: center;">{row['Marka']}</td>
-                    <td style="padding: 11px 15px; text-align: center;">{row['Ürün Grubu']}</td>
-                    <td style="padding: 11px 15px; text-align: center; font-weight: 600;">{row['Güncel Stok']}</td>
-                    <td style="padding: 11px 15px; text-align: right;">{row['Birim Maliyet']}</td>
-                    <td style="padding: 11px 15px; text-align: right; font-weight: 600;">{row['Toplam Maliyet']}</td>
+                <tr style="background-color: {row_bg}; color: {row_color};">
+                    <td style="font-weight: 600;">{row['Ürün Kodu']}</td>
+                    <td>{row['Açıklama']}</td>
+                    <td style="text-align: center;">{row['Marka']}</td>
+                    <td style="text-align: center;">{row['Ürün Grubu']}</td>
+                    <td style="text-align: center; font-weight: 600;">{row['Güncel Stok']}</td>
+                    <td style="text-align: right;">{row['Birim Maliyet']}</td>
+                    <td style="text-align: right; font-weight: 600;">{row['Toplam Maliyet']}</td>
                 </tr>
-            """
+                """
 
     table_html += """
                 </tbody>
             </table>
         </div>
+        </body>
+        </html>
         """
 
-    st.markdown(table_html, unsafe_allow_html=True)
+    row_count = len(out_df)
+    calc_h = (row_count * 40) + 60
+    iframe_height = min(max(calc_h, 120), 520) if row_count > 0 else 120
+
+    components.html(table_html, height=iframe_height, scrolling=True)
 
   stok_paneli_icerik(df)
 
