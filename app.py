@@ -114,7 +114,7 @@ st.markdown(
         .custom-header-left {{
             display: flex;
             align-items: center;
-            gap: 29px; /* 🌟 Logo ile başlık arası boşluk 4px artırıldı */
+            gap: 25px;
         }}
         .custom-logo {{ height: 60px; object-fit: contain; }}
         .custom-title-block {{ display: flex; flex-direction: column; justify-content: center; }}
