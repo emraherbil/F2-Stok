@@ -8,7 +8,9 @@ import streamlit as st
 # 1. SAYFA YAPILANDIRMASI
 # ==========================================
 st.set_page_config(
-    page_title="F2 ICT - Ofis Stok İzleme Paneli", page_icon="📦", layout="wide"
+    page_title="F2 ICT - Ofis Stok İzleme Paneli",
+    page_icon="F2 STOK_2.ico",
+    layout="wide",
 )
 
 if "dark_mode" not in st.session_state:
