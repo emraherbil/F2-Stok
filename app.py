@@ -114,17 +114,17 @@ st.markdown(
         .custom-header-left {{
             display: flex;
             align-items: center;
-            gap: 25px;
+            gap: 25px; /* 🌟 PC için orijinal değer */
         }}
         .custom-logo {{ height: 60px; object-fit: contain; }}
         .custom-title-block {{ display: flex; flex-direction: column; justify-content: center; }}
 
-        /* 🌟 MOBİL UYUMLULUK: Sadece mobilde logo ve yazıları alt alta getirir */
+        /* 🌟 MOBİL UYUMLULUK: Sadece mobilde alt alta ve 3-4px artırılmış boşluk */
         @media (max-width: 768px) {{
             .custom-header-left {{
                 flex-direction: column !important;
                 align-items: flex-start !important;
-                gap: 10px !important;
+                gap: 14px !important; /* Mobildeki boşluk 10px'ten ~14px'e çıkarıldı */
             }}
         }}
 
