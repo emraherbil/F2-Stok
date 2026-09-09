@@ -31,6 +31,7 @@ if is_dark:
   card_bg = "#2A2F3B"
   card_text = "#FFFFFF"
   card_label = "#D1D5DB"
+  grid_border_color = "#383E4A"  # 🌟 Karanlık mod kılavuz çizgi rengi
 else:
   bg_color = "#FFFFFF"
   text_color = "#262730"
@@ -43,6 +44,7 @@ else:
   card_bg = "#F0F2F6"  
   card_text = "#111111"
   card_label = "#555555"
+  grid_border_color = "#E2E8F0"  # 🌟 Açık mod kılavuz çizgi rengi
 
 st.markdown(
     f"""
@@ -133,6 +135,40 @@ st.markdown(
             background-color: #12223c !important;
             border: 1px solid #12223c !important;
             color: white !important; 
+        }}
+
+        /* 🌟 ÖZEL HTML TABLO KILAVUZ ÇİZGİLERİ VE STİLLERİ */
+        .custom-grid-table-container {{
+            max-height: 540px;
+            overflow-y: auto;
+            border: 1px solid {grid_border_color};
+            border-radius: 6px;
+        }}
+        .custom-grid-table {{
+            width: 100%;
+            border-collapse: collapse;
+            font-family: inherit;
+            font-size: 14px;
+        }}
+        .custom-grid-table th {{
+            background-color: {'#1E222A' if is_dark else '#F0F2F6'};
+            color: {text_color};
+            text-align: left;
+            padding: 10px 12px;
+            font-weight: 600;
+            border-bottom: 2px solid {grid_border_color};
+            border-right: 1px solid {grid_border_color};
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }}
+        .custom-grid-table td {{
+            padding: 9px 12px;
+            border-bottom: 1px solid {grid_border_color};
+            border-right: 1px solid {grid_border_color};
+        }}
+        .custom-grid-table th:last-child, .custom-grid-table td:last-child {{
+            border-right: none;
         }}
     </style>
 """,
@@ -437,45 +473,54 @@ try:
         empty_df = pd.DataFrame(empty_data)
         out_df = pd.concat([out_df, empty_df], ignore_index=True)
 
-    def row_style(row):
-      # Sanal boş satırlar
-      if row.name >= len(raw_stok):
-        if is_dark:
-          return ["background-color: #2A2F3B; color: #2A2F3B"] * len(row)
-        else:
-          return ["background-color: #FFFFFF; color: #FFFFFF"] * len(row)
-          
-      is_zero = raw_stok.loc[row.name] == 0
-      
-      if is_dark:
-        # 🌟 ZEBRA DESENİ: Çizgi yerine ardışık satırlarda farklı tonlar kullanarak ayrışma sağlıyoruz
-        if is_zero:
-          bg = "#2A2F3B"
-        else:
-          bg = "#171A21" if row.name % 2 == 0 else "#1E222A"
-          
-        color = "#F5F5F5"
-        return [f"background-color: {bg}; color: {color}"] * len(row)
-      else:
-        if is_zero:
-          return [
-              "background-color: rgba(255, 75, 75, 0.15); color: #000000"
-          ] * len(row)
-        return [""] * len(row)
+    # HTML Tablo Oluşturma ve Hizalama / Renklendirme Ayarları
+    alignments = {
+        "Ürün Kodu": "text-align: left;",
+        "Açıklama": "text-align: left;",
+        "Marka": "text-align: center;",
+        "Ürün Grubu": "text-align: center;",
+        "Güncel Stok": "text-align: center;",
+        "Birim Maliyet": "text-align: right;",
+        "Toplam Maliyet": "text-align: right;"
+    }
 
-    st.dataframe(
-        out_df.style.apply(row_style, axis=1),
-        use_container_width=True,
-        hide_index=True,
-        height=540,
-        column_config={
-            "Marka": st.column_config.Column(alignment="center"),
-            "Ürün Grubu": st.column_config.Column(alignment="center"),
-            "Güncel Stok": st.column_config.Column(alignment="center"),
-            "Birim Maliyet": st.column_config.Column(alignment="right"),
-            "Toplam Maliyet": st.column_config.Column(alignment="right"),
-        },
-    )
+    html_rows = []
+    for idx, row in out_df.iterrows():
+      # Boş doldurma satırları
+      if idx >= len(raw_stok):
+        bg = "#2A2F3B" if is_dark else "#FFFFFF"
+        color = bg
+      else:
+        is_zero = raw_stok.loc[idx] == 0
+        if is_dark:
+          bg = "#2A2F3B" if is_zero else "#1E222A"
+          color = "#F5F5F5"
+        else:
+          bg = "rgba(255, 75, 75, 0.15)" if is_zero else "#FFFFFF"
+          color = "#000000" if is_zero else "#262730"
+
+      cells = []
+      for col_name in out_df.columns:
+        align_style = alignments.get(col_name, "text-align: left;")
+        cell_val = "" if pd.isna(row[col_name]) else str(row[col_name])
+        cells.append(f'<td style="{align_style} background-color: {bg}; color: {color};">{cell_val}</td>')
+      
+      html_rows.append(f"<tr>{''.join(cells)}</tr>")
+
+    # Sütun başlıkları
+    headers = "".join([f'<th style="{alignments.get(col, "text-align: left;")}">{col}</th>' for col in out_df.columns])
+
+    # Tam HTML Tablosu
+    table_html = f"""
+    <div class="custom-grid-table-container">
+        <table class="custom-grid-table">
+            <thead><tr>{headers}</tr></thead>
+            <tbody>{''.join(html_rows)}</tbody>
+        </table>
+    </div>
+    """
+
+    st.markdown(table_html, unsafe_allow_html=True)
 
   stok_paneli_icerik(df)
 
