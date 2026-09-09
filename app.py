@@ -2,14 +2,20 @@ import base64
 import os
 from pathlib import Path
 import pandas as pd
+from PIL import Image
 import streamlit as st
 
 # ==========================================
 # 1. SAYFA YAPILANDIRMASI
 # ==========================================
+try:
+  page_icon_img = Image.open("F2 STOK_2.ico")
+except Exception:
+  page_icon_img = "📦"  # Dosya bulunamazsa yedek emoji
+
 st.set_page_config(
     page_title="F2 ICT - Ofis Stok İzleme Paneli",
-    page_icon="F2 STOK_2.ico",
+    page_icon=page_icon_img,
     layout="wide",
 )
 
@@ -24,7 +30,7 @@ LOGO_COLOR = "#B5C1D0"  # Logo alt yazı rengi
 if is_dark:
   bg_color = "#0E1117"
   text_color = "#FAFAFA"
-  label_color = "#F1F5F9"  
+  label_color = "#F1F5F9"
   subtext_color = "#A3A8B4"
   input_bg = LOGO_COLOR
   input_text = "#1E222A"
@@ -38,11 +44,11 @@ else:
   text_color = "#262730"
   label_color = "#262730"
   subtext_color = "#7D7F87"
-  input_bg = None  
+  input_bg = None
   input_text = "#1A202C"
   input_border = "#CBD5E0"
   header_bg = LOGO_COLOR
-  card_bg = "#F0F2F6"  
+  card_bg = "#F0F2F6"
   card_text = "#111111"
   card_label = "#555555"
 
@@ -424,7 +430,7 @@ try:
 
     out_df["Ürün Kodu"] = out_df["Ürün Kodu"].astype(str)
     out_df = out_df.reset_index(drop=True)
-    
+
     # 🌟 Orijinal stok verilerini indeksleriyle kaydediyoruz
     raw_stok = out_df["Güncel Stok"].copy()
 
@@ -446,10 +452,10 @@ try:
     # 🌟 BEYAZ BOŞLUK ÇÖZÜMÜ: Yüksekliği (540px) dolduracak sanal boş satırlar ekleniyor
     min_rows = 15
     if len(out_df) < min_rows:
-        pad_count = min_rows - len(out_df)
-        empty_data = {col: [""] * pad_count for col in out_df.columns}
-        empty_df = pd.DataFrame(empty_data)
-        out_df = pd.concat([out_df, empty_df], ignore_index=True)
+      pad_count = min_rows - len(out_df)
+      empty_data = {col: [""] * pad_count for col in out_df.columns}
+      empty_df = pd.DataFrame(empty_data)
+      out_df = pd.concat([out_df, empty_df], ignore_index=True)
 
     def row_style(row):
       # Eğer satır bizim sonradan eklediğimiz sanal boş bir satırsa
@@ -459,7 +465,7 @@ try:
           return ["background-color: #2A2F3B; color: #2A2F3B"] * len(row)
         else:
           return ["background-color: #FFFFFF; color: #FFFFFF"] * len(row)
-          
+
       # Eğer satır orijinal bir veri satırıysa
       is_zero = raw_stok.loc[row.name] == 0
       if is_dark:
