@@ -414,10 +414,8 @@ try:
     out_df["Ürün Kodu"] = out_df["Ürün Kodu"].astype(str)
     out_df = out_df.reset_index(drop=True)
     
-    # 🌟 Orijinal stok verilerini indeksleriyle kaydediyoruz
     raw_stok = out_df["Güncel Stok"].copy()
 
-    # Verileri string olarak biçimlendiriyoruz
     out_df["Birim Maliyet"] = out_df["Birim Maliyet"].apply(
         lambda v: (
             f"${v:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
@@ -432,7 +430,6 @@ try:
         lambda v: f"{int(v):,}".replace(",", ".")
     )
 
-    # 🌟 BEYAZ BOŞLUK ÇÖZÜMÜ: Yüksekliği (540px) dolduracak sanal boş satırlar ekleniyor
     min_rows = 15
     if len(out_df) < min_rows:
         pad_count = min_rows - len(out_df)
@@ -441,20 +438,20 @@ try:
         out_df = pd.concat([out_df, empty_df], ignore_index=True)
 
     def row_style(row):
-      # Eğer satır bizim sonradan eklediğimiz sanal boş bir satırsa
+      # 🌟 Belirgin kılavuz çizgileri için karanlık modda hücre kenarlıkları eklendi
+      grid_border = "border-bottom: 1px solid #383E4A; border-right: 1px solid #383E4A;" if is_dark else ""
+      
       if row.name >= len(raw_stok):
         if is_dark:
-          # Boş satırlar için tam olarak sıfır stoklu ürün arka plan rengi
-          return ["background-color: #2A2F3B; color: #2A2F3B"] * len(row)
+          return [f"background-color: #2A2F3B; color: #2A2F3B; {grid_border}"] * len(row)
         else:
           return ["background-color: #FFFFFF; color: #FFFFFF"] * len(row)
           
-      # Eğer satır orijinal bir veri satırıysa
       is_zero = raw_stok.loc[row.name] == 0
       if is_dark:
         bg = "#2A2F3B" if is_zero else "#1E222A"
         color = "#F5F5F5"
-        return [f"background-color: {bg}; color: {color}"] * len(row)
+        return [f"background-color: {bg}; color: {color}; {grid_border}"] * len(row)
       else:
         if is_zero:
           return [
