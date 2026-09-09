@@ -119,6 +119,15 @@ st.markdown(
         .custom-logo {{ height: 60px; object-fit: contain; }}
         .custom-title-block {{ display: flex; flex-direction: column; justify-content: center; }}
 
+        /* 🌟 MOBİL UYUMLULUK: Sadece mobilde logo ve yazıları alt alta getirir */
+        @media (max-width: 768px) {{
+            .custom-header-left {{
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                gap: 10px !important;
+            }}
+        }}
+
         .stButton > button {{ 
             background-color: #1C355E !important; 
             color: white !important; 
