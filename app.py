@@ -88,7 +88,7 @@ st.markdown(
 
         {'div[data-baseweb="popover"] div, div[data-baseweb="menu"], div[data-baseweb="option"] { background-color: ' + str(input_bg) + ' !important; color: ' + str(input_text) + ' !important; font-weight: normal !important; }' if is_dark else ''}
 
-        /* DATAFRAME BEYAZ ŞERİT DÜZELTMESİ */
+        /* DATAFRAME BEYAZ ŞERİT VE ARKA PLAN DÜZELTMESİ */
         div[data-testid="stDataFrame"], 
         div[data-testid="stDataFrame"] > div,
         div[data-testid="stDataFrame"] > div > div {{
@@ -452,20 +452,13 @@ try:
           ] * len(row)
         return [""] * len(row)
 
-    row_count = len(out_df)
-    
-    # 🌟 Kalan son minik boşluk/çizgi payı da optimize edilerek tam hizalandı
-    if row_count == 0:
-      dynamic_height = 100
-    else:
-      calculated_height = (row_count * 35) + 35
-      dynamic_height = min(calculated_height, 540)
-
+    # 🌟 Tablo yüksekliği sabit (540px) tutularak filtrelemede kutunun küçülmesi engellendi
+    # Boş kalan satır alanları karanlık mod arka plan rengine uyumlu hale getirildi.
     st.dataframe(
         out_df.style.apply(row_style, axis=1),
         use_container_width=True,
         hide_index=True,
-        height=dynamic_height,
+        height=540,
         column_config={
             "Marka": st.column_config.Column(alignment="center"),
             "Ürün Grubu": st.column_config.Column(alignment="center"),
