@@ -31,7 +31,6 @@ if is_dark:
   card_bg = "#2A2F3B"
   card_text = "#FFFFFF"
   card_label = "#D1D5DB"
-  df_empty_bg = "#2A2F3B"  # Boş satırlar için karanlık mod sıfır stok rengi
 else:
   bg_color = "#FFFFFF"
   text_color = "#262730"
@@ -44,7 +43,6 @@ else:
   card_bg = "#F0F2F6"  
   card_text = "#111111"
   card_label = "#555555"
-  df_empty_bg = "#FFFFFF"  # Aydınlık mod varsayılan arka planı
 
 st.markdown(
     f"""
@@ -89,15 +87,6 @@ st.markdown(
         }}
 
         {'div[data-baseweb="popover"] div, div[data-baseweb="menu"], div[data-baseweb="option"] { background-color: ' + str(input_bg) + ' !important; color: ' + str(input_text) + ' !important; font-weight: normal !important; }' if is_dark else ''}
-
-        /* DATAFRAME BEYAZ ŞERİT VE BOŞ SATIR ARKA PLAN DÜZELTMESİ */
-        div[data-testid="stDataFrame"], 
-        div[data-testid="stDataFrame"] > div,
-        div[data-testid="stDataFrame"] > div > div {{
-            --secondary-background-color: {df_empty_bg} !important;
-            --background-color: {df_empty_bg} !important;
-            background-color: {df_empty_bg} !important;
-        }}
 
         /* CHECKBOX STİLLERİ */
         div[data-testid="stCheckbox"] label span {{
@@ -424,8 +413,11 @@ try:
 
     out_df["Ürün Kodu"] = out_df["Ürün Kodu"].astype(str)
     out_df = out_df.reset_index(drop=True)
+    
+    # 🌟 Orijinal stok verilerini indeksleriyle kaydediyoruz
     raw_stok = out_df["Güncel Stok"].copy()
 
+    # Verileri string olarak biçimlendiriyoruz
     out_df["Birim Maliyet"] = out_df["Birim Maliyet"].apply(
         lambda v: (
             f"${v:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
@@ -436,12 +428,28 @@ try:
             f"${v:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
         )
     )
-
     out_df["Güncel Stok"] = out_df["Güncel Stok"].apply(
         lambda v: f"{int(v):,}".replace(",", ".")
     )
 
+    # 🌟 BEYAZ BOŞLUK ÇÖZÜMÜ: Yüksekliği (540px) dolduracak sanal boş satırlar ekleniyor
+    min_rows = 15
+    if len(out_df) < min_rows:
+        pad_count = min_rows - len(out_df)
+        empty_data = {col: [""] * pad_count for col in out_df.columns}
+        empty_df = pd.DataFrame(empty_data)
+        out_df = pd.concat([out_df, empty_df], ignore_index=True)
+
     def row_style(row):
+      # Eğer satır bizim sonradan eklediğimiz sanal boş bir satırsa
+      if row.name >= len(raw_stok):
+        if is_dark:
+          # Boş satırlar için tam olarak sıfır stoklu ürün arka plan rengi
+          return ["background-color: #2A2F3B; color: #2A2F3B"] * len(row)
+        else:
+          return ["background-color: #FFFFFF; color: #FFFFFF"] * len(row)
+          
+      # Eğer satır orijinal bir veri satırıysa
       is_zero = raw_stok.loc[row.name] == 0
       if is_dark:
         bg = "#2A2F3B" if is_zero else "#1E222A"
