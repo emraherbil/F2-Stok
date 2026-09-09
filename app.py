@@ -22,7 +22,7 @@ LOGO_COLOR = "#B5C1D0"  # Logo alt yazı rengi
 if is_dark:
   bg_color = "#0E1117"
   text_color = "#FAFAFA"
-  label_color = "#F1F5F9"  
+  label_color = "#F1F5F9"  # Beyaza yakın yumuşak ve net renk
   subtext_color = "#A3A8B4"
   input_bg = LOGO_COLOR
   input_text = "#1E222A"
@@ -31,20 +31,18 @@ if is_dark:
   card_bg = "#2A2F3B"
   card_text = "#FFFFFF"
   card_label = "#D1D5DB"
-  grid_border_color = "#383E4A"  # 🌟 Karanlık mod kılavuz çizgi rengi
 else:
   bg_color = "#FFFFFF"
   text_color = "#262730"
   label_color = "#262730"
   subtext_color = "#7D7F87"
-  input_bg = None  
+  input_bg = None  # Aydınlık modda varsayılan Streamlit rengi
   input_text = "#1A202C"
   input_border = "#CBD5E0"
   header_bg = LOGO_COLOR
-  card_bg = "#F0F2F6"  
+  card_bg = "#F0F2F6"  # Metin kutularının varsayılan arka plan rengi
   card_text = "#111111"
   card_label = "#555555"
-  grid_border_color = "#E2E8F0"  # 🌟 Açık mod kılavuz çizgi rengi
 
 st.markdown(
     f"""
@@ -89,6 +87,15 @@ st.markdown(
         }}
 
         {'div[data-baseweb="popover"] div, div[data-baseweb="menu"], div[data-baseweb="option"] { background-color: ' + str(input_bg) + ' !important; color: ' + str(input_text) + ' !important; font-weight: normal !important; }' if is_dark else ''}
+
+        /* DATAFRAME BEYAZ ŞERİT DÜZELTMESİ */
+        div[data-testid="stDataFrame"], 
+        div[data-testid="stDataFrame"] > div,
+        div[data-testid="stDataFrame"] > div > div {{
+            --secondary-background-color: {bg_color} !important;
+            --background-color: {bg_color} !important;
+            background-color: {bg_color} !important;
+        }}
 
         /* CHECKBOX STİLLERİ */
         div[data-testid="stCheckbox"] label span {{
@@ -135,40 +142,6 @@ st.markdown(
             background-color: #12223c !important;
             border: 1px solid #12223c !important;
             color: white !important; 
-        }}
-
-        /* 🌟 ÖZEL HTML TABLO KILAVUZ ÇİZGİLERİ VE STİLLERİ */
-        .custom-grid-table-container {{
-            max-height: 540px;
-            overflow-y: auto;
-            border: 1px solid {grid_border_color};
-            border-radius: 6px;
-        }}
-        .custom-grid-table {{
-            width: 100%;
-            border-collapse: collapse;
-            font-family: inherit;
-            font-size: 14px;
-        }}
-        .custom-grid-table th {{
-            background-color: {'#1E222A' if is_dark else '#F0F2F6'};
-            color: {text_color};
-            text-align: left;
-            padding: 10px 12px;
-            font-weight: 600;
-            border-bottom: 2px solid {grid_border_color};
-            border-right: 1px solid {grid_border_color};
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }}
-        .custom-grid-table td {{
-            padding: 9px 12px;
-            border-bottom: 1px solid {grid_border_color};
-            border-right: 1px solid {grid_border_color};
-        }}
-        .custom-grid-table th:last-child, .custom-grid-table td:last-child {{
-            border-right: none;
         }}
     </style>
 """,
@@ -449,7 +422,6 @@ try:
 
     out_df["Ürün Kodu"] = out_df["Ürün Kodu"].astype(str)
     out_df = out_df.reset_index(drop=True)
-    
     raw_stok = out_df["Güncel Stok"].copy()
 
     out_df["Birim Maliyet"] = out_df["Birim Maliyet"].apply(
@@ -462,65 +434,46 @@ try:
             f"${v:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
         )
     )
+
     out_df["Güncel Stok"] = out_df["Güncel Stok"].apply(
         lambda v: f"{int(v):,}".replace(",", ".")
     )
 
-    min_rows = 15
-    if len(out_df) < min_rows:
-        pad_count = min_rows - len(out_df)
-        empty_data = {col: [""] * pad_count for col in out_df.columns}
-        empty_df = pd.DataFrame(empty_data)
-        out_df = pd.concat([out_df, empty_df], ignore_index=True)
-
-    # HTML Tablo Oluşturma ve Hizalama / Renklendirme Ayarları
-    alignments = {
-        "Ürün Kodu": "text-align: left;",
-        "Açıklama": "text-align: left;",
-        "Marka": "text-align: center;",
-        "Ürün Grubu": "text-align: center;",
-        "Güncel Stok": "text-align: center;",
-        "Birim Maliyet": "text-align: right;",
-        "Toplam Maliyet": "text-align: right;"
-    }
-
-    html_rows = []
-    for idx, row in out_df.iterrows():
-      # Boş doldurma satırları
-      if idx >= len(raw_stok):
-        bg = "#2A2F3B" if is_dark else "#FFFFFF"
-        color = bg
+    def row_style(row):
+      is_zero = raw_stok.loc[row.name] == 0
+      if is_dark:
+        bg = "#2A2F3B" if is_zero else "#1E222A"
+        color = "#F5F5F5"
+        return [f"background-color: {bg}; color: {color}"] * len(row)
       else:
-        is_zero = raw_stok.loc[idx] == 0
-        if is_dark:
-          bg = "#2A2F3B" if is_zero else "#1E222A"
-          color = "#F5F5F5"
-        else:
-          bg = "rgba(255, 75, 75, 0.15)" if is_zero else "#FFFFFF"
-          color = "#000000" if is_zero else "#262730"
+        if is_zero:
+          return [
+              "background-color: rgba(255, 75, 75, 0.15); color: #000000"
+          ] * len(row)
+        return [""] * len(row)
 
-      cells = []
-      for col_name in out_df.columns:
-        align_style = alignments.get(col_name, "text-align: left;")
-        cell_val = "" if pd.isna(row[col_name]) else str(row[col_name])
-        cells.append(f'<td style="{align_style} background-color: {bg}; color: {color};">{cell_val}</td>')
-      
-      html_rows.append(f"<tr>{''.join(cells)}</tr>")
+    row_count = len(out_df)
+    
+    # 🌟 Kalan son minik boşluk/çizgi payı da optimize edilerek tam hizalandı
+    if row_count == 0:
+      dynamic_height = 100
+    else:
+      calculated_height = (row_count * 35) + 35
+      dynamic_height = min(calculated_height, 540)
 
-    # Sütun başlıkları
-    headers = "".join([f'<th style="{alignments.get(col, "text-align: left;")}">{col}</th>' for col in out_df.columns])
-
-    # Tam HTML Tablosu
-    table_html = f"""
-    <div class="custom-grid-table-container">
-        <table class="custom-grid-table">
-            <thead><tr>{headers}</tr></thead>
-            <tbody>{''.join(html_rows)}</tbody>
-        </table>
-    </div>
-    """
-
-    st.markdown(table_html, unsafe_allow_html=True)
+    st.dataframe(
+        out_df.style.apply(row_style, axis=1),
+        use_container_width=True,
+        hide_index=True,
+        height=dynamic_height,
+        column_config={
+            "Marka": st.column_config.Column(alignment="center"),
+            "Ürün Grubu": st.column_config.Column(alignment="center"),
+            "Güncel Stok": st.column_config.Column(alignment="center"),
+            "Birim Maliyet": st.column_config.Column(alignment="right"),
+            "Toplam Maliyet": st.column_config.Column(alignment="right"),
+        },
+    )
 
   stok_paneli_icerik(df)
 
