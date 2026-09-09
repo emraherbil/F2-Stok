@@ -22,7 +22,7 @@ LOGO_COLOR = "#B5C1D0"  # Logo alt yazı rengi
 if is_dark:
   bg_color = "#0E1117"
   text_color = "#FAFAFA"
-  label_color = "#F1F5F9"  # Beyaza yakın yumuşak ve net renk
+  label_color = "#F1F5F9"  
   subtext_color = "#A3A8B4"
   input_bg = LOGO_COLOR
   input_text = "#1E222A"
@@ -31,18 +31,20 @@ if is_dark:
   card_bg = "#2A2F3B"
   card_text = "#FFFFFF"
   card_label = "#D1D5DB"
+  df_empty_bg = "#2A2F3B"  # Boş satırlar için karanlık mod sıfır stok rengi
 else:
   bg_color = "#FFFFFF"
   text_color = "#262730"
   label_color = "#262730"
   subtext_color = "#7D7F87"
-  input_bg = None  # Aydınlık modda varsayılan Streamlit rengi
+  input_bg = None  
   input_text = "#1A202C"
   input_border = "#CBD5E0"
   header_bg = LOGO_COLOR
-  card_bg = "#F0F2F6"  # Metin kutularının varsayılan arka plan rengi
+  card_bg = "#F0F2F6"  
   card_text = "#111111"
   card_label = "#555555"
+  df_empty_bg = "#FFFFFF"  # Aydınlık mod varsayılan arka planı
 
 st.markdown(
     f"""
@@ -88,13 +90,13 @@ st.markdown(
 
         {'div[data-baseweb="popover"] div, div[data-baseweb="menu"], div[data-baseweb="option"] { background-color: ' + str(input_bg) + ' !important; color: ' + str(input_text) + ' !important; font-weight: normal !important; }' if is_dark else ''}
 
-        /* DATAFRAME BEYAZ ŞERİT VE ARKA PLAN DÜZELTMESİ */
+        /* DATAFRAME BEYAZ ŞERİT VE BOŞ SATIR ARKA PLAN DÜZELTMESİ */
         div[data-testid="stDataFrame"], 
         div[data-testid="stDataFrame"] > div,
         div[data-testid="stDataFrame"] > div > div {{
-            --secondary-background-color: {bg_color} !important;
-            --background-color: {bg_color} !important;
-            background-color: {bg_color} !important;
+            --secondary-background-color: {df_empty_bg} !important;
+            --background-color: {df_empty_bg} !important;
+            background-color: {df_empty_bg} !important;
         }}
 
         /* CHECKBOX STİLLERİ */
@@ -452,8 +454,6 @@ try:
           ] * len(row)
         return [""] * len(row)
 
-    # 🌟 Tablo yüksekliği sabit (540px) tutularak filtrelemede kutunun küçülmesi engellendi
-    # Boş kalan satır alanları karanlık mod arka plan rengine uyumlu hale getirildi.
     st.dataframe(
         out_df.style.apply(row_style, axis=1),
         use_container_width=True,
