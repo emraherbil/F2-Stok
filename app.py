@@ -438,20 +438,24 @@ try:
         out_df = pd.concat([out_df, empty_df], ignore_index=True)
 
     def row_style(row):
-      # 🌟 Belirgin kılavuz çizgileri için karanlık modda hücre kenarlıkları eklendi
-      grid_border = "border-bottom: 1px solid #383E4A; border-right: 1px solid #383E4A;" if is_dark else ""
-      
+      # Sanal boş satırlar
       if row.name >= len(raw_stok):
         if is_dark:
-          return [f"background-color: #2A2F3B; color: #2A2F3B; {grid_border}"] * len(row)
+          return ["background-color: #2A2F3B; color: #2A2F3B"] * len(row)
         else:
           return ["background-color: #FFFFFF; color: #FFFFFF"] * len(row)
           
       is_zero = raw_stok.loc[row.name] == 0
+      
       if is_dark:
-        bg = "#2A2F3B" if is_zero else "#1E222A"
+        # 🌟 ZEBRA DESENİ: Çizgi yerine ardışık satırlarda farklı tonlar kullanarak ayrışma sağlıyoruz
+        if is_zero:
+          bg = "#2A2F3B"
+        else:
+          bg = "#171A21" if row.name % 2 == 0 else "#1E222A"
+          
         color = "#F5F5F5"
-        return [f"background-color: {bg}; color: {color}; {grid_border}"] * len(row)
+        return [f"background-color: {bg}; color: {color}"] * len(row)
       else:
         if is_zero:
           return [
