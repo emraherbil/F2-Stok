@@ -189,14 +189,19 @@ try:
   c_fiyat = df.columns[12]
   c_maliyet = df.columns[13]
 
-  sayim_cols = list(df.columns[14:])
-  c_stok = sayim_cols[-1] if sayim_cols else df.columns[-1]
-
-  df[c_stok] = pd.to_numeric(df[c_stok], errors="coerce").fillna(0)
   if c_rezerve:
       df[c_rezerve] = pd.to_numeric(df[c_rezerve], errors="coerce").fillna(0)
   if c_satis_acik:
       df[c_satis_acik] = pd.to_numeric(df[c_satis_acik], errors="coerce").fillna(0)
+
+  # 🌟 Güncel Stok, Rezerve + Satışa Açık toplamı olarak hesaplanıyor (Excel pivot uyumu için)
+  c_stok = "Güncel Stok"
+  if c_rezerve and c_satis_acik:
+      df[c_stok] = df[c_rezerve] + df[c_satis_acik]
+  else:
+      sayim_cols = list(df.columns[14:])
+      fallback_stok = sayim_cols[-1] if sayim_cols else df.columns[-1]
+      df[c_stok] = pd.to_numeric(df[fallback_stok], errors="coerce").fillna(0)
       
   df[c_maliyet] = pd.to_numeric(df[c_maliyet], errors="coerce").fillna(0)
   df[c_fiyat] = pd.to_numeric(df[c_fiyat], errors="coerce").fillna(0)
