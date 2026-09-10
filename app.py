@@ -250,6 +250,8 @@ try:
       st.session_state.q_grup = "Tümü"
     if "q_marka" not in st.session_state:
       st.session_state.q_marka = "Tümü"
+    if "q_rezerve" not in st.session_state:
+      st.session_state.q_rezerve = False
     if "q_stok" not in st.session_state:
       st.session_state.q_stok = False
     if "q_sifir_stok" not in st.session_state:
@@ -259,6 +261,7 @@ try:
       st.session_state.clear_ver += 1
       st.session_state.q_grup = "Tümü"
       st.session_state.q_marka = "Tümü"
+      st.session_state.q_rezerve = False
       st.session_state.q_stok = False
       st.session_state.q_sifir_stok = False
 
@@ -337,8 +340,9 @@ try:
 
     with col4:
       st.markdown(
-          "<div style='height: 25px;'></div>", unsafe_allow_html=True
+          "<div style='height: 10px;'></div>", unsafe_allow_html=True
       )
+      v_rezerve = st.checkbox("📌 Rezerve Edilenleri Listele", key="q_rezerve")
       v_stok = st.checkbox("🚫 Tükenenleri Gizle", key="q_stok")
       v_sifir_stok = st.checkbox(
           "⚠️ Sadece Tükenenleri Listele", key="q_sifir_stok"
@@ -364,6 +368,8 @@ try:
     if v_grup != "Tümü":
       f_df = f_df[f_df[c_grup].astype(str) == v_grup]
 
+    if v_rezerve and c_rezerve:
+      f_df = f_df[f_df[c_rezerve] > 0]
     if v_stok:
       f_df = f_df[f_df[c_stok] > 0]
     if v_sifir_stok:
@@ -481,7 +487,6 @@ try:
         return [f"background-color: {bg}; color: {color}"] * len(row)
       else:
         if is_zero:
-          # Gönderdiğiniz görseldeki (image_4f34d4.png) kırmızımsı formatı korur
           return [
               "background-color: rgba(255, 75, 75, 0.15); color: #000000"
           ] * len(row)
