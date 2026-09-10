@@ -114,11 +114,12 @@ st.markdown(
         .custom-header-left {{
             display: flex;
             align-items: center;
-            gap: 25px;
+            gap: 25px; /* 🌟 PC için orijinal değer */
         }}
         .custom-logo {{ height: 60px; object-fit: contain; }}
         .custom-title-block {{ display: flex; flex-direction: column; justify-content: center; }}
 
+        /* 🌟 MOBİL UYUMLULUK: Sadece mobilde alt alta ve güncellenmiş boşluk */
         @media (max-width: 768px) {{
             .custom-header-left {{
                 flex-direction: column !important;
@@ -182,27 +183,13 @@ try:
   c_tanim = df.columns[2]
   c_marka = df.columns[3]
   c_grup = df.columns[4]
-  
-  c_rezerve = next((c for c in df.columns if "rezerve" in str(c).lower()), None)
-  c_satis_acik = next((c for c in df.columns if "açık" in str(c).lower() or "acik" in str(c).lower()), None)
-  
   c_fiyat = df.columns[12]
   c_maliyet = df.columns[13]
 
-  if c_rezerve:
-      df[c_rezerve] = pd.to_numeric(df[c_rezerve], errors="coerce").fillna(0)
-  if c_satis_acik:
-      df[c_satis_acik] = pd.to_numeric(df[c_satis_acik], errors="coerce").fillna(0)
+  sayim_cols = list(df.columns[14:])
+  c_stok = sayim_cols[-1] if sayim_cols else df.columns[-1]
 
-  # 🌟 Güncel Stok, Rezerve + Satışa Açık toplamı olarak hesaplanıyor (Excel pivot uyumu için)
-  c_stok = "Güncel Stok"
-  if c_rezerve and c_satis_acik:
-      df[c_stok] = df[c_rezerve] + df[c_satis_acik]
-  else:
-      sayim_cols = list(df.columns[14:])
-      fallback_stok = sayim_cols[-1] if sayim_cols else df.columns[-1]
-      df[c_stok] = pd.to_numeric(df[fallback_stok], errors="coerce").fillna(0)
-      
+  df[c_stok] = pd.to_numeric(df[c_stok], errors="coerce").fillna(0)
   df[c_maliyet] = pd.to_numeric(df[c_maliyet], errors="coerce").fillna(0)
   df[c_fiyat] = pd.to_numeric(df[c_fiyat], errors="coerce").fillna(0)
 
@@ -256,8 +243,6 @@ try:
       st.session_state.q_stok = False
     if "q_sifir_stok" not in st.session_state:
       st.session_state.q_sifir_stok = False
-    if "q_rezerve" not in st.session_state:
-      st.session_state.q_rezerve = False
 
     def filtreleri_temizle():
       st.session_state.clear_ver += 1
@@ -265,7 +250,6 @@ try:
       st.session_state.q_marka = "Tümü"
       st.session_state.q_stok = False
       st.session_state.q_sifir_stok = False
-      st.session_state.q_rezerve = False
 
     col1, col2, col3, col4, col5 = st.columns([3.2, 2.4, 2.4, 2.2, 1.2])
 
@@ -342,13 +326,12 @@ try:
 
     with col4:
       st.markdown(
-          "<div style='height: 5px;'></div>", unsafe_allow_html=True
+          "<div style='height: 25px;'></div>", unsafe_allow_html=True
       )
       v_stok = st.checkbox("🚫 Tükenenleri Gizle", key="q_stok")
       v_sifir_stok = st.checkbox(
           "⚠️ Sadece Tükenenleri Listele", key="q_sifir_stok"
       )
-      v_rezerve = st.checkbox("📌 Rezerve Edilenleri Listele", key="q_rezerve")
 
     with col5:
       st.markdown(
@@ -374,8 +357,6 @@ try:
       f_df = f_df[f_df[c_stok] > 0]
     if v_sifir_stok:
       f_df = f_df[f_df[c_stok] == 0]
-    if v_rezerve and c_rezerve:
-      f_df = f_df[f_df[c_rezerve] > 0]
 
     t_prod = len(f_df)
     t_stok = int(f_df[c_stok].sum())
@@ -419,28 +400,33 @@ try:
       )
 
     st.markdown("<div style='height: 25px;'></div>", unsafe_allow_html=True)
-    
-    gosterilecek_sutunlar = [c_kod, c_tanim, c_marka, c_grup, c_stok]
-    sutun_isimleri = ["Ürün Kodu", "Açıklama", "Marka", "Ürün Grubu", "Güncel Stok"]
-    
-    if c_rezerve:
-        gosterilecek_sutunlar.append(c_rezerve)
-        sutun_isimleri.append("Rezerve")
-    if c_satis_acik:
-        gosterilecek_sutunlar.append(c_satis_acik)
-        sutun_isimleri.append("Satışa Açık")
-        
-    gosterilecek_sutunlar.extend([c_fiyat, c_maliyet])
-    sutun_isimleri.extend(["Birim Maliyet", "Toplam Maliyet"])
 
-    out_df = f_df[gosterilecek_sutunlar].copy()
-    out_df.columns = sutun_isimleri
+    out_df = f_df[[
+        c_kod,
+        c_tanim,
+        c_marka,
+        c_grup,
+        c_stok,
+        c_fiyat,
+        c_maliyet,
+    ]].copy()
+    out_df.columns = [
+        "Ürün Kodu",
+        "Açıklama",
+        "Marka",
+        "Ürün Grubu",
+        "Güncel Stok",
+        "Birim Maliyet",
+        "Toplam Maliyet",
+    ]
 
     out_df["Ürün Kodu"] = out_df["Ürün Kodu"].astype(str)
     out_df = out_df.reset_index(drop=True)
     
+    # 🌟 Orijinal stok verilerini indeksleriyle kaydediyoruz
     raw_stok = out_df["Güncel Stok"].copy()
 
+    # Verileri string olarak biçimlendiriyoruz
     out_df["Birim Maliyet"] = out_df["Birim Maliyet"].apply(
         lambda v: (
             f"${v:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
@@ -454,12 +440,8 @@ try:
     out_df["Güncel Stok"] = out_df["Güncel Stok"].apply(
         lambda v: f"{int(v):,}".replace(",", ".")
     )
-    
-    if "Rezerve" in out_df.columns:
-        out_df["Rezerve"] = out_df["Rezerve"].apply(lambda v: f"{int(v):,}".replace(",", "."))
-    if "Satışa Açık" in out_df.columns:
-        out_df["Satışa Açık"] = out_df["Satışa Açık"].apply(lambda v: f"{int(v):,}".replace(",", "."))
 
+    # 🌟 BEYAZ BOŞLUK ÇÖZÜMÜ: Yüksekliği (540px) dolduracak sanal boş satırlar ekleniyor
     min_rows = 15
     if len(out_df) < min_rows:
         pad_count = min_rows - len(out_df)
@@ -468,12 +450,15 @@ try:
         out_df = pd.concat([out_df, empty_df], ignore_index=True)
 
     def row_style(row):
+      # Eğer satır bizim sonradan eklediğimiz sanal boş bir satırsa
       if row.name >= len(raw_stok):
         if is_dark:
+          # Boş satırlar için tam olarak sıfır stoklu ürün arka plan rengi
           return ["background-color: #2A2F3B; color: #2A2F3B"] * len(row)
         else:
           return ["background-color: #FFFFFF; color: #FFFFFF"] * len(row)
           
+      # Eğer satır orijinal bir veri satırıysa
       is_zero = raw_stok.loc[row.name] == 0
       if is_dark:
         bg = "#2A2F3B" if is_zero else "#1E222A"
@@ -486,24 +471,18 @@ try:
           ] * len(row)
         return [""] * len(row)
 
-    col_cfg = {
-        "Marka": st.column_config.Column(alignment="center"),
-        "Ürün Grubu": st.column_config.Column(alignment="center"),
-        "Güncel Stok": st.column_config.Column(alignment="center"),
-        "Birim Maliyet": st.column_config.Column(alignment="right"),
-        "Toplam Maliyet": st.column_config.Column(alignment="right"),
-    }
-    if "Rezerve" in out_df.columns:
-        col_cfg["Rezerve"] = st.column_config.Column(alignment="center")
-    if "Satışa Açık" in out_df.columns:
-        col_cfg["Satışa Açık"] = st.column_config.Column(alignment="center")
-
     st.dataframe(
         out_df.style.apply(row_style, axis=1),
         use_container_width=True,
         hide_index=True,
         height=540,
-        column_config=col_cfg,
+        column_config={
+            "Marka": st.column_config.Column(alignment="center"),
+            "Ürün Grubu": st.column_config.Column(alignment="center"),
+            "Güncel Stok": st.column_config.Column(alignment="center"),
+            "Birim Maliyet": st.column_config.Column(alignment="right"),
+            "Toplam Maliyet": st.column_config.Column(alignment="right"),
+        },
     )
 
   stok_paneli_icerik(df)
