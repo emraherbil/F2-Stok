@@ -183,13 +183,24 @@ try:
   c_tanim = df.columns[2]
   c_marka = df.columns[3]
   c_grup = df.columns[4]
+  
+  # Yeni Eklenen Sütunları Dinamik Tespit Etme
+  c_rezerve = next((c for c in df.columns if "rezerve" in str(c).lower()), None)
+  c_satis_acik = next((c for c in df.columns if "açık" in str(c).lower() or "acik" in str(c).lower()), None)
+  
   c_fiyat = df.columns[12]
   c_maliyet = df.columns[13]
 
   sayim_cols = list(df.columns[14:])
   c_stok = sayim_cols[-1] if sayim_cols else df.columns[-1]
 
+  # Sayısal değerlere dönüştürme ve NaN'ları sıfırlama
   df[c_stok] = pd.to_numeric(df[c_stok], errors="coerce").fillna(0)
+  if c_rezerve:
+      df[c_rezerve] = pd.to_numeric(df[c_rezerve], errors="coerce").fillna(0)
+  if c_satis_acik:
+      df[c_satis_acik] = pd.to_numeric(df[c_satis_acik], errors="coerce").fillna(0)
+      
   df[c_maliyet] = pd.to_numeric(df[c_maliyet], errors="coerce").fillna(0)
   df[c_fiyat] = pd.to_numeric(df[c_fiyat], errors="coerce").fillna(0)
 
@@ -400,25 +411,23 @@ try:
       )
 
     st.markdown("<div style='height: 25px;'></div>", unsafe_allow_html=True)
+    
+    # 🌟 Görüntülenecek sütunları dinamik oluşturma
+    gosterilecek_sutunlar = [c_kod, c_tanim, c_marka, c_grup, c_stok]
+    sutun_isimleri = ["Ürün Kodu", "Açıklama", "Marka", "Ürün Grubu", "Güncel Stok"]
+    
+    if c_rezerve:
+        gosterilecek_sutunlar.append(c_rezerve)
+        sutun_isimleri.append("Rezerve")
+    if c_satis_acik:
+        gosterilecek_sutunlar.append(c_satis_acik)
+        sutun_isimleri.append("Satışa Açık")
+        
+    gosterilecek_sutunlar.extend([c_fiyat, c_maliyet])
+    sutun_isimleri.extend(["Birim Maliyet", "Toplam Maliyet"])
 
-    out_df = f_df[[
-        c_kod,
-        c_tanim,
-        c_marka,
-        c_grup,
-        c_stok,
-        c_fiyat,
-        c_maliyet,
-    ]].copy()
-    out_df.columns = [
-        "Ürün Kodu",
-        "Açıklama",
-        "Marka",
-        "Ürün Grubu",
-        "Güncel Stok",
-        "Birim Maliyet",
-        "Toplam Maliyet",
-    ]
+    out_df = f_df[gosterilecek_sutunlar].copy()
+    out_df.columns = sutun_isimleri
 
     out_df["Ürün Kodu"] = out_df["Ürün Kodu"].astype(str)
     out_df = out_df.reset_index(drop=True)
@@ -440,6 +449,12 @@ try:
     out_df["Güncel Stok"] = out_df["Güncel Stok"].apply(
         lambda v: f"{int(v):,}".replace(",", ".")
     )
+    
+    # Eklenen sütunların sayısal formatlaması
+    if "Rezerve" in out_df.columns:
+        out_df["Rezerve"] = out_df["Rezerve"].apply(lambda v: f"{int(v):,}".replace(",", "."))
+    if "Satışa Açık" in out_df.columns:
+        out_df["Satışa Açık"] = out_df["Satışa Açık"].apply(lambda v: f"{int(v):,}".replace(",", "."))
 
     # 🌟 BEYAZ BOŞLUK ÇÖZÜMÜ: Yüksekliği (540px) dolduracak sanal boş satırlar ekleniyor
     min_rows = 15
@@ -466,23 +481,31 @@ try:
         return [f"background-color: {bg}; color: {color}"] * len(row)
       else:
         if is_zero:
+          # Gönderdiğiniz görseldeki (image_4f34d4.png) kırmızımsı formatı korur
           return [
               "background-color: rgba(255, 75, 75, 0.15); color: #000000"
           ] * len(row)
         return [""] * len(row)
+
+    # Tablo Sütun Hizalamaları
+    col_cfg = {
+        "Marka": st.column_config.Column(alignment="center"),
+        "Ürün Grubu": st.column_config.Column(alignment="center"),
+        "Güncel Stok": st.column_config.Column(alignment="center"),
+        "Birim Maliyet": st.column_config.Column(alignment="right"),
+        "Toplam Maliyet": st.column_config.Column(alignment="right"),
+    }
+    if "Rezerve" in out_df.columns:
+        col_cfg["Rezerve"] = st.column_config.Column(alignment="center")
+    if "Satışa Açık" in out_df.columns:
+        col_cfg["Satışa Açık"] = st.column_config.Column(alignment="center")
 
     st.dataframe(
         out_df.style.apply(row_style, axis=1),
         use_container_width=True,
         hide_index=True,
         height=540,
-        column_config={
-            "Marka": st.column_config.Column(alignment="center"),
-            "Ürün Grubu": st.column_config.Column(alignment="center"),
-            "Güncel Stok": st.column_config.Column(alignment="center"),
-            "Birim Maliyet": st.column_config.Column(alignment="right"),
-            "Toplam Maliyet": st.column_config.Column(alignment="right"),
-        },
+        column_config=col_cfg,
     )
 
   stok_paneli_icerik(df)
