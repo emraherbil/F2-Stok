@@ -22,7 +22,6 @@ LOGO_COLOR = "#B5C1D0"  # Logo alt yazı rengi
 if is_dark:
   bg_color = "#0E1117"
   text_color = "#FAFAFA"
-  label_color = "#F1F5F9"  
   subtext_color = "#A3A8B4"
   input_bg = LOGO_COLOR
   input_text = "#1E222A"
@@ -34,13 +33,12 @@ if is_dark:
 else:
   bg_color = "#FFFFFF"
   text_color = "#262730"
-  label_color = "#262730"
   subtext_color = "#7D7F87"
-  input_bg = None  
+  input_bg = "#E2E8F0"  # Açık modda logodan esinlenen hafif açık ton
   input_text = "#1A202C"
   input_border = "#CBD5E0"
-  header_bg = LOGO_COLOR
-  card_bg = "#F0F2F6"  
+  header_bg = LOGO_COLOR  # Tablo başlığı açık modda da logo rengi
+  card_bg = "rgba(28, 31, 46, 0.03)"
   card_text = "#111111"
   card_label = "#555555"
 
@@ -51,6 +49,7 @@ st.markdown(
         .viewerBadge_container {{display: none !important;}}
         header {{visibility: hidden !important; display: none !important;}}
         
+        /* STREAMLIT GLOBAL CANVASI DİNAMİK AŞMA (TABLO BAŞLIĞINI ETKİLER) */
         :root, [data-testid="stAppViewContainer"], .stApp {{
             --background-color: {bg_color} !important;
             --secondary-background-color: {header_bg} !important;
@@ -65,38 +64,64 @@ st.markdown(
             max-width: 100% !important;
         }}
         
-        {'div[data-testid="stTextInput"] > div > div, div[data-testid="stSelectbox"] > div > div, div[data-baseweb="base-input"], div[data-baseweb="select"] > div { background-color: ' + str(input_bg) + ' !important; border-color: ' + str(input_border) + ' !important; border-radius: 6px !important; }' if is_dark else ''}
+        /* GİRDİ KUTUSU ETİKETLERİ */
+        div[data-testid="stWidgetLabel"] label, 
+        div[data-testid="stWidgetLabel"] p {{
+            color: {text_color} !important;
+            font-weight: 600 !important;
+        }}
+
+        /* 🎯 DİNAMİK AÇILAN KUTULAR VE ARAMA INPUT ARKA PLAN RENGİ */
+        div[data-testid="stTextInput"] > div > div,
+        div[data-testid="stSelectbox"] > div > div,
+        div[data-baseweb="base-input"],
+        div[data-baseweb="select"] > div {{
+            background-color: {input_bg} !important;
+            border-color: {input_border} !important;
+            border-radius: 6px !important;
+        }}
 
         div[data-testid="stTextInput"] input {{
             color: {input_text} !important;
             -webkit-text-fill-color: {input_text} !important;
-            font-weight: normal !important;
+            font-weight: 600 !important;
         }}
 
         div[data-testid="stTextInput"] input::placeholder {{
             color: #4A5568 !important;
-            font-weight: normal !important;
         }}
 
+        /* SELECTBOX METİN VE İKONLARI */
         div[data-testid="stSelectbox"] div[role="button"],
         div[data-baseweb="select"] span,
         div[data-baseweb="select"] svg {{
             color: {input_text} !important;
             fill: {input_text} !important;
-            font-weight: normal !important;
+            font-weight: 600 !important;
         }}
 
-        {'div[data-baseweb="popover"] div, div[data-baseweb="menu"], div[data-baseweb="option"] { background-color: ' + str(input_bg) + ' !important; color: ' + str(input_text) + ' !important; font-weight: normal !important; }' if is_dark else ''}
+        /* POPUP LİSTE MENÜSÜ */
+        div[data-baseweb="popover"] div,
+        div[data-baseweb="menu"],
+        div[data-baseweb="option"] {{
+            background-color: {input_bg} !important;
+            color: {input_text} !important;
+        }}
 
-        /* CHECKBOX STİLLERİ */
+        /* 🎯 DATAFRAME CANVAS & HEADER ÖZELLEŞTİRME */
+        div[data-testid="stDataFrame"] {{
+            --secondary-background-color: {header_bg} !important;
+        }}
+
+        /* CHECKBOX YAZILARI */
         div[data-testid="stCheckbox"] label span {{
-            color: {label_color} !important;
-            font-weight: normal !important;
+            color: {text_color} !important;
         }}
         div[data-testid="stCheckbox"] {{
             margin-bottom: -15px !important;
         }}
 
+        /* TOGGLE BUTONU */
         div[data-testid="stToggle"] div[role="switch"] {{
             background-color: rgba(104, 162, 185, 0.3) !important;
         }}
@@ -114,19 +139,10 @@ st.markdown(
         .custom-header-left {{
             display: flex;
             align-items: center;
-            gap: 25px; /* 🌟 PC için orijinal değer */
+            gap: 25px;
         }}
         .custom-logo {{ height: 60px; object-fit: contain; }}
         .custom-title-block {{ display: flex; flex-direction: column; justify-content: center; }}
-
-        /* 🌟 MOBİL UYUMLULUK: Sadece mobilde alt alta ve güncellenmiş boşluk */
-        @media (max-width: 768px) {{
-            .custom-header-left {{
-                flex-direction: column !important;
-                align-items: flex-start !important;
-                gap: 17px !important; 
-            }}
-        }}
 
         .stButton > button {{ 
             background-color: #1C355E !important; 
@@ -227,7 +243,6 @@ try:
       unsafe_allow_html=True,
   )
 
-
   # ==========================================
   # 4. FRAGMENT ALANI
   # ==========================================
@@ -286,43 +301,17 @@ try:
       st.session_state.q_grup = "Tümü"
 
     with col1:
-      st.markdown(
-          f"<div style='color: {label_color}; font-size: 14px;"
-          " margin-bottom: 6px; font-weight: normal;'>📝 Ürün Ara</div>",
-          unsafe_allow_html=True,
-      )
       v_search = st.text_input(
-          label="Ürün Ara",
-          label_visibility="collapsed",
+          label="📝 Ürün Ara",
           key=f"search_box_{st.session_state.clear_ver}",
           placeholder="Ürün adı veya kodu yazıp Enter'a basın...",
       )
 
     with col2:
-      st.markdown(
-          f"<div style='color: {label_color}; font-size: 14px;"
-          " margin-bottom: 6px; font-weight: normal;'>🏷️ Marka</div>",
-          unsafe_allow_html=True,
-      )
-      v_marka = st.selectbox(
-          "Marka",
-          marka_ops,
-          label_visibility="collapsed",
-          key="q_marka",
-      )
+      v_marka = st.selectbox("🏷️ Marka", marka_ops, key="q_marka")
 
     with col3:
-      st.markdown(
-          f"<div style='color: {label_color}; font-size: 14px;"
-          " margin-bottom: 6px; font-weight: normal;'>📂 Ürün Grubu</div>",
-          unsafe_allow_html=True,
-      )
-      v_grup = st.selectbox(
-          "Ürün Grubu",
-          grup_ops,
-          label_visibility="collapsed",
-          key="q_grup",
-      )
+      v_grup = st.selectbox("📂 Ürün Grubu", grup_ops, key="q_grup")
 
     with col4:
       st.markdown(
@@ -399,7 +388,7 @@ try:
           unsafe_allow_html=True,
       )
 
-    st.markdown("<div style='height: 25px;'></div>", unsafe_allow_html=True)
+    st.markdown("<div style='margin-top:20px;'></div>", unsafe_allow_html=True)
 
     out_df = f_df[[
         c_kod,
@@ -422,11 +411,8 @@ try:
 
     out_df["Ürün Kodu"] = out_df["Ürün Kodu"].astype(str)
     out_df = out_df.reset_index(drop=True)
-    
-    # 🌟 Orijinal stok verilerini indeksleriyle kaydediyoruz
     raw_stok = out_df["Güncel Stok"].copy()
 
-    # Verileri string olarak biçimlendiriyoruz
     out_df["Birim Maliyet"] = out_df["Birim Maliyet"].apply(
         lambda v: (
             f"${v:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
@@ -437,28 +423,12 @@ try:
             f"${v:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
         )
     )
+
     out_df["Güncel Stok"] = out_df["Güncel Stok"].apply(
         lambda v: f"{int(v):,}".replace(",", ".")
     )
 
-    # 🌟 BEYAZ BOŞLUK ÇÖZÜMÜ: Yüksekliği (540px) dolduracak sanal boş satırlar ekleniyor
-    min_rows = 15
-    if len(out_df) < min_rows:
-        pad_count = min_rows - len(out_df)
-        empty_data = {col: [""] * pad_count for col in out_df.columns}
-        empty_df = pd.DataFrame(empty_data)
-        out_df = pd.concat([out_df, empty_df], ignore_index=True)
-
     def row_style(row):
-      # Eğer satır bizim sonradan eklediğimiz sanal boş bir satırsa
-      if row.name >= len(raw_stok):
-        if is_dark:
-          # Boş satırlar için tam olarak sıfır stoklu ürün arka plan rengi
-          return ["background-color: #2A2F3B; color: #2A2F3B"] * len(row)
-        else:
-          return ["background-color: #FFFFFF; color: #FFFFFF"] * len(row)
-          
-      # Eğer satır orijinal bir veri satırıysa
       is_zero = raw_stok.loc[row.name] == 0
       if is_dark:
         bg = "#2A2F3B" if is_zero else "#1E222A"
