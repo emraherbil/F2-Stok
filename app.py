@@ -247,20 +247,20 @@ try:
       st.session_state.q_grup = "Tümü"
     if "q_marka" not in st.session_state:
       st.session_state.q_marka = "Tümü"
-    if "q_rezerve" not in st.session_state:
-      st.session_state.q_rezerve = False
     if "q_stok" not in st.session_state:
       st.session_state.q_stok = False
     if "q_sifir_stok" not in st.session_state:
       st.session_state.q_sifir_stok = False
+    if "q_rezerve" not in st.session_state:
+      st.session_state.q_rezerve = False
 
     def filtreleri_temizle():
       st.session_state.clear_ver += 1
       st.session_state.q_grup = "Tümü"
       st.session_state.q_marka = "Tümü"
-      st.session_state.q_rezerve = False
       st.session_state.q_stok = False
       st.session_state.q_sifir_stok = False
+      st.session_state.q_rezerve = False
 
     col1, col2, col3, col4, col5 = st.columns([3.2, 2.4, 2.4, 2.2, 1.2])
 
@@ -336,15 +336,14 @@ try:
       )
 
     with col4:
-      # 🌟 Checkboxları ~3-4px daha yukarı taşımak için boşluk azaltıldı
       st.markdown(
           "<div style='height: 5px;'></div>", unsafe_allow_html=True
       )
       v_stok = st.checkbox("🚫 Tükenenleri Gizle", key="q_stok")
-      v_rezerve = st.checkbox("📌 Rezerve Edilenleri Listele", key="q_rezerve")
       v_sifir_stok = st.checkbox(
           "⚠️ Sadece Tükenenleri Listele", key="q_sifir_stok"
       )
+      v_rezerve = st.checkbox("📌 Rezerve Edilenleri Listele", key="q_rezerve")
 
     with col5:
       st.markdown(
@@ -368,10 +367,10 @@ try:
 
     if v_stok:
       f_df = f_df[f_df[c_stok] > 0]
-    if v_rezerve and c_rezerve:
-      f_df = f_df[f_df[c_rezerve] > 0]
     if v_sifir_stok:
       f_df = f_df[f_df[c_stok] == 0]
+    if v_rezerve and c_rezerve:
+      f_df = f_df[f_df[c_rezerve] > 0]
 
     t_prod = len(f_df)
     t_stok = int(f_df[c_stok].sum())
