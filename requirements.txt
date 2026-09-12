@@ -1,5 +1,5 @@
+Plaintext
 openpyxl
 xlrd
 streamlit-keyup
-Plaintext
 streamlit-aggrid
