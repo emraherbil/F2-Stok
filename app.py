@@ -1,9 +1,10 @@
 import base64
 import os
 from pathlib import Path
-import openpyxl  # AA1 hücresini okumak için
+import openpyxl
 import pandas as pd
 import streamlit as st
+import streamlit.components.v1 as components  # 🌟 HTML bileşeni için gerekli
 
 # ==========================================
 # 1. SAYFA YAPILANDIRMASI
@@ -178,7 +179,6 @@ def load_data():
   file_path = "Stok Sayım Arşivi-v3.1-Web.xlsm"
   df = pd.read_excel(file_path, sheet_name="Stok", engine="openpyxl")
 
-  # Dashboard sayfasından AA1 hücresini okuma
   tooltip_text = "Detay bulunamadı"
   try:
     wb = openpyxl.load_workbook(file_path, data_only=True)
@@ -445,7 +445,6 @@ try:
     
     raw_stok = out_df["Güncel Stok"].copy()
 
-    # Verileri biçimlendiriyoruz
     out_df["Birim Maliyet"] = out_df["Birim Maliyet"].apply(
         lambda v: (
             f"${v:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
@@ -460,7 +459,6 @@ try:
         lambda v: f"{int(v):,}".replace(",", ".")
     )
 
-    # 🌟 HTML Tablo ve Hover Tooltip Oluşturma (dashboard!AA1 içeriği ile)
     min_rows = 15
     if len(out_df) < min_rows:
         pad_count = min_rows - len(out_df)
@@ -486,7 +484,6 @@ try:
     """
 
     for idx, row in out_df.iterrows():
-        # Boş dolgu satırları kontrolü
         if idx >= len(raw_stok):
             bg_col = table_bg
             row_color = table_bg
@@ -500,7 +497,6 @@ try:
                 bg_col = "rgba(255, 75, 75, 0.15)" if is_zero else ("#F8F9FA" if idx % 2 == 1 else "#FFFFFF")
                 row_color = "#000000"
             
-            # 🌟 Her satıra dashboard!AA1 içeriğini tooltip olarak ekliyoruz
             tooltip_attr = f'title="{tooltip_text}"'
 
         html_table += f"""
@@ -521,7 +517,8 @@ try:
     </div>
     """
 
-    st.markdown(html_table, unsafe_allow_html=True)
+    # 🌟 st.markdown yerine components.html kullanarak tablonun düzgün görünmesini sağlıyoruz
+    components.html(html_table, height=560, scrolling=True)
 
   stok_paneli_icerik(df, aa1_tooltip)
 
