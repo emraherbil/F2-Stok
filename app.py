@@ -1,6 +1,7 @@
 import base64
 import os
 from pathlib import Path
+import openpyxl  # AA1 hücresini okumak için
 import pandas as pd
 import streamlit as st
 
@@ -31,6 +32,10 @@ if is_dark:
   card_bg = "#2A2F3B"
   card_text = "#FFFFFF"
   card_label = "#D1D5DB"
+  table_bg = "#1E222A"
+  table_alt_bg = "#252B35"
+  table_border = "#383E4A"
+  th_bg = "#2A2F3B"
 else:
   bg_color = "#FFFFFF"
   text_color = "#262730"
@@ -43,6 +48,10 @@ else:
   card_bg = "#F0F2F6"  
   card_text = "#111111"
   card_label = "#555555"
+  table_bg = "#FFFFFF"
+  table_alt_bg = "#F8F9FA"
+  table_border = "#E2E8F0"
+  th_bg = "#E2E8F0"
 
 st.markdown(
     f"""
@@ -114,12 +123,11 @@ st.markdown(
         .custom-header-left {{
             display: flex;
             align-items: center;
-            gap: 25px; /* 🌟 PC için orijinal değer */
+            gap: 25px; 
         }}
         .custom-logo {{ height: 60px; object-fit: contain; }}
         .custom-title-block {{ display: flex; flex-direction: column; justify-content: center; }}
 
-        /* 🌟 MOBİL UYUMLULUK: Sadece mobilde alt alta ve güncellenmiş boşluk */
         @media (max-width: 768px) {{
             .custom-header-left {{
                 flex-direction: column !important;
@@ -167,16 +175,28 @@ logo_data = logo_to_base64("logo.png") or logo_to_base64("logo.jpg")
 
 @st.cache_data(ttl=600)
 def load_data():
-  return pd.read_excel(
-      "Stok Sayım Arşivi-v3.1-Web.xlsm", sheet_name="Stok", engine="openpyxl"
-  )
+  file_path = "Stok Sayım Arşivi-v3.1-Web.xlsm"
+  df = pd.read_excel(file_path, sheet_name="Stok", engine="openpyxl")
+
+  # Dashboard sayfasından AA1 hücresini okuma
+  tooltip_text = "Detay bulunamadı"
+  try:
+    wb = openpyxl.load_workbook(file_path, data_only=True)
+    if "dashboard" in wb.sheetnames:
+      val = wb["dashboard"]["AA1"].value
+      if val is not None:
+        tooltip_text = str(val)
+  except Exception:
+    pass
+
+  return df, tooltip_text
 
 
 # ==========================================
 # 3. ANA PANEL DÜZENİ
 # ==========================================
 try:
-  df = load_data()
+  df, aa1_tooltip = load_data()
   df.columns = [str(c).strip() for c in df.columns]
 
   c_kod = df.columns[1]
@@ -232,7 +252,7 @@ try:
   # 4. FRAGMENT ALANI
   # ==========================================
   @st.fragment
-  def stok_paneli_icerik(data_frame):
+  def stok_paneli_icerik(data_frame, tooltip_text):
     if "clear_ver" not in st.session_state:
       st.session_state.clear_ver = 0
     if "q_grup" not in st.session_state:
@@ -423,10 +443,9 @@ try:
     out_df["Ürün Kodu"] = out_df["Ürün Kodu"].astype(str)
     out_df = out_df.reset_index(drop=True)
     
-    # 🌟 Orijinal stok verilerini indeksleriyle kaydediyoruz
     raw_stok = out_df["Güncel Stok"].copy()
 
-    # Verileri string olarak biçimlendiriyoruz
+    # Verileri biçimlendiriyoruz
     out_df["Birim Maliyet"] = out_df["Birim Maliyet"].apply(
         lambda v: (
             f"${v:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
@@ -441,7 +460,7 @@ try:
         lambda v: f"{int(v):,}".replace(",", ".")
     )
 
-    # 🌟 BEYAZ BOŞLUK ÇÖZÜMÜ: Yüksekliği (540px) dolduracak sanal boş satırlar ekleniyor
+    # 🌟 HTML Tablo ve Hover Tooltip Oluşturma (dashboard!AA1 içeriği ile)
     min_rows = 15
     if len(out_df) < min_rows:
         pad_count = min_rows - len(out_df)
@@ -449,43 +468,62 @@ try:
         empty_df = pd.DataFrame(empty_data)
         out_df = pd.concat([out_df, empty_df], ignore_index=True)
 
-    def row_style(row):
-      # Eğer satır bizim sonradan eklediğimiz sanal boş bir satırsa
-      if row.name >= len(raw_stok):
-        if is_dark:
-          # Boş satırlar için tam olarak sıfır stoklu ürün arka plan rengi
-          return ["background-color: #2A2F3B; color: #2A2F3B"] * len(row)
+    html_table = f"""
+    <div style="overflow-x: auto; max-height: 540px; border-radius: 8px; border: 1px solid {table_border};">
+        <table style="width: 100%; border-collapse: collapse; background-color: {table_bg}; color: {text_color}; font-family: sans-serif; font-size: 14px;">
+            <thead>
+                <tr style="background-color: {th_bg}; position: sticky; top: 0; z-index: 1;">
+                    <th style="padding: 12px; text-align: left; border-bottom: 2px solid {table_border};">Ürün Kodu</th>
+                    <th style="padding: 12px; text-align: left; border-bottom: 2px solid {table_border};">Açıklama</th>
+                    <th style="padding: 12px; text-align: center; border-bottom: 2px solid {table_border};">Marka</th>
+                    <th style="padding: 12px; text-align: center; border-bottom: 2px solid {table_border};">Ürün Grubu</th>
+                    <th style="padding: 12px; text-align: center; border-bottom: 2px solid {table_border};">Güncel Stok</th>
+                    <th style="padding: 12px; text-align: right; border-bottom: 2px solid {table_border};">Birim Maliyet</th>
+                    <th style="padding: 12px; text-align: right; border-bottom: 2px solid {table_border};">Toplam Maliyet</th>
+                </tr>
+            </thead>
+            <tbody>
+    """
+
+    for idx, row in out_df.iterrows():
+        # Boş dolgu satırları kontrolü
+        if idx >= len(raw_stok):
+            bg_col = table_bg
+            row_color = table_bg
+            tooltip_attr = ""
         else:
-          return ["background-color: #FFFFFF; color: #FFFFFF"] * len(row)
-          
-      # Eğer satır orijinal bir veri satırıysa
-      is_zero = raw_stok.loc[row.name] == 0
-      if is_dark:
-        bg = "#2A2F3B" if is_zero else "#1E222A"
-        color = "#F5F5F5"
-        return [f"background-color: {bg}; color: {color}"] * len(row)
-      else:
-        if is_zero:
-          return [
-              "background-color: rgba(255, 75, 75, 0.15); color: #000000"
-          ] * len(row)
-        return [""] * len(row)
+            is_zero = raw_stok.loc[idx] == 0
+            if is_dark:
+                bg_col = "#2A2F3B" if is_zero else ("#252B35" if idx % 2 == 1 else "#1E222A")
+                row_color = "#F5F5F5"
+            else:
+                bg_col = "rgba(255, 75, 75, 0.15)" if is_zero else ("#F8F9FA" if idx % 2 == 1 else "#FFFFFF")
+                row_color = "#000000"
+            
+            # 🌟 Her satıra dashboard!AA1 içeriğini tooltip olarak ekliyoruz
+            tooltip_attr = f'title="{tooltip_text}"'
 
-    st.dataframe(
-        out_df.style.apply(row_style, axis=1),
-        use_container_width=True,
-        hide_index=True,
-        height=540,
-        column_config={
-            "Marka": st.column_config.Column(alignment="center"),
-            "Ürün Grubu": st.column_config.Column(alignment="center"),
-            "Güncel Stok": st.column_config.Column(alignment="center"),
-            "Birim Maliyet": st.column_config.Column(alignment="right"),
-            "Toplam Maliyet": st.column_config.Column(alignment="right"),
-        },
-    )
+        html_table += f"""
+                <tr {tooltip_attr} style="background-color: {bg_col}; color: {row_color}; border-bottom: 1px solid {table_border}; transition: background 0.2s;" onmouseover="this.style.backgroundColor='{ '#383E4A' if is_dark else '#EDF2F7' }';" onmouseout="this.style.backgroundColor='{bg_col}';">
+                    <td style="padding: 10px 12px; text-align: left;">{row['Ürün Kodu']}</td>
+                    <td style="padding: 10px 12px; text-align: left;">{row['Açıklama']}</td>
+                    <td style="padding: 10px 12px; text-align: center;">{row['Marka']}</td>
+                    <td style="padding: 10px 12px; text-align: center;">{row['Ürün Grubu']}</td>
+                    <td style="padding: 10px 12px; text-align: center; font-weight: bold;">{row['Güncel Stok']}</td>
+                    <td style="padding: 10px 12px; text-align: right;">{row['Birim Maliyet']}</td>
+                    <td style="padding: 10px 12px; text-align: right;">{row['Toplam Maliyet']}</td>
+                </tr>
+        """
 
-  stok_paneli_icerik(df)
+    html_table += """
+            </tbody>
+        </table>
+    </div>
+    """
+
+    st.markdown(html_table, unsafe_allow_html=True)
+
+  stok_paneli_icerik(df, aa1_tooltip)
 
 except Exception as e:
   st.error(f"Hata oluştu: {e}")
