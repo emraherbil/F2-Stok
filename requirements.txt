@@ -3,4 +3,4 @@ Plaintext
 streamlit
 pandas
 openpyxl
-streamlit-aggrid
+streamlit-aggrid=1.0.5
