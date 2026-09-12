@@ -3,7 +3,8 @@ import os
 from pathlib import Path
 import pandas as pd
 import streamlit as st
-from st_aggrid import AgGrid, GridOptionsBuilder, JsCode # 🌟 Yeni eklenen kütüphane
+from st_aggrid import AgGrid, GridOptionsBuilder, JsCode
+import openpyxl  # AA1 hücresini okumak için gerekli
 
 # ==========================================
 # 1. SAYFA YAPILANDIRMASI
@@ -89,7 +90,6 @@ st.markdown(
 
         {'div[data-baseweb="popover"] div, div[data-baseweb="menu"], div[data-baseweb="option"] { background-color: ' + str(input_bg) + ' !important; color: ' + str(input_text) + ' !important; font-weight: normal !important; }' if is_dark else ''}
 
-        /* CHECKBOX STİLLERİ */
         div[data-testid="stCheckbox"] label span {{
             color: {label_color} !important;
             font-weight: normal !important;
@@ -167,16 +167,31 @@ logo_data = logo_to_base64("logo.png") or logo_to_base64("logo.jpg")
 
 @st.cache_data(ttl=600)
 def load_data():
-    return pd.read_excel(
-        "Stok Sayım Arşivi-v3.1-Web.xlsm", sheet_name="Stok", engine="openpyxl"
-    )
+    file_path = "Stok Sayım Arşivi-v3.1-Web.xlsm"
+    
+    # Ana stok verisini oku
+    df = pd.read_excel(file_path, sheet_name="Stok", engine="openpyxl")
+    
+    # 🌟 Dashboard sayfasındaki AA1 hücresinin içeriğini güvenli bir şekilde al
+    tooltip_text = "Detay bulunamadı"
+    try:
+        wb = openpyxl.load_workbook(file_path, data_only=True)
+        if "dashboard" in wb.sheetnames:
+            ws = wb["dashboard"]
+            val = ws["AA1"].value
+            if val is not None:
+                tooltip_text = str(val)
+    except Exception:
+        pass
+        
+    return df, tooltip_text
 
 
 # ==========================================
 # 3. ANA PANEL DÜZENİ
 # ==========================================
 try:
-    df = load_data()
+    df, aa1_tooltip = load_data()
     df.columns = [str(c).strip() for c in df.columns]
 
     c_kod = df.columns[1]
@@ -232,7 +247,7 @@ try:
     # 4. FRAGMENT ALANI
     # ==========================================
     @st.fragment
-    def stok_paneli_icerik(data_frame):
+    def stok_paneli_icerik(data_frame, tooltip_icerik):
         if "clear_ver" not in st.session_state:
             st.session_state.clear_ver = 0
         if "q_grup" not in st.session_state:
@@ -421,6 +436,9 @@ try:
             "Toplam Maliyet",
         ]
 
+        # 🌟 Her satıra dashboard!AA1 hücresinden gelen metni ekliyoruz ki baloncukta görünsün
+        out_df["Dashboard_Tooltip"] = tooltip_icerik
+
         out_df["Ürün Kodu"] = out_df["Ürün Kodu"].astype(str)
         out_df = out_df.reset_index(drop=True)
 
@@ -440,7 +458,7 @@ try:
         # ==========================================
         gb = GridOptionsBuilder.from_dataframe(out_df)
 
-        # Sıfır stoklu ürünler için satır renklendirmesi (Karanlık/Aydınlık mod uyumlu)
+        # Sıfır stoklu ürünler için satır renklendirmesi
         row_style_jscode = JsCode(f"""
         function(params) {{
             if (params.data['Güncel Stok'] === '0') {{
@@ -453,8 +471,11 @@ try:
         }}
         """)
 
-        # Tüm sütunlarda gezinip Açıklama baloncuğunu (tooltip) ve hizalamaları ayarlıyoruz
+        # Sütun ayarları ve Tooltip kaynağı (Dashboard_Tooltip sütunu bağlandı)
         for col in out_df.columns:
+            if col == "Dashboard_Tooltip":
+                continue # Bu sütun doğrudan arayüzde görünmeyecek, sadece baloncuk verisi taşıyacak
+                
             align = "left"
             if col in ["Marka", "Ürün Grubu", "Güncel Stok"]:
                 align = "center"
@@ -464,11 +485,14 @@ try:
             gb.configure_column(
                 col, 
                 cellStyle={"textAlign": align},
-                tooltipField="Açıklama"  # 🌟 İŞTE BURASI: Fare bekletildiğinde baloncuk olarak çıkacak değer
+                tooltipField="Dashboard_Tooltip"  # 🌟 Fare üzerine gelince AA1 içeriği görünecek
             )
 
+        # Gizli teknik sütun ayarı
+        gb.configure_column("Dashboard_Tooltip", hide=True)
+
         gb.configure_grid_options(
-            tooltipShowDelay=400, # Fare bekletme süresi (milisaniye)
+            tooltipShowDelay=300, # Fare bekletme süresi (milisaniye)
             getRowStyle=row_style_jscode
         )
 
@@ -480,13 +504,13 @@ try:
             height=540,
             theme="alpine-dark" if is_dark else "alpine",
             fit_columns_on_grid_load=True,
-            allow_unsafe_jscode=True, # JsCode'un çalışması için zorunlu
+            allow_unsafe_jscode=True,
             custom_css={
                 ".ag-row-hover": {"background-color": "#383E4A !important" if is_dark else "#e2e8f0 !important"}
             }
         )
 
-    stok_paneli_icerik(df)
+    stok_paneli_icerik(df, aa1_tooltip)
 
 except Exception as e:
     st.error(f"Hata oluştu: {e}")
