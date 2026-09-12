@@ -2,7 +2,6 @@ import base64
 import os
 from pathlib import Path
 import pandas as pd
-from st_aggrid import AgGrid, GridOptionsBuilder, JsCode
 import streamlit as st
 
 # ==========================================
@@ -23,7 +22,7 @@ LOGO_COLOR = "#B5C1D0"  # Logo alt yazı rengi
 if is_dark:
   bg_color = "#0E1117"
   text_color = "#FAFAFA"
-  label_color = "#F1F5F9"
+  label_color = "#F1F5F9"  
   subtext_color = "#A3A8B4"
   input_bg = LOGO_COLOR
   input_text = "#1E222A"
@@ -37,11 +36,11 @@ else:
   text_color = "#262730"
   label_color = "#262730"
   subtext_color = "#7D7F87"
-  input_bg = None
+  input_bg = None  
   input_text = "#1A202C"
   input_border = "#CBD5E0"
   header_bg = LOGO_COLOR
-  card_bg = "#F0F2F6"
+  card_bg = "#F0F2F6"  
   card_text = "#111111"
   card_label = "#555555"
 
@@ -115,11 +114,12 @@ st.markdown(
         .custom-header-left {{
             display: flex;
             align-items: center;
-            gap: 25px;
+            gap: 25px; /* 🌟 PC için orijinal değer */
         }}
         .custom-logo {{ height: 60px; object-fit: contain; }}
         .custom-title-block {{ display: flex; flex-direction: column; justify-content: center; }}
 
+        /* 🌟 MOBİL UYUMLULUK: Sadece mobilde alt alta ve güncellenmiş boşluk */
         @media (max-width: 768px) {{
             .custom-header-left {{
                 flex-direction: column !important;
@@ -183,37 +183,13 @@ try:
   c_tanim = df.columns[2]
   c_marka = df.columns[3]
   c_grup = df.columns[4]
-
-  c_rezerve = next(
-      (c for c in df.columns if "rezerve" in str(c).lower()), None
-  )
-  c_satis_acik = next(
-      (
-          c
-          for c in df.columns
-          if "açık" in str(c).lower() or "acik" in str(c).lower()
-      ),
-      None,
-  )
-
   c_fiyat = df.columns[12]
   c_maliyet = df.columns[13]
 
-  if c_rezerve:
-    df[c_rezerve] = pd.to_numeric(df[c_rezerve], errors="coerce").fillna(0)
-  if c_satis_acik:
-    df[c_satis_acik] = pd.to_numeric(df[c_satis_acik], errors="coerce").fillna(
-        0
-    )
+  sayim_cols = list(df.columns[14:])
+  c_stok = sayim_cols[-1] if sayim_cols else df.columns[-1]
 
-  c_stok = "Güncel Stok"
-  if c_rezerve and c_satis_acik:
-    df[c_stok] = df[c_rezerve] + df[c_satis_acik]
-  else:
-    sayim_cols = list(df.columns[14:])
-    fallback_stok = sayim_cols[-1] if sayim_cols else df.columns[-1]
-    df[c_stok] = pd.to_numeric(df[fallback_stok], errors="coerce").fillna(0)
-
+  df[c_stok] = pd.to_numeric(df[c_stok], errors="coerce").fillna(0)
   df[c_maliyet] = pd.to_numeric(df[c_maliyet], errors="coerce").fillna(0)
   df[c_fiyat] = pd.to_numeric(df[c_fiyat], errors="coerce").fillna(0)
 
@@ -267,8 +243,6 @@ try:
       st.session_state.q_stok = False
     if "q_sifir_stok" not in st.session_state:
       st.session_state.q_sifir_stok = False
-    if "q_rezerve" not in st.session_state:
-      st.session_state.q_rezerve = False
 
     def filtreleri_temizle():
       st.session_state.clear_ver += 1
@@ -276,7 +250,6 @@ try:
       st.session_state.q_marka = "Tümü"
       st.session_state.q_stok = False
       st.session_state.q_sifir_stok = False
-      st.session_state.q_rezerve = False
 
     col1, col2, col3, col4, col5 = st.columns([3.2, 2.4, 2.4, 2.2, 1.2])
 
@@ -353,13 +326,12 @@ try:
 
     with col4:
       st.markdown(
-          "<div style='height: 5px;'></div>", unsafe_allow_html=True
+          "<div style='height: 25px;'></div>", unsafe_allow_html=True
       )
       v_stok = st.checkbox("🚫 Tükenenleri Gizle", key="q_stok")
       v_sifir_stok = st.checkbox(
           "⚠️ Sadece Tükenenleri Listele", key="q_sifir_stok"
       )
-      v_rezerve = st.checkbox("📌 Rezerve Edilenleri Listele", key="q_rezerve")
 
     with col5:
       st.markdown(
@@ -385,8 +357,6 @@ try:
       f_df = f_df[f_df[c_stok] > 0]
     if v_sifir_stok:
       f_df = f_df[f_df[c_stok] == 0]
-    if v_rezerve and c_rezerve:
-      f_df = f_df[f_df[c_rezerve] > 0]
 
     t_prod = len(f_df)
     t_stok = int(f_df[c_stok].sum())
@@ -431,32 +401,32 @@ try:
 
     st.markdown("<div style='height: 25px;'></div>", unsafe_allow_html=True)
 
-    gosterilecek_sutunlar = [c_kod, c_tanim, c_marka, c_grup, c_stok]
-    sutun_isimleri = [
+    out_df = f_df[[
+        c_kod,
+        c_tanim,
+        c_marka,
+        c_grup,
+        c_stok,
+        c_fiyat,
+        c_maliyet,
+    ]].copy()
+    out_df.columns = [
         "Ürün Kodu",
         "Açıklama",
         "Marka",
         "Ürün Grubu",
         "Güncel Stok",
+        "Birim Maliyet",
+        "Toplam Maliyet",
     ]
-
-    if c_rezerve:
-      gosterilecek_sutunlar.append(c_rezerve)
-      sutun_isimleri.append("Rezerve")
-    if c_satis_acik:
-      gosterilecek_sutunlar.append(c_satis_acik)
-      sutun_isimleri.append("Satışa Açık")
-
-    gosterilecek_sutunlar.extend([c_fiyat, c_maliyet])
-    sutun_isimleri.extend(["Birim Maliyet", "Toplam Maliyet"])
-
-    out_df = f_df[gosterilecek_sutunlar].copy()
-    out_df.columns = sutun_isimleri
 
     out_df["Ürün Kodu"] = out_df["Ürün Kodu"].astype(str)
     out_df = out_df.reset_index(drop=True)
+    
+    # 🌟 Orijinal stok verilerini indeksleriyle kaydediyoruz
+    raw_stok = out_df["Güncel Stok"].copy()
 
-    # Biçimlendirmeler
+    # Verileri string olarak biçimlendiriyoruz
     out_df["Birim Maliyet"] = out_df["Birim Maliyet"].apply(
         lambda v: (
             f"${v:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
@@ -467,92 +437,53 @@ try:
             f"${v:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
         )
     )
-
-    # ==========================================
-    # AG-GRID YAPILANDIRMASI
-    # ==========================================
-    gb = GridOptionsBuilder.from_dataframe(out_df)
-    gb.configure_default_column(
-        editable=False,
-        resizable=True,
-        sortable=True,
-        filter=True,
-        suppressMenu=False,
+    out_df["Güncel Stok"] = out_df["Güncel Stok"].apply(
+        lambda v: f"{int(v):,}".replace(",", ".")
     )
 
-    # 💡 1. Hücre Üzerine Gelince (Tooltip): Açıklama sütununa tooltip özelliği kazandırıldı
-    gb.configure_column(
-        "Açıklama", tooltipField="Açıklama", width=320, flex=2
-    )
+    # 🌟 BEYAZ BOŞLUK ÇÖZÜMÜ: Yüksekliği (540px) dolduracak sanal boş satırlar ekleniyor
+    min_rows = 15
+    if len(out_df) < min_rows:
+        pad_count = min_rows - len(out_df)
+        empty_data = {col: [""] * pad_count for col in out_df.columns}
+        empty_df = pd.DataFrame(empty_data)
+        out_df = pd.concat([out_df, empty_df], ignore_index=True)
 
-    # Sütun hizalamaları
-    gb.configure_column("Ürün Kodu", width=140)
-    gb.configure_column("Marka", cellStyle={"textAlign": "center"}, width=140)
-    gb.configure_column(
-        "Ürün Grubu", cellStyle={"textAlign": "center"}, width=140
-    )
-    gb.configure_column(
-        "Güncel Stok", cellStyle={"textAlign": "center"}, width=110
-    )
-    if "Rezerve" in out_df.columns:
-      gb.configure_column(
-          "Rezerve", cellStyle={"textAlign": "center"}, width=100
-      )
-    if "Satışa Açık" in out_df.columns:
-      gb.configure_column(
-          "Satışa Açık", cellStyle={"textAlign": "center"}, width=110
-      )
-    gb.configure_column(
-        "Birim Maliyet", cellStyle={"textAlign": "right"}, width=130
-    )
-    gb.configure_column(
-        "Toplam Maliyet", cellStyle={"textAlign": "right"}, width=130
-    )
+    def row_style(row):
+      # Eğer satır bizim sonradan eklediğimiz sanal boş bir satırsa
+      if row.name >= len(raw_stok):
+        if is_dark:
+          # Boş satırlar için tam olarak sıfır stoklu ürün arka plan rengi
+          return ["background-color: #2A2F3B; color: #2A2F3B"] * len(row)
+        else:
+          return ["background-color: #FFFFFF; color: #FFFFFF"] * len(row)
+          
+      # Eğer satır orijinal bir veri satırıysa
+      is_zero = raw_stok.loc[row.name] == 0
+      if is_dark:
+        bg = "#2A2F3B" if is_zero else "#1E222A"
+        color = "#F5F5F5"
+        return [f"background-color: {bg}; color: {color}"] * len(row)
+      else:
+        if is_zero:
+          return [
+              "background-color: rgba(255, 75, 75, 0.15); color: #000000"
+          ] * len(row)
+        return [""] * len(row)
 
-    # Stok tükenen satırlar için dinamik renklendirme (0 stoklu satırlar)
-    zero_bg = "#2A2F3B" if is_dark else "rgba(255, 75, 75, 0.15)"
-    row_style_js = JsCode(f"""
-            function(params) {{
-                if (params.data && (params.data['Güncel Stok'] === 0 || params.data['Güncel Stok'] === "0")) {{
-                    return {{'backgroundColor': '{zero_bg}', 'color': '{'#F5F5F5' if is_dark else '#000000'}'}};
-                }}
-                return null;
-            }}
-        """)
-    gb.configure_grid_options(getRowStyle=row_style_js)
-
-    # 🖱️ 2. Sağ Tık Menüsü (Context Menu): "Detay Göster" seçeneği eklendi
-    context_menu_js = JsCode("""
-            function(params) {
-                var result = [
-                    {
-                        name: '🔍 Detay Göster',
-                        action: function() {
-                            alert('📦 Ürün Detayı:\\n\\nKod: ' + params.node.data['Ürün Kodu'] + '\\nAçıklama: ' + params.node.data['Açıklama'] + '\\nStok: ' + params.node.data['Güncel Stok']);
-                        },
-                        icon: '<span style="font-size: 14px;">🔍</span>'
-                    },
-                    'copy',
-                    'export'
-                ];
-                return result;
-            }
-        """)
-    gb.configure_grid_options(getContextMenuItems=context_menu_js)
-
-    gridOptions = gb.build()
-
-    # Tablonun Streamlit üzerinde çizdirilmesi
-    AgGrid(
-        out_df,
-        gridOptions=gridOptions,
-        update_mode="MODEL_CHANGED",
-        allow_unsafe_jscode=True,
-        theme="streamlit" if not is_dark else "dark",
+    st.dataframe(
+        out_df.style.apply(row_style, axis=1),
+        use_container_width=True,
+        hide_index=True,
         height=540,
-        fit_columns_on_grid_load=True,
+        column_config={
+            "Marka": st.column_config.Column(alignment="center"),
+            "Ürün Grubu": st.column_config.Column(alignment="center"),
+            "Güncel Stok": st.column_config.Column(alignment="center"),
+            "Birim Maliyet": st.column_config.Column(alignment="right"),
+            "Toplam Maliyet": st.column_config.Column(alignment="right"),
+        },
     )
-
 
   stok_paneli_icerik(df)
 
