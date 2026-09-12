@@ -2,3 +2,6 @@ streamlit
 pandas
 openpyxl
 streamlit-aggrid==1.0.5
+openpyxl
+xlrd
+streamlit-keyup
