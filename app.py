@@ -19,8 +19,8 @@ if "dark_mode" not in st.session_state:
 
 is_dark = st.session_state.dark_mode
 
-# 🎨 LOGO RENK PALETİ ("Information Communication Technologies")
-LOGO_COLOR = "#B5C1D0"  # Logo alt yazı rengi
+# 🎨 LOGO RENK PALETİ 
+LOGO_COLOR = "#B5C1D0"  
 
 if is_dark:
   bg_color = "#0E1117"
@@ -91,7 +91,6 @@ st.markdown(
 
         {'div[data-baseweb="popover"] div, div[data-baseweb="menu"], div[data-baseweb="option"] { background-color: ' + str(input_bg) + ' !important; color: ' + str(input_text) + ' !important; font-weight: normal !important; }' if is_dark else ''}
 
-        /* CHECKBOX STİLLERİ */
         div[data-testid="stCheckbox"] label span {{
             color: {label_color} !important;
             font-weight: normal !important;
@@ -122,7 +121,6 @@ st.markdown(
         .custom-logo {{ height: 60px; object-fit: contain; }}
         .custom-title-block {{ display: flex; flex-direction: column; justify-content: center; }}
 
-        /* MOBİL UYUMLULUK */
         @media (max-width: 768px) {{
             .custom-header-left {{
                 flex-direction: column !important;
@@ -154,54 +152,47 @@ st.markdown(
 # ==========================================
 # 2. YETKİLENDİRME VE ÇEREZ YÖNETİMİ
 # ==========================================
-APP_PASSWORD = "f2"  # 🌟 İSTEDİĞİNİZ GİRİŞ ŞİFRESİNİ BURAYA YAZIN
+APP_PASSWORD = "f2"  
 
-cookie_manager = stx.CookieManager(key="f2_stok_cookie_manager")
+cookie_manager = stx.CookieManager(key="f2_stok_cm")
 
-if "is_authenticated" not in st.session_state:
-    st.session_state.is_authenticated = False
+# 1. Çerezlerin tarayıcıdan sisteme yüklenmesini GÜVENLİ bir şekilde bekle
+cookies = cookie_manager.get_all()
 
-# Tarayıcıdan giriş çerezini oku
-auth_cookie = cookie_manager.get(cookie="f2_stok_auth")
-if auth_cookie == "logged_in":
-    st.session_state.is_authenticated = True
+if cookies is None:
+    st.stop() # Tarayıcı çerezleri gönderene kadar bekle (Bu sayede her girişte unutmaz)
 
-# Giriş ekranı için sanal boşluk (Giriş yapıldığında ekranı temizlemek için kullanılır)
-login_placeholder = st.empty()
+auth_status = cookies.get("f2_stok_auth")
 
-if not st.session_state.is_authenticated:
-    with login_placeholder.container():
-        st.markdown("<br><br><br>", unsafe_allow_html=True)
-        col1, col2, col3 = st.columns([1, 1.2, 1])
-        
-        with col2:
-            st.markdown(
-                f"<h2 style='text-align: center; color: {text_color}; font-weight: 700;'>🔒 Panele Giriş</h2>"
-                f"<p style='text-align: center; color: {subtext_color}; margin-bottom: 20px;'>İçeriği görüntülemek için lütfen erişim şifresini girin.</p>",
-                unsafe_allow_html=True
-            )
-            
-            pwd_input = st.text_input("Şifre", type="password", label_visibility="collapsed", placeholder="Şifrenizi girin...")
-            
-            if st.button("Giriş Yap", use_container_width=True):
-                if pwd_input == APP_PASSWORD:
-                    # Çerez süresini 30 gün olarak belirle ve kaydet (sayfa yenileme yapmadan)
-                    expire_date = datetime.datetime.now() + datetime.timedelta(days=30)
-                    cookie_manager.set("f2_stok_auth", "logged_in", expires_at=expire_date)
-                    st.session_state.is_authenticated = True
-                elif pwd_input:
-                    st.error("Hatalı şifre, lütfen tekrar deneyin.")
+# 2. Giriş yapılmamışsa şifre ekranını göster
+if auth_status != "logged_in":
+    st.markdown("<br><br><br>", unsafe_allow_html=True)
+    col1, col2, col3 = st.columns([1, 1.2, 1])
     
-    # Şifre girilmediyse kodun geri kalanının (stok verilerinin) çalışmasını durdur
-    if not st.session_state.is_authenticated:
-        st.stop()
-
-# Eğer şifre doğru girildiyse login kutusunu ekrandan temizle ve uygulamayı aç
-login_placeholder.empty()
+    with col2:
+        st.markdown(
+            f"<h2 style='text-align: center; color: {text_color}; font-weight: 700;'>🔒 Panele Giriş</h2>"
+            f"<p style='text-align: center; color: {subtext_color}; margin-bottom: 20px;'>İçeriği görüntülemek için lütfen erişim şifresini girin.</p>",
+            unsafe_allow_html=True
+        )
+        
+        pwd_input = st.text_input("Şifre", type="password", label_visibility="collapsed", placeholder="Şifrenizi girin...")
+        
+        if st.button("Giriş Yap", use_container_width=True):
+            if pwd_input == APP_PASSWORD:
+                # 90 günlük hatırlama süresi
+                expire_date = datetime.datetime.now() + datetime.timedelta(days=90)
+                cookie_manager.set("f2_stok_auth", "logged_in", expires_at=expire_date)
+                time.sleep(0.5) # Çerezin tarayıcıya kazınması için ufak bir bekleme
+                st.rerun()
+            elif pwd_input:
+                st.error("Hatalı şifre, lütfen tekrar deneyin.")
+    
+    st.stop() # Doğru şifre girilmediği sürece uygulamanın geri kalanını yükleme
 
 
 # ==========================================
-# 3. LOGO VE VERİ YÜKLEME (SADECE GİRİŞ YAPANLAR GÖRÜR)
+# 3. LOGO VE VERİ YÜKLEME 
 # ==========================================
 def logo_to_base64(img_path):
   try:
@@ -268,10 +259,9 @@ try:
 
   with header_col2:
     st.toggle("🌙 Karanlık Mod", key="dark_mode")
-    # Çıkış yapma butonu (Tıklandığında çerezi siler ve 0.5 saniye bekleyip sayfayı yeniler)
     if st.button("🚪 Çıkış Yap"):
-        cookie_manager.delete("f2_stok_auth")
-        st.session_state.is_authenticated = False
+        # Hata fırlatan delete() metodu yerine, çerezi "logged_out" olarak güncelleyerek güvenli çıkış işlemi[cite: 6]
+        cookie_manager.set("f2_stok_auth", "logged_out")
         time.sleep(0.5)
         st.rerun()
 
