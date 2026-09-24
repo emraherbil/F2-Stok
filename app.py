@@ -1,6 +1,7 @@
 import base64
 import os
 import datetime
+import time
 from pathlib import Path
 import pandas as pd
 import streamlit as st
@@ -153,40 +154,50 @@ st.markdown(
 # ==========================================
 # 2. YETKİLENDİRME VE ÇEREZ YÖNETİMİ
 # ==========================================
-APP_PASSWORD = "f2"  # Giriş şifresi
+APP_PASSWORD = "f2"  # 🌟 İSTEDİĞİNİZ GİRİŞ ŞİFRESİNİ BURAYA YAZIN
 
 cookie_manager = stx.CookieManager(key="f2_stok_cookie_manager")
-cookies = cookie_manager.get_all()
 
-# Çerez yöneticisinin yüklenmesini güvenli bir şekilde bekle
-if cookies is None:
-    st.stop()
+if "is_authenticated" not in st.session_state:
+    st.session_state.is_authenticated = False
 
-auth_status = cookies.get("f2_stok_auth")
+# Tarayıcıdan giriş çerezini oku
+auth_cookie = cookie_manager.get(cookie="f2_stok_auth")
+if auth_cookie == "logged_in":
+    st.session_state.is_authenticated = True
 
-# Eğer çerezde "logged_in" yoksa giriş ekranını göster
-if auth_status != "logged_in":
-    st.markdown("<br><br><br>", unsafe_allow_html=True)
-    col1, col2, col3 = st.columns([1, 1.2, 1])
-    
-    with col2:
-        st.markdown(
-            f"<h2 style='text-align: center; color: {text_color}; font-weight: 700;'>🔒 Panele Giriş</h2>"
-            f"<p style='text-align: center; color: {subtext_color}; margin-bottom: 20px;'>İçeriği görüntülemek için lütfen erişim şifresini girin.</p>",
-            unsafe_allow_html=True
-        )
+# Giriş ekranı için sanal boşluk (Giriş yapıldığında ekranı temizlemek için kullanılır)
+login_placeholder = st.empty()
+
+if not st.session_state.is_authenticated:
+    with login_placeholder.container():
+        st.markdown("<br><br><br>", unsafe_allow_html=True)
+        col1, col2, col3 = st.columns([1, 1.2, 1])
         
-        pwd_input = st.text_input("Şifre", type="password", label_visibility="collapsed", placeholder="Şifrenizi girin...")
-        
-        if st.button("Giriş Yap", use_container_width=True):
-            if pwd_input == APP_PASSWORD:
-                expire_date = datetime.datetime.now() + datetime.timedelta(days=30)
-                cookie_manager.set("f2_stok_auth", "logged_in", expires_at=expire_date)
-                st.rerun()
-            elif pwd_input:
-                st.error("Hatalı şifre, lütfen tekrar deneyin.")
+        with col2:
+            st.markdown(
+                f"<h2 style='text-align: center; color: {text_color}; font-weight: 700;'>🔒 Panele Giriş</h2>"
+                f"<p style='text-align: center; color: {subtext_color}; margin-bottom: 20px;'>İçeriği görüntülemek için lütfen erişim şifresini girin.</p>",
+                unsafe_allow_html=True
+            )
+            
+            pwd_input = st.text_input("Şifre", type="password", label_visibility="collapsed", placeholder="Şifrenizi girin...")
+            
+            if st.button("Giriş Yap", use_container_width=True):
+                if pwd_input == APP_PASSWORD:
+                    # Çerez süresini 30 gün olarak belirle ve kaydet (sayfa yenileme yapmadan)
+                    expire_date = datetime.datetime.now() + datetime.timedelta(days=30)
+                    cookie_manager.set("f2_stok_auth", "logged_in", expires_at=expire_date)
+                    st.session_state.is_authenticated = True
+                elif pwd_input:
+                    st.error("Hatalı şifre, lütfen tekrar deneyin.")
     
-    st.stop()
+    # Şifre girilmediyse kodun geri kalanının (stok verilerinin) çalışmasını durdur
+    if not st.session_state.is_authenticated:
+        st.stop()
+
+# Eğer şifre doğru girildiyse login kutusunu ekrandan temizle ve uygulamayı aç
+login_placeholder.empty()
 
 
 # ==========================================
@@ -257,8 +268,11 @@ try:
 
   with header_col2:
     st.toggle("🌙 Karanlık Mod", key="dark_mode")
+    # Çıkış yapma butonu (Tıklandığında çerezi siler ve 0.5 saniye bekleyip sayfayı yeniler)
     if st.button("🚪 Çıkış Yap"):
         cookie_manager.delete("f2_stok_auth")
+        st.session_state.is_authenticated = False
+        time.sleep(0.5)
         st.rerun()
 
   st.markdown(
