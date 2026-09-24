@@ -5,3 +5,4 @@ streamlit-aggrid==1.0.5
 openpyxl
 xlrd
 streamlit-keyup
+extra-streamlit-components
