@@ -1,8 +1,10 @@
 import base64
 import os
+import datetime
 from pathlib import Path
 import pandas as pd
 import streamlit as st
+import extra_streamlit_components as stx
 
 # ==========================================
 # 1. SAYFA YAPILANDIRMASI
@@ -119,7 +121,7 @@ st.markdown(
         .custom-logo {{ height: 60px; object-fit: contain; }}
         .custom-title-block {{ display: flex; flex-direction: column; justify-content: center; }}
 
-        /* 🌟 MOBİL UYUMLULUK: Sadece mobilde alt alta ve güncellenmiş boşluk */
+        /* 🌟 MOBİL UYUMLULUK */
         @media (max-width: 768px) {{
             .custom-header-left {{
                 flex-direction: column !important;
@@ -148,9 +150,47 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
+# ==========================================
+# 2. YETKİLENDİRME VE ÇEREZ YÖNETİMİ
+# ==========================================
+APP_PASSWORD = "f2"  # 🌟 İSTEDİĞİNİZ GİRİŞ ŞİFRESİNİ BURAYA YAZIN
+
+@st.cache_resource
+def get_cookie_manager():
+    return stx.CookieManager()
+
+cookie_manager = get_cookie_manager()
+auth_status = cookie_manager.get(cookie="f2_stok_auth")
+
+# Eğer çerezde "logged_in" verisi yoksa sadece giriş ekranını göster
+if auth_status != "logged_in":
+    st.markdown("<br><br><br>", unsafe_allow_html=True)
+    col1, col2, col3 = st.columns([1, 1.2, 1])
+    
+    with col2:
+        st.markdown(
+            f"<h2 style='text-align: center; color: {text_color}; font-weight: 700;'>🔒 Panele Giriş</h2>"
+            f"<p style='text-align: center; color: {subtext_color}; margin-bottom: 20px;'>İçeriği görüntülemek için lütfen erişim şifresini girin.</p>",
+            unsafe_allow_html=True
+        )
+        
+        pwd_input = st.text_input("Şifre", type="password", label_visibility="collapsed", placeholder="Şifrenizi girin...")
+        
+        if st.button("Giriş Yap", use_container_width=True):
+            if pwd_input == APP_PASSWORD:
+                # Başarılı girişte 30 gün geçerli çerez oluşturulur
+                expire_date = datetime.datetime.now() + datetime.timedelta(days=30)
+                cookie_manager.set("f2_stok_auth", "logged_in", expires_at=expire_date)
+                st.rerun()
+            elif pwd_input:
+                st.error("Hatalı şifre, lütfen tekrar deneyin.")
+    
+    # Giriş yapılmadan kodun geri kalanının çalışmasını ve Google'ın indexlemesini engeller
+    st.stop()
+
 
 # ==========================================
-# 2. LOGO VE VERİ YÜKLEME
+# 3. LOGO VE VERİ YÜKLEME (SADECE GİRİŞ YAPANLAR GÖRÜR)
 # ==========================================
 def logo_to_base64(img_path):
   try:
@@ -161,9 +201,7 @@ def logo_to_base64(img_path):
     pass
   return None
 
-
 logo_data = logo_to_base64("logo.png") or logo_to_base64("logo.jpg")
-
 
 @st.cache_data(ttl=600)
 def load_data():
@@ -171,9 +209,8 @@ def load_data():
       "Stok Sayım Arşivi-v3.1-Web.xlsm", sheet_name="Stok", engine="openpyxl"
   )
 
-
 # ==========================================
-# 3. ANA PANEL DÜZENİ
+# 4. ANA PANEL DÜZENİ
 # ==========================================
 try:
   df = load_data()
@@ -220,6 +257,10 @@ try:
 
   with header_col2:
     st.toggle("🌙 Karanlık Mod", key="dark_mode")
+    # 🌟 Çıkış yapma butonu eklendi (Kullanıcı isterse oturumu kapatabilir)
+    if st.button("🚪 Çıkış Yap"):
+        cookie_manager.delete("f2_stok_auth")
+        st.rerun()
 
   st.markdown(
       f"<hr style='margin-top:10px; margin-bottom:20px;"
@@ -229,7 +270,7 @@ try:
 
 
   # ==========================================
-  # 4. FRAGMENT ALANI
+  # 5. FRAGMENT ALANI
   # ==========================================
   @st.fragment
   def stok_paneli_icerik(data_frame):
