@@ -154,18 +154,19 @@ st.markdown(
 # ==========================================
 APP_PASSWORD = "f2"  
 
-cookie_manager = stx.CookieManager(key="f2_stok_cm")
+cookie_manager = stx.CookieManager(key="f2_auth_manager")
 
-# 1. Çerezlerin tarayıcıdan sisteme yüklenmesini GÜVENLİ bir şekilde bekle
-cookies = cookie_manager.get_all()
+if "is_authenticated" not in st.session_state:
+    st.session_state.is_authenticated = False
 
-if cookies is None:
-    st.stop() # Tarayıcı çerezleri gönderene kadar bekle (Bu sayede her girişte unutmaz)
+# Tarayıcıdan giriş yapılıp yapılmadığını oku
+auth_status = cookie_manager.get("f2_stok_auth")
 
-auth_status = cookies.get("f2_stok_auth")
+if auth_status == "logged_in":
+    st.session_state.is_authenticated = True
 
-# 2. Giriş yapılmamışsa şifre ekranını göster
-if auth_status != "logged_in":
+# Eğer oturum açılmamışsa SADECE giriş ekranını göster
+if not st.session_state.is_authenticated:
     st.markdown("<br><br><br>", unsafe_allow_html=True)
     col1, col2, col3 = st.columns([1, 1.2, 1])
     
@@ -180,15 +181,17 @@ if auth_status != "logged_in":
         
         if st.button("Giriş Yap", use_container_width=True):
             if pwd_input == APP_PASSWORD:
-                # 90 günlük hatırlama süresi
+                # Başarılı giriş: Paneli aç ve çerezi kaydet
+                st.session_state.is_authenticated = True
                 expire_date = datetime.datetime.now() + datetime.timedelta(days=90)
                 cookie_manager.set("f2_stok_auth", "logged_in", expires_at=expire_date)
-                time.sleep(0.5) # Çerezin tarayıcıya kazınması için ufak bir bekleme
-                st.rerun()
+                time.sleep(0.5) 
+                st.rerun() 
             elif pwd_input:
                 st.error("Hatalı şifre, lütfen tekrar deneyin.")
     
-    st.stop() # Doğru şifre girilmediği sürece uygulamanın geri kalanını yükleme
+    # Şifre girilmediği sürece paneli yükleme (Bu st.stop() artık butonu engellemeyecek bir konumda)
+    st.stop()
 
 
 # ==========================================
@@ -260,8 +263,8 @@ try:
   with header_col2:
     st.toggle("🌙 Karanlık Mod", key="dark_mode")
     if st.button("🚪 Çıkış Yap"):
-        # Hata fırlatan delete() metodu yerine, çerezi "logged_out" olarak güncelleyerek güvenli çıkış işlemi[cite: 6]
         cookie_manager.set("f2_stok_auth", "logged_out")
+        st.session_state.is_authenticated = False
         time.sleep(0.5)
         st.rerun()
 
