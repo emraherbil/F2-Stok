@@ -48,7 +48,7 @@ st.markdown(
     f"""
     <!-- Arama motorlarının bu sayfayı listelemesini engeller -->
     <meta name="robots" content="noindex, nofollow">
-    <meta name="google-site-verification" content="..." />
+    <meta name="google-site-verification" content="google8d5639f802258385.html" /
     <style>
         footer {{visibility: hidden !important; display: none !important;}}
         .viewerBadge_container {{display: none !important;}}
