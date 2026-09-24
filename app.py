@@ -1,7 +1,7 @@
 import base64
 import os
 from pathlib import Path
-import pandas as pdd
+import pandas as pd
 import streamlit as st
 
 # ==========================================
@@ -44,109 +44,108 @@ else:
   card_text = "#111111"
   card_label = "#555555"
 
+# GİRİNTİSİZ MARKDOWN BLOĞU (Boşluklar silindi)
 st.markdown(
     f"""
-    <!-- Arama motorlarının bu sayfayı listelemesini engeller -->
-    <meta name="robots" content="noindex, nofollow">
-    <meta name="google-site-verification" content="google8d5639f802258385.html" /
-    <style>
-        footer {{visibility: hidden !important; display: none !important;}}
-        .viewerBadge_container {{display: none !important;}}
-        header {{visibility: hidden !important; display: none !important;}}
-        
-        :root, [data-testid="stAppViewContainer"], .stApp {{
-            --background-color: {bg_color} !important;
-            --secondary-background-color: {header_bg} !important;
-            --text-color: {text_color} !important;
-            background-color: {bg_color} !important;
-            color: {text_color} !important;
-        }}
-        
-        .block-container {{ 
-            padding-top: 1.5rem !important; 
-            padding-bottom: 1.5rem !important; 
-            max-width: 100% !important;
-        }}
-        
-        {'div[data-testid="stTextInput"] > div > div, div[data-testid="stSelectbox"] > div > div, div[data-baseweb="base-input"], div[data-baseweb="select"] > div { background-color: ' + str(input_bg) + ' !important; border-color: ' + str(input_border) + ' !important; border-radius: 6px !important; }' if is_dark else ''}
+<meta name="robots" content="noindex, nofollow">
+<style>
+    footer {{visibility: hidden !important; display: none !important;}}
+    .viewerBadge_container {{display: none !important;}}
+    header {{visibility: hidden !important; display: none !important;}}
+    
+    :root, [data-testid="stAppViewContainer"], .stApp {{
+        --background-color: {bg_color} !important;
+        --secondary-background-color: {header_bg} !important;
+        --text-color: {text_color} !important;
+        background-color: {bg_color} !important;
+        color: {text_color} !important;
+    }}
+    
+    .block-container {{ 
+        padding-top: 1.5rem !important; 
+        padding-bottom: 1.5rem !important; 
+        max-width: 100% !important;
+    }}
+    
+    {'div[data-testid="stTextInput"] > div > div, div[data-testid="stSelectbox"] > div > div, div[data-baseweb="base-input"], div[data-baseweb="select"] > div { background-color: ' + str(input_bg) + ' !important; border-color: ' + str(input_border) + ' !important; border-radius: 6px !important; }' if is_dark else ''}
 
-        div[data-testid="stTextInput"] input {{
-            color: {input_text} !important;
-            -webkit-text-fill-color: {input_text} !important;
-            font-weight: normal !important;
-        }}
+    div[data-testid="stTextInput"] input {{
+        color: {input_text} !important;
+        -webkit-text-fill-color: {input_text} !important;
+        font-weight: normal !important;
+    }}
 
-        div[data-testid="stTextInput"] input::placeholder {{
-            color: #4A5568 !important;
-            font-weight: normal !important;
-        }}
+    div[data-testid="stTextInput"] input::placeholder {{
+        color: #4A5568 !important;
+        font-weight: normal !important;
+    }}
 
-        div[data-testid="stSelectbox"] div[role="button"],
-        div[data-baseweb="select"] span,
-        div[data-baseweb="select"] svg {{
-            color: {input_text} !important;
-            fill: {input_text} !important;
-            font-weight: normal !important;
-        }}
+    div[data-testid="stSelectbox"] div[role="button"],
+    div[data-baseweb="select"] span,
+    div[data-baseweb="select"] svg {{
+        color: {input_text} !important;
+        fill: {input_text} !important;
+        font-weight: normal !important;
+    }}
 
-        {'div[data-baseweb="popover"] div, div[data-baseweb="menu"], div[data-baseweb="option"] { background-color: ' + str(input_bg) + ' !important; color: ' + str(input_text) + ' !important; font-weight: normal !important; }' if is_dark else ''}
+    {'div[data-baseweb="popover"] div, div[data-baseweb="menu"], div[data-baseweb="option"] { background-color: ' + str(input_bg) + ' !important; color: ' + str(input_text) + ' !important; font-weight: normal !important; }' if is_dark else ''}
 
-        /* CHECKBOX STİLLERİ */
-        div[data-testid="stCheckbox"] label span {{
-            color: {label_color} !important;
-            font-weight: normal !important;
-        }}
-        div[data-testid="stCheckbox"] {{
-            margin-bottom: -15px !important;
-        }}
+    /* CHECKBOX STİLLERİ */
+    div[data-testid="stCheckbox"] label span {{
+        color: {label_color} !important;
+        font-weight: normal !important;
+    }}
+    div[data-testid="stCheckbox"] {{
+        margin-bottom: -15px !important;
+    }}
 
-        div[data-testid="stToggle"] div[role="switch"] {{
-            background-color: rgba(104, 162, 185, 0.3) !important;
-        }}
-        div[data-testid="stToggle"] div[role="switch"][aria-checked="true"] {{
-            background-color: #68A2B9 !important;
-        }}
+    div[data-testid="stToggle"] div[role="switch"] {{
+        background-color: rgba(104, 162, 185, 0.3) !important;
+    }}
+    div[data-testid="stToggle"] div[role="switch"][aria-checked="true"] {{
+        background-color: #68A2B9 !important;
+    }}
 
-        .custom-header-container {{ 
-            display: flex; 
-            align-items: center; 
-            justify-content: space-between;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-        }}
+    .custom-header-container {{ 
+        display: flex; 
+        align-items: center; 
+        justify-content: space-between;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+    }}
+    .custom-header-left {{
+        display: flex;
+        align-items: center;
+        gap: 25px; /* 🌟 PC için orijinal değer */
+    }}
+    .custom-logo {{ height: 60px; object-fit: contain; }}
+    .custom-title-block {{ display: flex; flex-direction: column; justify-content: center; }}
+
+    /* 🌟 MOBİL UYUMLULUK: Sadece mobilde alt alta ve güncellenmiş boşluk */
+    @media (max-width: 768px) {{
         .custom-header-left {{
-            display: flex;
-            align-items: center;
-            gap: 25px; /* 🌟 PC için orijinal değer */
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 17px !important; 
         }}
-        .custom-logo {{ height: 60px; object-fit: contain; }}
-        .custom-title-block {{ display: flex; flex-direction: column; justify-content: center; }}
+    }}
 
-        /* 🌟 MOBİL UYUMLULUK: Sadece mobilde alt alta ve güncellenmiş boşluk */
-        @media (max-width: 768px) {{
-            .custom-header-left {{
-                flex-direction: column !important;
-                align-items: flex-start !important;
-                gap: 17px !important; 
-            }}
-        }}
-
-        .stButton > button {{ 
-            background-color: #1C355E !important; 
-            color: white !important; 
-            border: 1px solid #1C355E !important; 
-            border-radius: 6px !important;
-            height: 40px !important;
-            width: 100% !important; 
-            font-weight: 500 !important;
-            transition: all 0.2s !important;
-        }}
-        .stButton > button:hover {{ 
-            background-color: #12223c !important;
-            border: 1px solid #12223c !important;
-            color: white !important; 
-        }}
-    </style>
+    .stButton > button {{ 
+        background-color: #1C355E !important; 
+        color: white !important; 
+        border: 1px solid #1C355E !important; 
+        border-radius: 6px !important;
+        height: 40px !important;
+        width: 100% !important; 
+        font-weight: 500 !important;
+        transition: all 0.2s !important;
+    }}
+    .stButton > button:hover {{ 
+        background-color: #12223c !important;
+        border: 1px solid #12223c !important;
+        color: white !important; 
+    }}
+</style>
 """,
     unsafe_allow_html=True,
 )
