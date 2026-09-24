@@ -153,13 +153,18 @@ st.markdown(
 # ==========================================
 # 2. YETKİLENDİRME VE ÇEREZ YÖNETİMİ
 # ==========================================
-APP_PASSWORD = "f2"  # 🌟 İSTEDİĞİNİZ GİRİŞ ŞİFRESİNİ BURAYA YAZIN
+APP_PASSWORD = "f2"  # Giriş şifresi
 
-# Önbellekleme kaldırıldı ve hata çözümü için key eklendi
 cookie_manager = stx.CookieManager(key="f2_stok_cookie_manager")
-auth_status = cookie_manager.get(cookie="f2_stok_auth")
+cookies = cookie_manager.get_all()
 
-# Eğer çerezde "logged_in" verisi yoksa sadece giriş ekranını göster
+# Çerez yöneticisinin yüklenmesini güvenli bir şekilde bekle
+if cookies is None:
+    st.stop()
+
+auth_status = cookies.get("f2_stok_auth")
+
+# Eğer çerezde "logged_in" yoksa giriş ekranını göster
 if auth_status != "logged_in":
     st.markdown("<br><br><br>", unsafe_allow_html=True)
     col1, col2, col3 = st.columns([1, 1.2, 1])
@@ -175,14 +180,12 @@ if auth_status != "logged_in":
         
         if st.button("Giriş Yap", use_container_width=True):
             if pwd_input == APP_PASSWORD:
-                # Başarılı girişte 30 gün geçerli çerez oluşturulur
                 expire_date = datetime.datetime.now() + datetime.timedelta(days=30)
                 cookie_manager.set("f2_stok_auth", "logged_in", expires_at=expire_date)
                 st.rerun()
             elif pwd_input:
                 st.error("Hatalı şifre, lütfen tekrar deneyin.")
     
-    # Giriş yapılmadan kodun geri kalanının çalışmasını ve Google'ın indexlemesini engeller
     st.stop()
 
 
@@ -254,7 +257,6 @@ try:
 
   with header_col2:
     st.toggle("🌙 Karanlık Mod", key="dark_mode")
-    # Çıkış yapma butonu
     if st.button("🚪 Çıkış Yap"):
         cookie_manager.delete("f2_stok_auth")
         st.rerun()
@@ -461,10 +463,8 @@ try:
     out_df["Ürün Kodu"] = out_df["Ürün Kodu"].astype(str)
     out_df = out_df.reset_index(drop=True)
     
-    # Orijinal stok verilerini indeksleriyle kaydediyoruz
     raw_stok = out_df["Güncel Stok"].copy()
 
-    # Verileri string olarak biçimlendiriyoruz
     out_df["Birim Maliyet"] = out_df["Birim Maliyet"].apply(
         lambda v: (
             f"${v:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
@@ -479,7 +479,6 @@ try:
         lambda v: f"{int(v):,}".replace(",", ".")
     )
 
-    # BEYAZ BOŞLUK ÇÖZÜMÜ: Yüksekliği (540px) dolduracak sanal boş satırlar ekleniyor
     min_rows = 15
     if len(out_df) < min_rows:
         pad_count = min_rows - len(out_df)
@@ -488,14 +487,12 @@ try:
         out_df = pd.concat([out_df, empty_df], ignore_index=True)
 
     def row_style(row):
-      # Eğer satır bizim sonradan eklediğimiz sanal boş bir satırsa
       if row.name >= len(raw_stok):
         if is_dark:
           return ["background-color: #2A2F3B; color: #2A2F3B"] * len(row)
         else:
           return ["background-color: #FFFFFF; color: #FFFFFF"] * len(row)
           
-      # Eğer satır orijinal bir veri satırıysa
       is_zero = raw_stok.loc[row.name] == 0
       if is_dark:
         bg = "#2A2F3B" if is_zero else "#1E222A"
