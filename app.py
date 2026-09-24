@@ -1,7 +1,7 @@
 import base64
 import os
 from pathlib import Path
-import pandas as pd
+import pandas as pdd
 import streamlit as st
 
 # ==========================================
@@ -48,7 +48,7 @@ st.markdown(
     f"""
     <!-- Arama motorlarının bu sayfayı listelemesini engeller -->
     <meta name="robots" content="noindex, nofollow">
-    
+    <meta name="google-site-verification" content="..." />
     <style>
         footer {{visibility: hidden !important; display: none !important;}}
         .viewerBadge_container {{display: none !important;}}
