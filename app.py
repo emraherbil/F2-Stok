@@ -46,6 +46,9 @@ else:
 
 st.markdown(
     f"""
+    <!-- Arama motorlarının bu sayfayı listelemesini engeller -->
+    <meta name="robots" content="noindex, nofollow">
+    
     <style>
         footer {{visibility: hidden !important; display: none !important;}}
         .viewerBadge_container {{display: none !important;}}
