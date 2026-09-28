@@ -44,108 +44,118 @@ else:
   card_text = "#111111"
   card_label = "#555555"
 
-# GİRİNTİSİZ MARKDOWN BLOĞU (Boşluklar silindi)
 st.markdown(
     f"""
-<meta name="robots" content="noindex, nofollow">
-<style>
-    footer {{visibility: hidden !important; display: none !important;}}
-    .viewerBadge_container {{display: none !important;}}
-    header {{visibility: hidden !important; display: none !important;}}
-    
-    :root, [data-testid="stAppViewContainer"], .stApp {{
-        --background-color: {bg_color} !important;
-        --secondary-background-color: {header_bg} !important;
-        --text-color: {text_color} !important;
-        background-color: {bg_color} !important;
-        color: {text_color} !important;
-    }}
-    
-    .block-container {{ 
-        padding-top: 1.5rem !important; 
-        padding-bottom: 1.5rem !important; 
-        max-width: 100% !important;
-    }}
-    
-    {'div[data-testid="stTextInput"] > div > div, div[data-testid="stSelectbox"] > div > div, div[data-baseweb="base-input"], div[data-baseweb="select"] > div { background-color: ' + str(input_bg) + ' !important; border-color: ' + str(input_border) + ' !important; border-radius: 6px !important; }' if is_dark else ''}
-
-    div[data-testid="stTextInput"] input {{
-        color: {input_text} !important;
-        -webkit-text-fill-color: {input_text} !important;
-        font-weight: normal !important;
-    }}
-
-    div[data-testid="stTextInput"] input::placeholder {{
-        color: #4A5568 !important;
-        font-weight: normal !important;
-    }}
-
-    div[data-testid="stSelectbox"] div[role="button"],
-    div[data-baseweb="select"] span,
-    div[data-baseweb="select"] svg {{
-        color: {input_text} !important;
-        fill: {input_text} !important;
-        font-weight: normal !important;
-    }}
-
-    {'div[data-baseweb="popover"] div, div[data-baseweb="menu"], div[data-baseweb="option"] { background-color: ' + str(input_bg) + ' !important; color: ' + str(input_text) + ' !important; font-weight: normal !important; }' if is_dark else ''}
-
-    /* CHECKBOX STİLLERİ */
-    div[data-testid="stCheckbox"] label span {{
-        color: {label_color} !important;
-        font-weight: normal !important;
-    }}
-    div[data-testid="stCheckbox"] {{
-        margin-bottom: -15px !important;
-    }}
-
-    div[data-testid="stToggle"] div[role="switch"] {{
-        background-color: rgba(104, 162, 185, 0.3) !important;
-    }}
-    div[data-testid="stToggle"] div[role="switch"][aria-checked="true"] {{
-        background-color: #68A2B9 !important;
-    }}
-
-    .custom-header-container {{ 
-        display: flex; 
-        align-items: center; 
-        justify-content: space-between;
-        padding-bottom: 10px;
-        margin-bottom: 20px;
-    }}
-    .custom-header-left {{
-        display: flex;
-        align-items: center;
-        gap: 25px; /* 🌟 PC için orijinal değer */
-    }}
-    .custom-logo {{ height: 60px; object-fit: contain; }}
-    .custom-title-block {{ display: flex; flex-direction: column; justify-content: center; }}
-
-    /* 🌟 MOBİL UYUMLULUK: Sadece mobilde alt alta ve güncellenmiş boşluk */
-    @media (max-width: 768px) {{
-        .custom-header-left {{
-            flex-direction: column !important;
-            align-items: flex-start !important;
-            gap: 17px !important; 
+    <meta name="robots" content="noindex, nofollow">
+    <style>
+        footer {{visibility: hidden !important; display: none !important;}}
+        .viewerBadge_container {{display: none !important;}}
+        header {{visibility: hidden !important; display: none !important;}}
+        
+        :root, [data-testid="stAppViewContainer"], .stApp {{
+            --background-color: {bg_color} !important;
+            --secondary-background-color: {header_bg} !important;
+            --text-color: {text_color} !important;
+            background-color: {bg_color} !important;
+            color: {text_color} !important;
         }}
-    }}
+        
+        .block-container {{ 
+            padding-top: 1.5rem !important; 
+            padding-bottom: 1.5rem !important; 
+            max-width: 100% !important;
+        }}
+        
+        {'div[data-testid="stTextInput"] > div > div, div[data-testid="stSelectbox"] > div > div, div[data-testid="stMultiSelect"] > div > div, div[data-baseweb="base-input"], div[data-baseweb="select"] > div { background-color: ' + str(input_bg) + ' !important; border-color: ' + str(input_border) + ' !important; border-radius: 6px !important; }' if is_dark else ''}
 
-    .stButton > button {{ 
-        background-color: #1C355E !important; 
-        color: white !important; 
-        border: 1px solid #1C355E !important; 
-        border-radius: 6px !important;
-        height: 40px !important;
-        width: 100% !important; 
-        font-weight: 500 !important;
-        transition: all 0.2s !important;
-    }}
-    .stButton > button:hover {{ 
-        background-color: #12223c !important;
-        border: 1px solid #12223c !important;
-        color: white !important; 
-    }}
-</style>
+        div[data-testid="stTextInput"] input {{
+            color: {input_text} !important;
+            -webkit-text-fill-color: {input_text} !important;
+            font-weight: normal !important;
+        }}
+
+        div[data-testid="stTextInput"] input::placeholder {{
+            color: #4A5568 !important;
+            font-weight: normal !important;
+        }}
+
+        div[data-testid="stSelectbox"] div[role="button"],
+        div[data-testid="stMultiSelect"] div[role="button"],
+        div[data-baseweb="select"] span,
+        div[data-baseweb="select"] svg {{
+            color: {input_text} !important;
+            fill: {input_text} !important;
+            font-weight: normal !important;
+        }}
+
+        {'div[data-baseweb="popover"] div, div[data-baseweb="menu"], div[data-baseweb="option"] { background-color: ' + str(input_bg) + ' !important; color: ' + str(input_text) + ' !important; font-weight: normal !important; }' if is_dark else ''}
+
+        /* ÇOKLU SEÇİM TAG (ÇİP) STİLLERİ */
+        span[data-baseweb="tag"] {{
+            background-color: #1C355E !important; 
+            color: white !important; 
+            border: none !important;
+            border-radius: 4px !important;
+        }}
+        span[data-baseweb="tag"] span {{
+            color: white !important;
+        }}
+
+        /* CHECKBOX STİLLERİ */
+        div[data-testid="stCheckbox"] label span {{
+            color: {label_color} !important;
+            font-weight: normal !important;
+        }}
+        div[data-testid="stCheckbox"] {{
+            margin-bottom: -15px !important;
+        }}
+
+        div[data-testid="stToggle"] div[role="switch"] {{
+            background-color: rgba(104, 162, 185, 0.3) !important;
+        }}
+        div[data-testid="stToggle"] div[role="switch"][aria-checked="true"] {{
+            background-color: #68A2B9 !important;
+        }}
+
+        .custom-header-container {{ 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }}
+        .custom-header-left {{
+            display: flex;
+            align-items: center;
+            gap: 25px; 
+        }}
+        .custom-logo {{ height: 60px; object-fit: contain; }}
+        .custom-title-block {{ display: flex; flex-direction: column; justify-content: center; }}
+
+        @media (max-width: 768px) {{
+            .custom-header-left {{
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                gap: 17px !important; 
+            }}
+        }}
+
+        .stButton > button {{ 
+            background-color: #1C355E !important; 
+            color: white !important; 
+            border: 1px solid #1C355E !important; 
+            border-radius: 6px !important;
+            height: 40px !important;
+            width: 100% !important; 
+            font-weight: 500 !important;
+            transition: all 0.2s !important;
+        }}
+        .stButton > button:hover {{ 
+            background-color: #12223c !important;
+            border: 1px solid #12223c !important;
+            color: white !important; 
+        }}
+    </style>
 """,
     unsafe_allow_html=True,
 )
@@ -240,7 +250,7 @@ try:
     if "q_grup" not in st.session_state:
       st.session_state.q_grup = "Tümü"
     if "q_marka" not in st.session_state:
-      st.session_state.q_marka = "Tümü"
+      st.session_state.q_marka = [] # ÇOKLU SEÇİM İÇİN BOŞ LİSTE
     if "q_stok" not in st.session_state:
       st.session_state.q_stok = False
     if "q_sifir_stok" not in st.session_state:
@@ -249,7 +259,7 @@ try:
     def filtreleri_temizle():
       st.session_state.clear_ver += 1
       st.session_state.q_grup = "Tümü"
-      st.session_state.q_marka = "Tümü"
+      st.session_state.q_marka = [] # ÇOKLU SEÇİM SIFIRLAMA
       st.session_state.q_stok = False
       st.session_state.q_sifir_stok = False
 
@@ -258,32 +268,43 @@ try:
     current_marka = st.session_state.q_marka
     current_grup = st.session_state.q_grup
 
+    # ESKİ VERSİYONDAN GEÇİŞ İÇİN GÜVENLİK KONTROLÜ
+    if isinstance(current_marka, str):
+      current_marka = []
+      st.session_state.q_marka = []
+
+    # GRUBA GÖRE MARKA OPSİYONLARINI BELİRLEME
     if current_grup != "Tümü":
       df_for_marka = data_frame[
           data_frame[c_grup].astype(str) == current_grup
       ]
     else:
       df_for_marka = data_frame
-    marka_ops = ["Tümü"] + sorted([
+      
+    marka_ops = sorted([
         str(x)
         for x in df_for_marka[c_marka].dropna().unique()
         if str(x).lower() != "nan"
-    ])
+    ]) # "Tümü" seçeneği çoklu seçim mantığında listeden kaldırıldı
 
-    if current_marka != "Tümü":
+    # MARKAYA GÖRE GRUP OPSİYONLARINI BELİRLEME
+    if current_marka: # Liste boş değilse
       df_for_grup = data_frame[
-          data_frame[c_marka].astype(str) == current_marka
+          data_frame[c_marka].astype(str).isin(current_marka)
       ]
     else:
       df_for_grup = data_frame
+      
     grup_ops = ["Tümü"] + sorted([
         str(x)
         for x in df_for_grup[c_grup].dropna().unique()
         if str(x).lower() != "nan"
     ])
 
-    if current_marka not in marka_ops:
-      st.session_state.q_marka = "Tümü"
+    # SEÇİLİ MARKALAR ARTIK LİSTEDE YOKSA TEMİZLE (Güvenlik Önlemi)
+    safe_markas = [m for m in current_marka if m in marka_ops]
+    st.session_state.q_marka = safe_markas
+
     if current_grup not in grup_ops:
       st.session_state.q_grup = "Tümü"
 
@@ -306,11 +327,14 @@ try:
           " margin-bottom: 6px; font-weight: normal;'>🏷️ Marka</div>",
           unsafe_allow_html=True,
       )
-      v_marka = st.selectbox(
+      # SELECTBOX YERİNE MULTISELECT KULLANIMI
+      v_marka = st.multiselect(
           "Marka",
-          marka_ops,
+          options=marka_ops,
+          default=st.session_state.q_marka,
           label_visibility="collapsed",
           key="q_marka",
+          placeholder="Tüm Markalar",
       )
 
     with col3:
@@ -345,13 +369,16 @@ try:
           use_container_width=True,
       )
 
+    # FİLTRELEME İŞLEMLERİ
     f_df = data_frame.copy()
     if v_search:
       m1 = f_df[c_kod].astype(str).str.contains(v_search, case=False)
       m2 = f_df[c_tanim].astype(str).str.contains(v_search, case=False)
       f_df = f_df[m1 | m2]
-    if v_marka != "Tümü":
-      f_df = f_df[f_df[c_marka].astype(str) == v_marka]
+      
+    if v_marka: # Eğer bir veya birden fazla marka seçildiyse (liste boş değilse)
+      f_df = f_df[f_df[c_marka].astype(str).isin(v_marka)]
+      
     if v_grup != "Tümü":
       f_df = f_df[f_df[c_grup].astype(str) == v_grup]
 
@@ -425,7 +452,7 @@ try:
     out_df["Ürün Kodu"] = out_df["Ürün Kodu"].astype(str)
     out_df = out_df.reset_index(drop=True)
     
-    # 🌟 Orijinal stok verilerini indeksleriyle kaydediyoruz
+    # Orijinal stok verilerini indeksleriyle kaydediyoruz
     raw_stok = out_df["Güncel Stok"].copy()
 
     # Verileri string olarak biçimlendiriyoruz
@@ -443,7 +470,7 @@ try:
         lambda v: f"{int(v):,}".replace(",", ".")
     )
 
-    # 🌟 BEYAZ BOŞLUK ÇÖZÜMÜ: Yüksekliği (540px) dolduracak sanal boş satırlar ekleniyor
+    # BEYAZ BOŞLUK ÇÖZÜMÜ: Yüksekliği (540px) dolduracak sanal boş satırlar ekleniyor
     min_rows = 15
     if len(out_df) < min_rows:
         pad_count = min_rows - len(out_df)
@@ -452,15 +479,12 @@ try:
         out_df = pd.concat([out_df, empty_df], ignore_index=True)
 
     def row_style(row):
-      # Eğer satır bizim sonradan eklediğimiz sanal boş bir satırsa
       if row.name >= len(raw_stok):
         if is_dark:
-          # Boş satırlar için tam olarak sıfır stoklu ürün arka plan rengi
           return ["background-color: #2A2F3B; color: #2A2F3B"] * len(row)
         else:
           return ["background-color: #FFFFFF; color: #FFFFFF"] * len(row)
           
-      # Eğer satır orijinal bir veri satırıysa
       is_zero = raw_stok.loc[row.name] == 0
       if is_dark:
         bg = "#2A2F3B" if is_zero else "#1E222A"
